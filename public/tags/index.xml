@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Tags on Peer Christensen</title>
+    <link>/tags/</link>
+    <description>Recent content in Tags on Peer Christensen</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <copyright>&amp;copy; 2018</copyright>
+    <lastBuildDate>Wed, 20 Apr 2016 00:00:00 +0200</lastBuildDate>
+    
+	<atom:link href="/tags/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>Academic</title>
+      <link>/tags/academic/</link>
+      <pubDate>Wed, 20 Apr 2016 00:00:00 +0200</pubDate>
+      
+      <guid>/tags/academic/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>ETFs</title>
+      <link>/tags/etfs/</link>
+      <pubDate>Tue, 20 Mar 2018 00:00:00 +0000</pubDate>
+      
+      <guid>/tags/etfs/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Sentiment analysis</title>
+      <link>/tags/sentiment-analysis/</link>
+      <pubDate>Thu, 07 Jun 2018 00:00:00 +0000</pubDate>
+      
+      <guid>/tags/sentiment-analysis/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Tidytext</title>
+      <link>/tags/tidytext/</link>
+      <pubDate>Thu, 09 Aug 2018 00:00:00 +0000</pubDate>
+      
+      <guid>/tags/tidytext/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Topic modelling</title>
+      <link>/tags/topic-modelling/</link>
+      <pubDate>Thu, 09 Aug 2018 00:00:00 +0000</pubDate>
+      
+      <guid>/tags/topic-modelling/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>bilingualism</title>
+      <link>/tags/bilingualism/</link>
+      <pubDate>Tue, 20 Feb 2018 00:00:00 +0000</pubDate>
+      
+      <guid>/tags/bilingualism/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>conceptual-metaphor</title>
+      <link>/tags/conceptual-metaphor/</link>
+      <pubDate>Tue, 20 Feb 2018 00:00:00 +0000</pubDate>
+      
+      <guid>/tags/conceptual-metaphor/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>embodiment</title>
+      <link>/tags/embodiment/</link>
+      <pubDate>Tue, 20 Feb 2018 00:00:00 +0000</pubDate>
+      
+      <guid>/tags/embodiment/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>exif</title>
+      <link>/tags/exif/</link>
+      <pubDate>Sun, 25 Feb 2018 00:00:00 +0000</pubDate>
+      
+      <guid>/tags/exif/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>gesture</title>
+      <link>/tags/gesture/</link>
+      <pubDate>Tue, 20 Feb 2018 00:00:00 +0000</pubDate>
+      
+      <guid>/tags/gesture/</guid>
+      <description></description>
+    </item>
+    
+  </channel>
+</rss>

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>language-processing on Peer Christensen</title>
+    <link>/tags/language-processing/</link>
+    <description>Recent content in language-processing on Peer Christensen</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <copyright>&amp;copy; 2018</copyright>
+    <lastBuildDate>Tue, 20 Feb 2018 00:00:00 +0000</lastBuildDate>
+    
+	<atom:link href="/tags/language-processing/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>Unravelling the Multilingual Mind</title>
+      <link>/project/multilingual/</link>
+      <pubDate>Tue, 20 Feb 2018 00:00:00 +0000</pubDate>
+      
+      <guid>/project/multilingual/</guid>
+      <description>How do we acquire and process language? What are the premises and potentials of our language capacity? Although there is a large body of research on and knowledge about these issues, the vast majority of studies are situated in Western, monolingual contexts, so-called WEIRD contexts (Western, Educated, Industrialised, Rich, Democratic; Henrich et al., 2010). These only encompass 12 % of the world’s population, and barely 1% of the world’s languages. It is therefore urgent to broaden the knowledge base to include contexts where multilingualism is the norm and not the exception.</description>
+    </item>
+    
+  </channel>
+</rss>

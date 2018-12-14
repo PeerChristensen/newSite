@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Posts on Peer Christensen</title>
+    <link>/post/</link>
+    <description>Recent content in Posts on Peer Christensen</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <copyright>&amp;copy; 2018</copyright>
+    <lastBuildDate>Sun, 01 Jan 2017 00:00:00 +0100</lastBuildDate>
+    
+	<atom:link href="/post/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>Topic Modelling of Trustpilot Reviews with R and tidytext</title>
+      <link>/post/topic-modelling-of-trustpilot-reviews-with-r-and-tidytext/</link>
+      <pubDate>Thu, 09 Aug 2018 00:00:00 +0000</pubDate>
+      
+      <guid>/post/topic-modelling-of-trustpilot-reviews-with-r-and-tidytext/</guid>
+      <description>In this tutorial and analysis, we’ll apply topic modelling to Danish Trustpilot reviews of “3” (“three” in other countries), my current telecommunications provider. I’m dissatisfied with their customer service and thought this would be an interesting use case for topic modelling. With this approach, we can try to find out which aspects of the customer experience come up in positive and negative reviews.
+I used a Python script to scrape 4000 customer reviews of “3” from trustpilot.</description>
+    </item>
+    
+    <item>
+      <title>Fair is foul, and foul is fair: a tidytext sentiment analysis of Shakespeare’s tragedies</title>
+      <link>/post/fair-is-foul-and-foul-is-fair-a-tidytext-entiment-analysis-of-shakespeare-s-tragedies/</link>
+      <pubDate>Thu, 07 Jun 2018 00:00:00 +0000</pubDate>
+      
+      <guid>/post/fair-is-foul-and-foul-is-fair-a-tidytext-entiment-analysis-of-shakespeare-s-tragedies/</guid>
+      <description>Sentiment analysis can be used for many purposes and applied to all kinds of texts. In this exploratory analysis, we’ll use a tidytext approach to examine the use of sentiment words in the tragedies written by William Shakespeare. I’ve previously used Python for scraping and mining texts. However, I recently stumbled upon the tidytext R package by Julia Silge and David Robinson as well as their excellent book and ressource on combining tidytext with other tidy tools in R.</description>
+    </item>
+    
+    <item>
+      <title>Mapping hurricane search data from Google Trends!</title>
+      <link>/post/mapping-hurricane-search-data-from-google-trends/</link>
+      <pubDate>Mon, 30 Apr 2018 00:00:00 +0000</pubDate>
+      
+      <guid>/post/mapping-hurricane-search-data-from-google-trends/</guid>
+      <description>This is a quick introduction on how to get and visualize google search data with both time and geographical components using the packages gtrendsR, maps and ggplot2. In this example, we will look at search interest for named hurricanes that hit the US mainland starting with ‘Katrina’. We’ll also explore different ways of using colour palettes in ggplot2.  First, we load the required packages. Note that we use devtools to download a developer version of gtrendsR.</description>
+    </item>
+    
+    <item>
+      <title>Stocks: Exploring leveraged investing with quantmod and R</title>
+      <link>/post/stocks-exploring-leveraged-investing-with-quantmod-and-r/</link>
+      <pubDate>Tue, 20 Mar 2018 00:00:00 +0000</pubDate>
+      
+      <guid>/post/stocks-exploring-leveraged-investing-with-quantmod-and-r/</guid>
+      <description>Is it reasonable to hold leveraged ETFs tracking major stock indices for long periods of time?  Finance and investment professionals generally advise against buying leveraged ETFs, particularly those with high multiples in combination with log-term strategies. For the sole purpose of illustration, we’ll consider theoretical returns as high as 20x the underlying index (which is of course ludicrous!).  To explore the above question, we will use the quantmod package to get our data: the closing price of the S&amp;amp;P 500 between 2008 and 2017.</description>
+    </item>
+    
+    <item>
+      <title>Sell in May and go away?</title>
+      <link>/post/sell-in-may-and-go-away/</link>
+      <pubDate>Tue, 27 Feb 2018 00:00:00 +0000</pubDate>
+      
+      <guid>/post/sell-in-may-and-go-away/</guid>
+      <description>Many stock market analysts frequently make the claim that you should “sell in May and go away”. In this post, we will try to find out if there’s any truth to the idea behind this claim. Namely, that holding stocks over the summer period from May to October is historically detrimental to annual returns from a statistical perspective. Loading (and installing) packages if(!require(&amp;quot;pacman&amp;quot;)) install.packages(&amp;quot;pacman&amp;quot;) pacman::p_load(quantmod,ggplot2,plyr,lme4,lmerTest,effects,jtools,tidyverse)  Customizing a ggplot theme my_theme &amp;lt;- function() { theme_apa(legend.</description>
+    </item>
+    
+    <item>
+      <title>Mapping street art in Athens with leaflet and R</title>
+      <link>/post/mapping-street-art-with-leaflet-and-r/</link>
+      <pubDate>Sun, 25 Feb 2018 00:00:00 +0000</pubDate>
+      
+      <guid>/post/mapping-street-art-with-leaflet-and-r/</guid>
+      <description>My colleague and fellow doctoral student at Lund University, George Stampoulidis, is documenting political street art in Athens as part of his research project. The data consist of images and other variables describing each piece of street art. In this post, we’ll do the following:  use R to extract geotagged data from the images’ exif files  use the leaflet package to map locations  customise our map and add popup with images and various information   Installing packages I sometimes use the ‘pacman’ package, which installs (if necessary) and loads multiple packages.</description>
+    </item>
+    
+    <item>
+      <title>Interactive language maps in R with lingtypology</title>
+      <link>/post/2018-02-20-lingtypology/</link>
+      <pubDate>Wed, 21 Feb 2018 00:00:00 +0000</pubDate>
+      
+      <guid>/post/2018-02-20-lingtypology/</guid>
+      <description>The awesome lingtypology package by George Moroz can be used for many purposes. In this tutorial, we’ll explore various features showing how the package can be used to a) gather data from Glottolog about the many languages of the world; b) showcase your research with interactive maps and clickable content, and c) create teaching materials.</description>
+    </item>
+    
+    <item>
+      <title>Academic: the website designer for Hugo</title>
+      <link>/post/getting-started/</link>
+      <pubDate>Wed, 20 Apr 2016 00:00:00 +0200</pubDate>
+      
+      <guid>/post/getting-started/</guid>
+      <description>Academic makes it easy to create a beautiful website for free using Markdown. Customize anything on your site with widgets, themes, and language packs.
+Follow our easy step by step guide to learn how to build your own free website with Academic. Check out the personal demo or the business demo of what you&amp;rsquo;ll get in less than 10 minutes.
+ View the documentation Ask a question Request a feature or report a bug Updating?</description>
+    </item>
+    
+  </channel>
+</rss>

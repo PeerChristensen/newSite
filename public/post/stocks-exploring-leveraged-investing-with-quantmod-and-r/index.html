@@ -1,0 +1,1083 @@
+<!DOCTYPE html>
+<html lang="en-us">
+<head>
+
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="generator" content="Source Themes Academic 3.2.0">
+  <meta name="generator" content="Hugo 0.52" />
+  <meta name="author" content="Peer Christensen">
+
+  
+  
+  
+  
+    
+  
+  <meta name="description" content="Is it reasonable to hold leveraged ETFs for long periods of time?">
+
+  
+  <link rel="alternate" hreflang="en-us" href="/post/stocks-exploring-leveraged-investing-with-quantmod-and-r/">
+
+  
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+  
+  
+  <meta name="theme-color" content="hsl(339, 90%, 68%)">
+  
+
+  
+  
+  
+  
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha256-eSi1q2PG6J7g7ib17yAaWMcrr5GrtohYChqibrV7PBE=" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/academicons/1.8.6/css/academicons.min.css" integrity="sha256-uFVgMKfistnJAfoCUQigIl+JfUaP47GrRKjf6CTPVmw=" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.0/css/all.css" integrity="sha384-aOkxzJ5uQz7WBObEZcHvV5JvRW3TUc2rNPA7pe3AwnsUohiw1Vj2Rgx2KSOkF5+h" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.2.5/jquery.fancybox.min.css" integrity="sha256-ygkqlh3CYSUri3LhQxzdcm0n1EQvH2Y+U5S2idbLtxs=" crossorigin="anonymous">
+
+    
+    
+    
+      
+    
+    
+      
+      
+        
+          <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/dracula.min.css" crossorigin="anonymous">
+        
+      
+    
+
+    
+
+    
+
+  
+
+  
+  
+  <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Montserrat:400,700|Roboto:400,400italic,700|Roboto+Mono">
+  
+
+  <link rel="stylesheet" href="/styles.css">
+  
+
+  
+  
+    <script>
+      window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+      ga('create', 'UA-114535548-1', 'auto');
+      
+      ga('require', 'eventTracker');
+      ga('require', 'outboundLinkTracker');
+      ga('require', 'urlChangeTracker');
+      ga('send', 'pageview');
+    </script>
+    <script async src="//www.google-analytics.com/analytics.js"></script>
+    
+    <script async src="https://cdnjs.cloudflare.com/ajax/libs/autotrack/2.4.1/autotrack.js" integrity="sha512-HUmooslVKj4m6OBu0OgzjXXr+QuFYy/k7eLI5jdeEy/F4RSgMn6XRWRGkFi5IFaFgy7uFTkegp3Z0XnJf3Jq+g==" crossorigin="anonymous"></script>
+    
+  
+  
+
+  
+  <link rel="alternate" href="/index.xml" type="application/rss+xml" title="Peer Christensen">
+  <link rel="feed" href="/index.xml" type="application/rss+xml" title="Peer Christensen">
+  
+
+  <link rel="manifest" href="/site.webmanifest">
+  <link rel="icon" type="image/png" href="/img/icon.png">
+  <link rel="apple-touch-icon" type="image/png" href="/img/icon-192.png">
+
+  <link rel="canonical" href="/post/stocks-exploring-leveraged-investing-with-quantmod-and-r/">
+
+  
+  
+  
+  
+    
+    
+  
+  <meta property="twitter:card" content="summary">
+  
+  <meta property="twitter:site" content="@@PeerChristensen">
+  <meta property="twitter:creator" content="@@PeerChristensen">
+  
+  <meta property="og:site_name" content="Peer Christensen">
+  <meta property="og:url" content="/post/stocks-exploring-leveraged-investing-with-quantmod-and-r/">
+  <meta property="og:title" content="Stocks: Exploring leveraged investing with quantmod and R | Peer Christensen">
+  <meta property="og:description" content="Is it reasonable to hold leveraged ETFs for long periods of time?"><meta property="og:image" content="/img/peer_christensen_small@0,50x.png">
+  <meta property="og:locale" content="en-us">
+  
+  <meta property="article:published_time" content="2018-03-20T00:00:00&#43;00:00">
+  
+  <meta property="article:modified_time" content="2018-03-20T00:00:00&#43;00:00">
+  
+
+  
+
+  
+
+  <title>Stocks: Exploring leveraged investing with quantmod and R | Peer Christensen</title>
+
+</head>
+<body id="top" data-spy="scroll" data-target="#TableOfContents" data-offset="71" class="dark">
+  <aside class="search-results" id="search">
+  <div class="container">
+    <section class="search-header">
+
+      <div class="row no-gutters justify-content-between mb-3">
+        <div class="col-6">
+          <h1>Search</h1>
+        </div>
+        <div class="col-6 col-search-close">
+          <a class="js-search" href="#"><i class="fas fa-times-circle text-muted" aria-hidden="true"></i></a>
+        </div>
+      </div>
+
+      <div id="search-box">
+        
+        <input name="q" id="search-query" placeholder="Search..." autocapitalize="off"
+        autocomplete="off" autocorrect="off" role="textbox" spellcheck="false" type="search">
+        
+      </div>
+
+    </section>
+    <section class="section-search-results">
+
+      <div id="search-hits">
+        
+      </div>
+
+    </section>
+  </div>
+</aside>
+
+
+<nav class="navbar navbar-light fixed-top navbar-expand-lg py-0" id="navbar-main">
+  <div class="container">
+
+    
+      <a class="navbar-brand" href="/">Peer Christensen</a>
+      
+      <button type="button" class="navbar-toggler" data-toggle="collapse"
+              data-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
+        <span><i class="fas fa-bars"></i></span>
+      </button>
+      
+
+    
+    <div class="collapse navbar-collapse" id="navbar">
+
+      
+      
+      <ul class="navbar-nav ml-auto">
+        
+
+        
+
+        
+        
+        
+          
+        
+
+        <li class="nav-item">
+          <a class="nav-link" href="/#about">
+            
+            <span>Home</span>
+            
+          </a>
+        </li>
+
+        
+        
+
+        
+
+        
+        
+        
+          
+        
+
+        <li class="nav-item">
+          <a class="nav-link" href="/#posts">
+            
+            <span>Posts</span>
+            
+          </a>
+        </li>
+
+        
+        
+
+        
+
+        
+        
+        
+          
+        
+
+        <li class="nav-item">
+          <a class="nav-link" href="/#publications">
+            
+            <span>Publications</span>
+            
+          </a>
+        </li>
+
+        
+        
+
+        
+
+        
+        
+        
+          
+        
+
+        <li class="nav-item">
+          <a class="nav-link" href="/#projects">
+            
+            <span>Projects</span>
+            
+          </a>
+        </li>
+
+        
+        
+
+        
+
+        
+        
+        
+          
+        
+
+        <li class="nav-item">
+          <a class="nav-link" href="/#contact">
+            
+            <span>Contact</span>
+            
+          </a>
+        </li>
+
+        
+        
+
+        
+
+        
+        
+        
+          
+        
+
+        <li class="nav-item">
+          <a class="nav-link" href="/files/cv.pdf">
+            
+            <span>CV</span>
+            
+          </a>
+        </li>
+
+        
+        
+
+      
+
+        
+
+        
+        <li class="nav-item">
+          <a class="nav-link js-search" href="#"><i class="fas fa-search" aria-hidden="true"></i></a>
+        </li>
+        
+
+        
+
+        
+        <li class="nav-item">
+          <a class="nav-link js-dark-toggle" href="#"><i class="fas fa-moon" aria-hidden="true"></i></a>
+        </li>
+        
+
+      </ul>
+
+    </div>
+  </div>
+</nav>
+
+
+<article class="article" itemscope itemtype="http://schema.org/Article">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+  
+  
+<div class="article-container pt-3">
+  <h1 itemprop="name">Stocks: Exploring leveraged investing with quantmod and R</h1>
+
+  
+
+  
+    
+
+<div class="article-metadata">
+
+  
+  
+  <span itemscope itemprop="author" itemtype="http://schema.org/Person">
+    <meta itemprop="name" content="Peer Christensen">
+  </span>
+  
+
+  <span class="article-date">
+    
+    <meta content="2018-03-20 00:00:00 &#43;0000 UTC" itemprop="datePublished">
+    <time datetime="2018-03-20 00:00:00 &#43;0000 UTC" itemprop="dateModified">
+      Mar 20, 2018
+    </time>
+  </span>
+  <span itemscope itemprop="publisher" itemtype="http://schema.org/Person">
+    <meta itemprop="name" content="Peer Christensen">
+  </span>
+
+  
+  <span class="middot-divider"></span>
+  <span class="article-reading-time">
+    6 min read
+  </span>
+  
+
+  
+  
+  <span class="middot-divider"></span>
+  <a href="/post/stocks-exploring-leveraged-investing-with-quantmod-and-r/#disqus_thread"></a>
+  
+
+  
+  
+  
+  <span class="middot-divider"></span>
+  <span class="article-categories">
+    <i class="fas fa-folder"></i>
+    
+    <a href="/categories/r/">R</a>, 
+    
+    <a href="/categories/finance/">finance</a>
+    
+  </span>
+  
+  
+
+  
+  
+<div class="share-box" aria-hidden="true">
+  <ul class="share">
+    <li>
+      <a class="twitter"
+         href="https://twitter.com/intent/tweet?text=Stocks%3a%20Exploring%20leveraged%20investing%20with%20quantmod%20and%20R&amp;url=%2fpost%2fstocks-exploring-leveraged-investing-with-quantmod-and-r%2f"
+         target="_blank" rel="noopener">
+        <i class="fab fa-twitter"></i>
+      </a>
+    </li>
+    <li>
+      <a class="facebook"
+         href="https://www.facebook.com/sharer.php?u=%2fpost%2fstocks-exploring-leveraged-investing-with-quantmod-and-r%2f"
+         target="_blank" rel="noopener">
+        <i class="fab fa-facebook-f"></i>
+      </a>
+    </li>
+    <li>
+      <a class="linkedin"
+         href="https://www.linkedin.com/shareArticle?mini=true&amp;url=%2fpost%2fstocks-exploring-leveraged-investing-with-quantmod-and-r%2f&amp;title=Stocks%3a%20Exploring%20leveraged%20investing%20with%20quantmod%20and%20R"
+         target="_blank" rel="noopener">
+        <i class="fab fa-linkedin-in"></i>
+      </a>
+    </li>
+    <li>
+      <a class="weibo"
+         href="http://service.weibo.com/share/share.php?url=%2fpost%2fstocks-exploring-leveraged-investing-with-quantmod-and-r%2f&amp;title=Stocks%3a%20Exploring%20leveraged%20investing%20with%20quantmod%20and%20R"
+         target="_blank" rel="noopener">
+        <i class="fab fa-weibo"></i>
+      </a>
+    </li>
+    <li>
+      <a class="email"
+         href="mailto:?subject=Stocks%3a%20Exploring%20leveraged%20investing%20with%20quantmod%20and%20R&amp;body=%2fpost%2fstocks-exploring-leveraged-investing-with-quantmod-and-r%2f">
+        <i class="fas fa-envelope"></i>
+      </a>
+    </li>
+  </ul>
+</div>
+
+
+  
+
+</div>
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+</div>
+
+
+
+  <div class="article-container">
+
+    <div class="article-style" itemprop="articleBody">
+      
+
+
+Is it reasonable to hold leveraged ETFs tracking major stock indices for long periods of time?
+<p>
+Finance and investment professionals generally advise against buying leveraged ETFs, particularly those with high multiples in combination with log-term strategies. For the sole purpose of illustration, we’ll consider theoretical returns as high as 20x the underlying index (which is of course ludicrous!). <br>
+<p>
+To explore the above question, we will use the quantmod package to get our data: the closing price of the S&amp;P 500 between 2008 and 2017. We will then do the following:
+<p>
+<ol style="list-style-type: decimal">
+<li>Explore the theoretical performance of ETFs varying in leverage <br></li>
+<li>Simulate stock price movement <br></li>
+<li>Compare actual ETFs <br></li>
+</ol>
+<div id="loading-packages" class="section level3">
+<h3>Loading packages</h3>
+<pre class="r"><code>if(!require(&quot;pacman&quot;)) install.packages(&quot;pacman&quot;)
+pacman::p_load(quantmod,ggplot2,reshape2,lubridate,plyr,plotly,data.table,tidyr,viridis)
+options(&quot;getSymbols.warning4.0&quot;=FALSE) # disable warning messages
+options(&quot;getSymbols.yahoo.warning&quot;=FALSE)</code></pre>
+</div>
+<div id="section-1-exploring-the-theoretical-performance-of-etfs-varying-in-leverage" class="section level2">
+<h2>Section 1: Exploring the theoretical performance of ETfs varying in leverage</h2>
+<div id="loading-data-with-quantmod" class="section level3">
+<h3>Loading data with quantmod</h3>
+<p>We get our data from Yahoo Finance and calculate what would be the cumulated daily return of ETFs leveraged n times. Data for each year is then stored in a separate data frame. This could probably be done in a much leaner way, but until then, I’ll be ok with the for loop solution.</p>
+<pre class="r"><code>years    = 2008:2017 
+dfList   = list() # empty list for storing a data frame for each year
+
+for (year in years){
+  
+  getSymbols(c(&quot;^GSPC&quot;),from=paste0(year,&quot;-01-01&quot;),to=paste0(year,&quot;-12-31&quot;),src=&quot;yahoo&quot;,class=ts)
+  x1=data.frame(cumsum(dailyReturn(GSPC)))
+  df=data.frame(date=as.Date(row.names(x1)),x1,
+                  x1*3,
+                  x1*5,
+                  x1*10,
+                  x1*15,
+                  x1*20)
+  names(df) = c(&quot;date&quot;,&quot;x1&quot;,&quot;x3&quot;,&quot;x5&quot;,&quot;x10&quot;,&quot;x15&quot;,&quot;x20&quot;)
+  df &lt;- melt(df,id=&quot;date&quot;)
+  dfList[[year]] = df
+}</code></pre>
+</div>
+<div id="plotting-the-data" class="section level3">
+<h3>Plotting the data</h3>
+<p>data.table’s rbindlist function is a very fast and easy way of concatenating a list of data frames. We add year and day number (aka julian day) variables based on dates.</p>
+<pre class="r"><code>dfConcat=rbindlist(dfList)
+dfConcat$year=year(dfConcat$date)
+dfConcat$Day=yday(dfConcat$date) #julian day</code></pre>
+<p>Before creating the plot, we’ll customize some plot settings that we can use for all our plots.</p>
+<pre class="r"><code>my_theme &lt;- function() {
+    theme_bw() +
+    theme(panel.background = element_blank()) +
+    theme(plot.background = element_rect(fill = &quot;grey13&quot;)) +
+    theme(panel.border = element_blank()) +                     # facet border
+    theme(strip.background = element_blank()) +                 # facet title background
+    theme(plot.margin = unit(c(.5, .5, .5, .5), &quot;cm&quot;)) +
+    theme(text = element_text(colour = &quot;snow&quot;, size = 20)) +
+    theme(axis.text = element_text(colour = &quot;snow&quot;, size = 15)) +
+    theme(plot.title = element_text(colour = &quot;snow&quot;)) +
+    theme(strip.text.x = element_text(colour = &quot;snow&quot;, face = &quot;bold&quot;)) +
+    theme(panel.spacing = unit(3, &quot;lines&quot;)) +
+    theme(panel.grid.major = element_line(colour = &quot;black&quot;)) +
+    theme(panel.grid.minor = element_line(colour = &quot;black&quot;)) +
+    theme(panel.grid.major.x = element_blank()) +
+    theme(panel.grid.minor.x = element_blank()) +
+    theme(legend.background = element_blank()) +
+    theme(legend.key = element_blank()) +
+    theme(legend.title = element_blank()) +
+    theme(legend.position = c(0.9,0.08))
+}
+
+ggplot(dfConcat, aes(x=Day,y=value)) + 
+  geom_line(aes(colour = variable)) +
+  facet_wrap(~year,ncol=3) +
+  my_theme() +
+  scale_color_viridis_d(option=&quot;C&quot;,begin = .2)</code></pre>
+<p><img src="/post/2018-03-20-stocks-exploring-leveraged-investing-with-quantmod-and-r_files/figure-html/unnamed-chunk-4-1.png" width="960" /></p>
+</div>
+<div id="bar-charts-of-annual-return" class="section level3">
+<h3>Bar charts of annual return</h3>
+<p>If we’re only interested in the annual return, bar charts are easier to inspect. We can use the ddply function to extract the last row of each year.</p>
+<pre class="r"><code>annReturn=ddply(dfConcat, .(variable,year), function(x) x[nrow(x), ])
+
+annReturn %&gt;% ggplot(aes(x=variable,y=value)) +
+  geom_bar(stat=&quot;identity&quot;,aes(fill=variable))+
+  facet_wrap(~year,ncol=3) +
+  my_theme() +
+  scale_fill_viridis_d(option=&quot;C&quot;,begin = .2) +
+  labs(x = &quot;x leverage&quot;, y = &quot;return&quot;)</code></pre>
+<p><img src="/post/2018-03-20-stocks-exploring-leveraged-investing-with-quantmod-and-r_files/figure-html/unnamed-chunk-5-1.png" width="960" /></p>
+</div>
+<div id="checking-the-validity-of-the-method" class="section level3">
+<h3>Checking the validity of the method</h3>
+<p>To check whether our method is reliable, we can scale and compare the original data with data generated by our method for calculating leveraged daily returns.</p>
+<pre class="r"><code>df=data.frame(GSPC[,6], cumsum(dailyReturn(GSPC)))
+df=data.frame(date = as.Date(row.names(df)), scale(df))
+
+df %&gt;% 
+  ggplot() +
+  geom_line(data = df, aes(x = date, y = GSPC.Adjusted, colour = &quot;yellow&quot;), size = 1) +
+  geom_line(data = df, aes(x = date, y = daily.returns, colour = &quot;snow&quot;), size = 1) +
+  my_theme() +
+  theme(legend.position = &quot;top&quot;) +
+  labs(y = &quot;value&quot;) +
+  scale_colour_manual(name = &#39;the colour&#39;, 
+         values =c(&#39;yellow&#39;=&#39;yellow&#39;,&#39;snow&#39;=&#39;snow&#39;), labels = c(&#39;GSPC.Adjusted   &#39;,&#39;daily.returns&#39;))</code></pre>
+<p><img src="/post/2018-03-20-stocks-exploring-leveraged-investing-with-quantmod-and-r_files/figure-html/unnamed-chunk-6-1.png" width="960" /></p>
+<p>Luckily, the figure indicates that the data generated by our method is pretty much perfectly correlated with the actual daily return of the SP500.</p>
+</div>
+</div>
+<div id="section-2-simulating-stock-price-movement" class="section level2">
+<h2>Section 2: Simulating stock price movement</h2>
+<p>Next, we can create simulated data using stochastic processes and tinker with the expected outcome and variance. For this simulation, I’ve used the mean annual return of the S&amp;P 500 and standard deviation I’ve reused the code found here: <a href="https://www.r-bloggers.com/stochastic-processes-and-stocks-simulation/" class="uri">https://www.r-bloggers.com/stochastic-processes-and-stocks-simulation/</a></p>
+<pre class="r"><code>set.seed(18293)
+dfListRand = list()
+
+for (i in 1:1000){             # 1000 simulations
+  Z         = rnorm(255,0,1)   # Random normally distributed values, mean = 0, stdv = 1
+  returnAnn = 0.10              # Expected annual return (10%)
+  sd        = 0.16              # Expected annual standard deviation (16%)
+  start     = 100              # Starting price
+  price     = c(start)         # Price vector
+  count     = 2                # See below
+  days      = 1:256            # Time. Days to put on the x axis
+
+  for(j in Z){
+    
+    S = start + start*(returnAnn/255 + sd/sqrt(255)*j)
+    price[count] = S
+    start = S
+    count = count + 1
+    }
+
+  price = ts(price)
+  diff = c(price[1],diff(price))
+  dayChangePCT = diff/price*100
+  dayChangePCT[1] = 0
+  x1 = cumsum(dayChangePCT)
+  dfListRand[[i]] = data.frame(days,x1,
+                 x3=x1*3,
+                 x5=x1*5,
+                 x10=x1*10,
+                 x15=x1*15,
+                 x20=x1*20)
+}</code></pre>
+<div id="plotting-a-random-selection-of-simulations" class="section level3">
+<h3>Plotting a random selection of simulations</h3>
+<p>Let’s plot some of the simulated data to see if they resemble actual stock price movements.</p>
+<pre class="r"><code>set.seed(3235)
+dfListRandPlot = list()
+pickedDFs = sample(1:1000,6)
+
+for (i in pickedDFs){
+  
+  melted=melt(dfListRand[[i]],id=&quot;days&quot;)
+  melted$Sim = factor(paste0(&quot;Simulation &quot;,i))
+  dfListRandPlot[[i]] = melted
+}
+
+dfConcatRandPick=rbindlist(dfListRandPlot)
+
+ggplot(dfConcatRandPick, aes(x=days,y=value)) + geom_line(aes(colour = variable)) +
+  facet_wrap(~Sim,ncol=3) +
+  my_theme() +
+  theme(legend.position = &quot;top&quot;) +
+  scale_colour_viridis_d(option=&quot;C&quot;,begin = .2)</code></pre>
+<p><img src="/post/2018-03-20-stocks-exploring-leveraged-investing-with-quantmod-and-r_files/figure-html/unnamed-chunk-8-1.png" width="960" /></p>
+</div>
+<div id="mean-annual-returns" class="section level3">
+<h3>Mean annual returns</h3>
+<p>We can also make a bar chart illustrating the mean annual returns of all simulations with error bars showing standard deviations.</p>
+<pre class="r"><code>df=data.frame()
+
+for(i in dfListRand){
+  
+  df=rbind(df,i[256,])
+}
+
+dfLong=melt(df[,-1])
+
+dfAgg = ddply(dfLong, c(&quot;variable&quot;), summarise,
+               mean=mean(value),sd=sd(value))
+
+ggplot(dfAgg, aes(x=variable, y=mean,fill=variable)) + 
+  geom_bar(position=position_dodge(),stat=&quot;identity&quot;) +
+  geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), colour = &quot;gray54&quot;, width=.2,
+                position=position_dodge(.9)) +
+  my_theme() +
+  theme(legend.position = &quot;top&quot;) +
+  scale_fill_viridis_d(option=&quot;C&quot;,begin = .2) +
+  labs(x = &quot;x leverage&quot;)</code></pre>
+<p><img src="/post/2018-03-20-stocks-exploring-leveraged-investing-with-quantmod-and-r_files/figure-html/unnamed-chunk-9-1.png" width="960" /></p>
+</div>
+</div>
+<div id="section-3-comparing-actual-etfs" class="section level2">
+<h2>Section 3: Comparing actual ETFs</h2>
+<p>Let’s now compare actual 3x leveraged ETFs with their theoretical performance (according to our method for calculating this). We’ll again create line and bar charts to visualise the data.</p>
+<pre class="r"><code>years=2010:2017 # Unfortunately UPRO was not available prior to 2010
+dfListETFs=list()
+
+for (y in years){
+  
+  getSymbols(c(&quot;^GSPC&quot;,&quot;UPRO&quot;,&quot;SPXL&quot;),from=paste0(y,&quot;-01-01&quot;),to=paste0(y,&quot;-12-31&quot;),
+             src=&quot;yahoo&quot;,class=ts)
+  
+  df=data.frame(date=index(GSPC),
+                cumsum(dailyReturn(GSPC)),
+                cumsum(dailyReturn(UPRO)),
+                cumsum(dailyReturn(SPXL)),
+                cumsum(dailyReturn(GSPC))*3)
+  
+  names(df) = c(&quot;date&quot;,&quot;SP500&quot;,&quot;UPRO&quot;,&quot;SPXL&quot;,&quot;X3&quot;)
+  df &lt;- melt(df,id=&quot;date&quot;)
+  dfListETFs[[y]] = df
+}</code></pre>
+<div id="line-charts-for-each-year" class="section level3">
+<h3>Line charts for each year</h3>
+<pre class="r"><code>dfConcat3=rbindlist(dfListETFs)
+dfConcat3$year=year(dfConcat3$date)
+dfConcat3$Day=yday(dfConcat3$date) #julian day
+ggplot(dfConcat3, aes(x=Day,y=value)) + geom_line(aes(colour = variable)) +
+  facet_wrap(~year,ncol=3) +
+  my_theme() +
+  scale_colour_viridis_d(option = &quot;C&quot;, begin = .4)</code></pre>
+<p><img src="/post/2018-03-20-stocks-exploring-leveraged-investing-with-quantmod-and-r_files/figure-html/unnamed-chunk-11-1.png" width="960" /></p>
+<pre class="r"><code>dfConcatWide = spread(dfConcat3, variable, value)
+cor(dfConcatWide[,4:7])</code></pre>
+<pre><code>##           SP500      UPRO      SPXL        X3
+## SP500 1.0000000 0.9864571 0.9865866 1.0000000
+## UPRO  0.9864571 1.0000000 0.9992977 0.9864571
+## SPXL  0.9865866 0.9992977 1.0000000 0.9865866
+## X3    1.0000000 0.9864571 0.9865866 1.0000000</code></pre>
+</div>
+<div id="annual-return" class="section level3">
+<h3>Annual return</h3>
+<pre class="r"><code>annReturn=ddply(dfConcat3, .(variable,year), function(x) x[nrow(x), ])
+annReturnBars=ggplot(annReturn,aes(x=variable,y=value)) +
+  geom_bar(stat=&quot;identity&quot;,aes(fill=variable))+
+  facet_wrap(~year,ncol=2) +
+  my_theme() +
+  scale_fill_viridis_d(option = &quot;C&quot;, begin = .2) +
+  theme(legend.position = &quot;right&quot;)
+
+annReturnBars</code></pre>
+<p><img src="/post/2018-03-20-stocks-exploring-leveraged-investing-with-quantmod-and-r_files/figure-html/unnamed-chunk-12-1.png" width="960" /></p>
+<p>It appears that both UPRO and SPXL track the S&amp;P 500 quite well.</p>
+</div>
+</div>
+<div id="conclusion" class="section level2">
+<h2>Conclusion</h2>
+<p>Buying ETFs with very high leverage is extremely risky and not for passive or inexperienced investors. It should be kept in mind that even relatively small market corrections will likely result in the loss of most, if not all of the invested funds. ETFs that track major indices with low volatility and double or triple the return may however be good additions to an investment portfolio, even as long-term investments.</p>
+</div>
+
+    </div>
+
+    
+
+
+<div class="article-tags">
+  
+  <a class="badge badge-light" href="/tags/quantmod/">quantmod</a>
+  
+  <a class="badge badge-light" href="/tags/etfs/">ETFs</a>
+  
+  <a class="badge badge-light" href="/tags/stocks/">stocks</a>
+  
+</div>
+
+
+
+    
+
+
+
+
+
+
+<div class="media author-card" itemscope itemtype="http://schema.org/Person">
+  
+  <img class="portrait mr-3" src="/img/peer_christensen_small@0,50x.png" itemprop="image" alt="Avatar">
+  
+  <div class="media-body">
+    <h5 class="card-title" itemprop="name"><a href="/">Peer Christensen</a></h5>
+    <h6 class="card-subtitle">Cognitive scientist</h6>
+    
+    <ul class="network-icon" aria-hidden="true">
+      
+      
+      
+      
+        
+      
+      
+      
+      
+      
+      <li>
+        <a itemprop="sameAs" href="mailto:hr.pchristensen@gmail.com" >
+          <i class="fas fa-envelope"></i>
+        </a>
+      </li>
+      
+      
+      
+      
+        
+      
+      
+      
+      
+      
+        
+      
+      <li>
+        <a itemprop="sameAs" href="https://twitter.com/PeerChristensen" target="_blank" rel="noopener">
+          <i class="fab fa-twitter"></i>
+        </a>
+      </li>
+      
+      
+      
+      
+      
+      
+      
+      
+        
+      
+      <li>
+        <a itemprop="sameAs" href="https://www.linkedin.com/in/peer-christensen-datascientist/" target="_blank" rel="noopener">
+          <i class="fa fa-linkedin"></i>
+        </a>
+      </li>
+      
+      
+      
+      
+      
+      
+      
+      
+        
+      
+      <li>
+        <a itemprop="sameAs" href="https://scholar.google.com/citations?user=5pMTzkwAAAAJ&amp;hl=en" target="_blank" rel="noopener">
+          <i class="ai ai-google-scholar"></i>
+        </a>
+      </li>
+      
+      
+      
+      
+      
+      
+      
+      
+        
+      
+      <li>
+        <a itemprop="sameAs" href="https://github.com/PeerChristensen" target="_blank" rel="noopener">
+          <i class="fa fa-github"></i>
+        </a>
+      </li>
+      
+      
+      
+      
+      
+      
+      
+      
+        
+      
+      <li>
+        <a itemprop="sameAs" href="https://www.researchgate.net/profile/Peer_Christensen" target="_blank" rel="noopener">
+          <i class="ai ai-researchgate"></i>
+        </a>
+      </li>
+      
+      
+      
+      
+      
+      
+      
+      
+        
+      
+      <li>
+        <a itemprop="sameAs" href="/files/cv.pdf" >
+          <i class="ai ai-cv"></i>
+        </a>
+      </li>
+      
+    </ul>
+  </div>
+</div>
+
+
+
+
+    
+    
+    <div class="article-widget">
+      <div class="hr-light"></div>
+      <h3>Related</h3>
+      <ul>
+        
+        <li><a href="/post/sell-in-may-and-go-away/">Sell in May and go away?</a></li>
+        
+      </ul>
+    </div>
+    
+
+    
+
+    
+<section id="comments">
+  <div id="disqus_thread"></div>
+<script type="application/javascript">
+    var disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "peerchristensen-netlify-com" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</section>
+
+
+
+  </div>
+</article>
+
+<div class="container">
+  <footer class="site-footer">
+  
+  <p class="powered-by">
+    <a href="/privacy/">Privacy Policy</a>
+  </p>
+  
+
+  <p class="powered-by">
+    &copy; 2018 &middot; 
+
+    Powered by the
+    <a href="https://sourcethemes.com/academic/" target="_blank" rel="noopener">Academic theme</a> for
+    <a href="https://gohugo.io" target="_blank" rel="noopener">Hugo</a>.
+
+    
+    <span class="float-right" aria-hidden="true">
+      <a href="#" id="back_to_top">
+        <span class="button_icon">
+          <i class="fas fa-chevron-up fa-2x"></i>
+        </span>
+      </a>
+    </span>
+    
+  </p>
+</footer>
+
+</div>
+
+
+<div id="modal" class="modal fade" role="dialog">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Cite</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <pre><code class="tex hljs"></code></pre>
+      </div>
+      <div class="modal-footer">
+        <a class="btn btn-outline-primary my-1 js-copy-cite" href="#" target="_blank">
+          <i class="fas fa-copy"></i> Copy
+        </a>
+        <a class="btn btn-outline-primary my-1 js-download-cite" href="#" target="_blank">
+          <i class="fas fa-download"></i> Download
+        </a>
+        <div id="modal-error"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+    
+
+    
+    
+    
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha512-+NqPlbbtM1QqiK8ZAo4Yrj2c4lNQoGv8P79DPtKzj++l5jnN39rHA/xsqn8zE9l0uSoxaCdrOgFs6yjyfbBxSg==" crossorigin="anonymous"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.imagesloaded/4.1.3/imagesloaded.pkgd.min.js" integrity="sha512-umsR78NN0D23AzgoZ11K7raBD+R6hqKojyBZs1w8WvYlsI+QuKRGBx3LFCwhatzBunCjDuJpDHwxD13sLMbpRA==" crossorigin="anonymous"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha256-VsEqElsCHSGmnmHXGQzvoWjWwoznFSZc6hs7ARLRacQ=" crossorigin="anonymous"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.isotope/3.0.4/isotope.pkgd.min.js" integrity="sha512-VDBOIlDbuC4VWxGJNmuFRQ0Li0SKkDpmGyuhAG5LTDLd/dJ/S0WMVxriR2Y+CyPL5gzjpN4f/6iqWVBJlht0tQ==" crossorigin="anonymous"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.2.5/jquery.fancybox.min.js" integrity="sha256-X5PoE3KU5l+JcX+w09p/wHl9AzK333C4hJ2I9S5mD4M=" crossorigin="anonymous"></script>
+
+      
+        
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js" integrity="sha256-/BfiIkHlHoVihZdc6TFuj7MmJ0TWcWsMXkeDFwhi0zw=" crossorigin="anonymous"></script>
+        
+      
+
+      
+      
+    
+
+    
+    
+      <script async defer src="//maps.googleapis.com/maps/api/js?key="></script>
+      
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/gmaps.js/0.4.25/gmaps.min.js" integrity="sha256-7vjlAeb8OaTrCXZkCNun9djzuB2owUsaO72kXaFDBJs=" crossorigin="anonymous"></script>
+      
+    
+
+    
+    
+    
+    <script id="dsq-count-scr" src="//peerchristensen-netlify-com.disqus.com/count.js" async></script>
+    
+
+    
+    
+    <script>hljs.initHighlightingOnLoad();</script>
+    
+
+    
+    
+    <script>
+      const search_index_filename = "/index.json";
+      const i18n = {
+        'placeholder': "Search...",
+        'results': "results found",
+        'no_results': "No results found"
+      };
+      const content_type = {
+        'post': "Posts",
+        'project': "Projects",
+        'publication' : "Publications",
+        'talk' : "Talks"
+        };
+    </script>
+    
+
+    
+    
+
+    
+    
+    <script id="search-hit-fuse-template" type="text/x-template">
+      <div class="search-hit" id="summary-{{key}}">
+      <div class="search-hit-content">
+        <div class="search-hit-name">
+          <a href="{{relpermalink}}">{{title}}</a>
+          <div class="article-metadata search-hit-type">{{type}}</div>
+          <p class="search-hit-description">{{snippet}}</p>
+        </div>
+      </div>
+      </div>
+    </script>
+    
+
+    
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/3.2.1/fuse.min.js" integrity="sha256-VzgmKYmhsGNNN4Ph1kMW+BjoYJM2jV5i4IlFoeZA9XI=" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/jquery.mark.min.js" integrity="sha256-4HLtjeVgH0eIB3aZ9mLYF6E8oU5chNdjU6p6rrXpl9U=" crossorigin="anonymous"></script>
+    
+
+    
+    
+
+    
+    
+    
+    
+    
+    
+    
+    
+    <script src="/js/academic.min.d037ee5294b166a79dec317c58aea9cc.js"></script>
+
+    
+
+  </body>
+</html>
+

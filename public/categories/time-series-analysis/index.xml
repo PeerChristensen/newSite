@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>time series analysis on Peer Christensen</title>
+    <link>/categories/time-series-analysis/</link>
+    <description>Recent content in time series analysis on Peer Christensen</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <copyright>&amp;copy; 2018</copyright>
+    <lastBuildDate>Tue, 27 Feb 2018 00:00:00 +0000</lastBuildDate>
+    
+	<atom:link href="/categories/time-series-analysis/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>Sell in May and go away?</title>
+      <link>/post/sell-in-may-and-go-away/</link>
+      <pubDate>Tue, 27 Feb 2018 00:00:00 +0000</pubDate>
+      
+      <guid>/post/sell-in-may-and-go-away/</guid>
+      <description>Many stock market analysts frequently make the claim that you should “sell in May and go away”. In this post, we will try to find out if there’s any truth to the idea behind this claim. Namely, that holding stocks over the summer period from May to October is historically detrimental to annual returns from a statistical perspective. Loading (and installing) packages if(!require(&amp;quot;pacman&amp;quot;)) install.packages(&amp;quot;pacman&amp;quot;) pacman::p_load(quantmod,ggplot2,plyr,lme4,lmerTest,effects,jtools,tidyverse)  Customizing a ggplot theme my_theme &amp;lt;- function() { theme_apa(legend.</description>
+    </item>
+    
+  </channel>
+</rss>

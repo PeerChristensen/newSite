@@ -1,0 +1,1111 @@
+<!DOCTYPE html>
+<html lang="en-us">
+<head>
+
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="generator" content="Source Themes Academic 3.2.0">
+  <meta name="generator" content="Hugo 0.52" />
+  <meta name="author" content="Peer Christensen">
+
+  
+  
+  
+  
+    
+  
+  <meta name="description" content="Text mining with tidytext part 2. What customers like and dislike about their telecommunications provider">
+
+  
+  <link rel="alternate" hreflang="en-us" href="/post/topic-modelling-of-trustpilot-reviews-with-r-and-tidytext/">
+
+  
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+  
+  
+  <meta name="theme-color" content="hsl(339, 90%, 68%)">
+  
+
+  
+  
+  
+  
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha256-eSi1q2PG6J7g7ib17yAaWMcrr5GrtohYChqibrV7PBE=" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/academicons/1.8.6/css/academicons.min.css" integrity="sha256-uFVgMKfistnJAfoCUQigIl+JfUaP47GrRKjf6CTPVmw=" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.0/css/all.css" integrity="sha384-aOkxzJ5uQz7WBObEZcHvV5JvRW3TUc2rNPA7pe3AwnsUohiw1Vj2Rgx2KSOkF5+h" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.2.5/jquery.fancybox.min.css" integrity="sha256-ygkqlh3CYSUri3LhQxzdcm0n1EQvH2Y+U5S2idbLtxs=" crossorigin="anonymous">
+
+    
+    
+    
+      
+    
+    
+      
+      
+        
+          <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/dracula.min.css" crossorigin="anonymous">
+        
+      
+    
+
+    
+
+    
+
+  
+
+  
+  
+  <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Montserrat:400,700|Roboto:400,400italic,700|Roboto+Mono">
+  
+
+  <link rel="stylesheet" href="/styles.css">
+  
+
+  
+  
+    <script>
+      window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+      ga('create', 'UA-114535548-1', 'auto');
+      
+      ga('require', 'eventTracker');
+      ga('require', 'outboundLinkTracker');
+      ga('require', 'urlChangeTracker');
+      ga('send', 'pageview');
+    </script>
+    <script async src="//www.google-analytics.com/analytics.js"></script>
+    
+    <script async src="https://cdnjs.cloudflare.com/ajax/libs/autotrack/2.4.1/autotrack.js" integrity="sha512-HUmooslVKj4m6OBu0OgzjXXr+QuFYy/k7eLI5jdeEy/F4RSgMn6XRWRGkFi5IFaFgy7uFTkegp3Z0XnJf3Jq+g==" crossorigin="anonymous"></script>
+    
+  
+  
+
+  
+  <link rel="alternate" href="/index.xml" type="application/rss+xml" title="Peer Christensen">
+  <link rel="feed" href="/index.xml" type="application/rss+xml" title="Peer Christensen">
+  
+
+  <link rel="manifest" href="/site.webmanifest">
+  <link rel="icon" type="image/png" href="/img/icon.png">
+  <link rel="apple-touch-icon" type="image/png" href="/img/icon-192.png">
+
+  <link rel="canonical" href="/post/topic-modelling-of-trustpilot-reviews-with-r-and-tidytext/">
+
+  
+  
+  
+  
+    
+    
+  
+  <meta property="twitter:card" content="summary">
+  
+  <meta property="twitter:site" content="@@PeerChristensen">
+  <meta property="twitter:creator" content="@@PeerChristensen">
+  
+  <meta property="og:site_name" content="Peer Christensen">
+  <meta property="og:url" content="/post/topic-modelling-of-trustpilot-reviews-with-r-and-tidytext/">
+  <meta property="og:title" content="Topic Modelling of Trustpilot Reviews with R and tidytext | Peer Christensen">
+  <meta property="og:description" content="Text mining with tidytext part 2. What customers like and dislike about their telecommunications provider"><meta property="og:image" content="/img/peer_christensen_small@0,50x.png">
+  <meta property="og:locale" content="en-us">
+  
+  <meta property="article:published_time" content="2018-08-09T00:00:00&#43;00:00">
+  
+  <meta property="article:modified_time" content="2018-08-09T00:00:00&#43;00:00">
+  
+
+  
+
+  
+
+  <title>Topic Modelling of Trustpilot Reviews with R and tidytext | Peer Christensen</title>
+
+</head>
+<body id="top" data-spy="scroll" data-target="#TableOfContents" data-offset="71" class="dark">
+  <aside class="search-results" id="search">
+  <div class="container">
+    <section class="search-header">
+
+      <div class="row no-gutters justify-content-between mb-3">
+        <div class="col-6">
+          <h1>Search</h1>
+        </div>
+        <div class="col-6 col-search-close">
+          <a class="js-search" href="#"><i class="fas fa-times-circle text-muted" aria-hidden="true"></i></a>
+        </div>
+      </div>
+
+      <div id="search-box">
+        
+        <input name="q" id="search-query" placeholder="Search..." autocapitalize="off"
+        autocomplete="off" autocorrect="off" role="textbox" spellcheck="false" type="search">
+        
+      </div>
+
+    </section>
+    <section class="section-search-results">
+
+      <div id="search-hits">
+        
+      </div>
+
+    </section>
+  </div>
+</aside>
+
+
+<nav class="navbar navbar-light fixed-top navbar-expand-lg py-0" id="navbar-main">
+  <div class="container">
+
+    
+      <a class="navbar-brand" href="/">Peer Christensen</a>
+      
+      <button type="button" class="navbar-toggler" data-toggle="collapse"
+              data-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
+        <span><i class="fas fa-bars"></i></span>
+      </button>
+      
+
+    
+    <div class="collapse navbar-collapse" id="navbar">
+
+      
+      
+      <ul class="navbar-nav ml-auto">
+        
+
+        
+
+        
+        
+        
+          
+        
+
+        <li class="nav-item">
+          <a class="nav-link" href="/#about">
+            
+            <span>Home</span>
+            
+          </a>
+        </li>
+
+        
+        
+
+        
+
+        
+        
+        
+          
+        
+
+        <li class="nav-item">
+          <a class="nav-link" href="/#posts">
+            
+            <span>Posts</span>
+            
+          </a>
+        </li>
+
+        
+        
+
+        
+
+        
+        
+        
+          
+        
+
+        <li class="nav-item">
+          <a class="nav-link" href="/#publications">
+            
+            <span>Publications</span>
+            
+          </a>
+        </li>
+
+        
+        
+
+        
+
+        
+        
+        
+          
+        
+
+        <li class="nav-item">
+          <a class="nav-link" href="/#projects">
+            
+            <span>Projects</span>
+            
+          </a>
+        </li>
+
+        
+        
+
+        
+
+        
+        
+        
+          
+        
+
+        <li class="nav-item">
+          <a class="nav-link" href="/#contact">
+            
+            <span>Contact</span>
+            
+          </a>
+        </li>
+
+        
+        
+
+        
+
+        
+        
+        
+          
+        
+
+        <li class="nav-item">
+          <a class="nav-link" href="/files/cv.pdf">
+            
+            <span>CV</span>
+            
+          </a>
+        </li>
+
+        
+        
+
+      
+
+        
+
+        
+        <li class="nav-item">
+          <a class="nav-link js-search" href="#"><i class="fas fa-search" aria-hidden="true"></i></a>
+        </li>
+        
+
+        
+
+        
+        <li class="nav-item">
+          <a class="nav-link js-dark-toggle" href="#"><i class="fas fa-moon" aria-hidden="true"></i></a>
+        </li>
+        
+
+      </ul>
+
+    </div>
+  </div>
+</nav>
+
+
+<article class="article" itemscope itemtype="http://schema.org/Article">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+  
+  
+<div class="article-container pt-3">
+  <h1 itemprop="name">Topic Modelling of Trustpilot Reviews with R and tidytext</h1>
+
+  
+
+  
+    
+
+<div class="article-metadata">
+
+  
+  
+  <span itemscope itemprop="author" itemtype="http://schema.org/Person">
+    <meta itemprop="name" content="Peer Christensen">
+  </span>
+  
+
+  <span class="article-date">
+    
+    <meta content="2018-08-09 00:00:00 &#43;0000 UTC" itemprop="datePublished">
+    <time datetime="2018-08-09 00:00:00 &#43;0000 UTC" itemprop="dateModified">
+      Aug 9, 2018
+    </time>
+  </span>
+  <span itemscope itemprop="publisher" itemtype="http://schema.org/Person">
+    <meta itemprop="name" content="Peer Christensen">
+  </span>
+
+  
+  <span class="middot-divider"></span>
+  <span class="article-reading-time">
+    8 min read
+  </span>
+  
+
+  
+  
+  <span class="middot-divider"></span>
+  <a href="/post/topic-modelling-of-trustpilot-reviews-with-r-and-tidytext/#disqus_thread"></a>
+  
+
+  
+  
+  
+  <span class="middot-divider"></span>
+  <span class="article-categories">
+    <i class="fas fa-folder"></i>
+    
+    <a href="/categories/r/">R</a>, 
+    
+    <a href="/categories/text-mining/">Text mining</a>
+    
+  </span>
+  
+  
+
+  
+  
+<div class="share-box" aria-hidden="true">
+  <ul class="share">
+    <li>
+      <a class="twitter"
+         href="https://twitter.com/intent/tweet?text=Topic%20Modelling%20of%20Trustpilot%20Reviews%20with%20R%20and%20tidytext&amp;url=%2fpost%2ftopic-modelling-of-trustpilot-reviews-with-r-and-tidytext%2f"
+         target="_blank" rel="noopener">
+        <i class="fab fa-twitter"></i>
+      </a>
+    </li>
+    <li>
+      <a class="facebook"
+         href="https://www.facebook.com/sharer.php?u=%2fpost%2ftopic-modelling-of-trustpilot-reviews-with-r-and-tidytext%2f"
+         target="_blank" rel="noopener">
+        <i class="fab fa-facebook-f"></i>
+      </a>
+    </li>
+    <li>
+      <a class="linkedin"
+         href="https://www.linkedin.com/shareArticle?mini=true&amp;url=%2fpost%2ftopic-modelling-of-trustpilot-reviews-with-r-and-tidytext%2f&amp;title=Topic%20Modelling%20of%20Trustpilot%20Reviews%20with%20R%20and%20tidytext"
+         target="_blank" rel="noopener">
+        <i class="fab fa-linkedin-in"></i>
+      </a>
+    </li>
+    <li>
+      <a class="weibo"
+         href="http://service.weibo.com/share/share.php?url=%2fpost%2ftopic-modelling-of-trustpilot-reviews-with-r-and-tidytext%2f&amp;title=Topic%20Modelling%20of%20Trustpilot%20Reviews%20with%20R%20and%20tidytext"
+         target="_blank" rel="noopener">
+        <i class="fab fa-weibo"></i>
+      </a>
+    </li>
+    <li>
+      <a class="email"
+         href="mailto:?subject=Topic%20Modelling%20of%20Trustpilot%20Reviews%20with%20R%20and%20tidytext&amp;body=%2fpost%2ftopic-modelling-of-trustpilot-reviews-with-r-and-tidytext%2f">
+        <i class="fas fa-envelope"></i>
+      </a>
+    </li>
+  </ul>
+</div>
+
+
+  
+
+</div>
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+</div>
+
+
+
+  <div class="article-container">
+
+    <div class="article-style" itemprop="articleBody">
+      
+<script src="/rmarkdown-libs/kePrint/kePrint.js"></script>
+
+
+<p>In this tutorial and analysis, we’ll apply topic modelling to Danish Trustpilot reviews of “3” (“three” in other countries), my current telecommunications provider. I’m dissatisfied with their customer service and thought this would be an interesting use case for topic modelling. With this approach, we can try to find out <strong>which aspects of the customer experience come up in positive and negative reviews.</strong></p>
+<p>I used a <a href="https://github.com/PeerChristensen/trustpilot_reviews/blob/master/3reviews.py">Python script</a> to scrape 4000 customer reviews of “3” from trustpilot.dk between January 2015 and October 2017.</p>
+<p>For more details on topic modelling with the tidytext package by Julia Silge and David Robinson, check out their <a href="https://www.tidytextmining.com/tidytext.html">book</a>.</p>
+<div id="required-packages" class="section level2">
+<h2>Required packages</h2>
+<pre class="r"><code>if (!require(&quot;pacman&quot;)) install.packages(&quot;pacman&quot;)
+pacman::p_load(tidyverse, tidytext, tm, topicmodels, magrittr, jtools, gridExtra, 
+    knitr, widyr, ggraph, igraph, kableExtra)
+
+if (!require(&quot;devtools&quot;)) install.packages(&quot;devtools&quot;)
+devtools::install_github(&quot;56north/happyorsad&quot;)
+library(happyorsad)</code></pre>
+</div>
+<div id="customising-a-ggplot-theme" class="section level2">
+<h2>Customising a ggplot theme</h2>
+<p>Improving the look of figures in ggplot2 is fairly simple. For consistency, we’ll create a clean and simple theme based on the APA theme from the jtools package and change some of the features. The background colour will be set to a light grey hue. The grid lines are omitted in the APA theme.</p>
+<pre class="r"><code>my_theme &lt;- function() {
+  theme_apa(legend.pos = &quot;none&quot;) +
+    theme(panel.background = element_rect(fill = &quot;gray96&quot;, colour = &quot;gray96&quot;)) +
+    theme(plot.background = element_rect(fill = &quot;gray96&quot;, colour = &quot;gray96&quot;)) +
+    theme(plot.margin = margin(1, 1, 1, 1, &quot;cm&quot;)) +
+    theme(panel.border = element_blank()) +             # facet border
+    theme(strip.background = element_blank())           # facet title background
+}</code></pre>
+</div>
+<div id="loading-and-preparing-the-data" class="section level2">
+<h2>Loading and preparing the data</h2>
+<p>Our data frame has two columns: a variable called Name containing the name of the reviewer/author, which will function as a variable to identify each documen; a variable called Review containing individual reviews.</p>
+<pre class="r"><code>df &lt;- read_csv2(&quot;https://raw.githubusercontent.com/PeerChristensen/trustpilot_reviews/master/3reviewsB.csv&quot;)
+
+df %&lt;&gt;% 
+  select(-X1) %&gt;%                                            # remove unnecessary column
+  filter(Name != &quot;John M. Sebastian&quot;)                        # remove one very odd review</code></pre>
+<p>Given that our reviews are in Danish, we can use the happyorsad package to compute a sentiment score for each review. Scores are based on a Danish list of sentiment words and scores put together by Finn Årup Nielsen. We will also make sure that all words are in lowercase, and remove a bunch of pre-defined Danish stop words and frequent verbs.</p>
+<pre class="r"><code>df %&lt;&gt;% mutate(Sentiment = map_int(df$Review, happyorsad, &quot;da&quot;)) %&gt;% mutate(Review = tolower(Review)) %&gt;% 
+    mutate(Review = removeWords(Review, c(&quot;så&quot;, &quot;3&quot;, &quot;kan&quot;, &quot;få&quot;, &quot;får&quot;, 
+        &quot;fik&quot;, stopwords(&quot;danish&quot;))))</code></pre>
+</div>
+<div id="distribution-of-sentiment-scores" class="section level2">
+<h2>Distribution of sentiment scores</h2>
+<p>In the density plot below, we see how sentiment scores are distributed with a median score of 2. As you can probably tell, we’re dealing with a fairly mediocre provider. However, we still want to know <em>why</em> the company has a 6.7 rating out of 10.</p>
+<p>In a very crude way, we can put positive and negative reviews in separate data frames and perform topic modelling on each in order to explore what reviewers like and dislike about 3.</p>
+<pre class="r"><code>df %&gt;% ggplot(aes(x = Sentiment)) + geom_density(size = 1) + geom_vline(xintercept = median(df$Sentiment), 
+    colour = &quot;indianred&quot;, linetype = &quot;dashed&quot;, size = 1) + ggplot2::annotate(&quot;text&quot;, 
+    x = 15, y = 0.06, label = paste(&quot;median = &quot;, median(df$Sentiment)), colour = &quot;indianred&quot;) + 
+    my_theme() + xlim(-40, 40)</code></pre>
+<p><img src="/post/2018-08-09-topic-modelling-of-trustpilot-reviews-with-r-and-tidytext_files/figure-html/unnamed-chunk-5-1.png" width="672" /></p>
+</div>
+<div id="topic-modelling-for-positive-reviews" class="section level2">
+<h2>Topic modelling for positive reviews</h2>
+<p>The data frame created below contains 2228 positive reviews with scores above 1. Words will be tokenized, i.e. one word per row.</p>
+<pre class="r"><code>df_pos &lt;- df %&gt;% filter(Sentiment &gt; 1) %&gt;% select(-Sentiment) %&gt;% unnest_tokens(word, 
+    Review)</code></pre>
+<p>Before creating a so-called <em>document term matrix</em>, we need to count the frequency of each word per document (review).</p>
+<pre class="r"><code>words_pos &lt;- df_pos %&gt;% count(Name, word, sort = TRUE) %&gt;% ungroup()
+
+reviewDTM_pos &lt;- words_pos %&gt;% cast_dtm(Name, word, n)</code></pre>
+<p>Now that we have a “DTM”, we can pass it to the LDA function, which implements the <em>Latent Dirichlet Allocation</em> algorithm. It assumes that every document is a mixture of topics, and every topic is a mixture of words. The k argument is used to specify the desired amount of topics that we want in our model. Let’s create a four-topic model!</p>
+<pre class="r"><code>reviewLDA_pos &lt;- LDA(reviewDTM_pos, k = 4, control = list(seed = 347))</code></pre>
+<p>The following figure shows how many reviews that are assigned to each topic.</p>
+<pre class="r"><code>tibble(topics(reviewLDA_pos)) %&gt;% group_by(`topics(reviewLDA_pos)`) %&gt;% count() %&gt;% 
+    kable() %&gt;% kable_styling(full_width = F, position = &quot;left&quot;)</code></pre>
+<table class="table" style="width: auto !important; ">
+<thead>
+<tr>
+<th style="text-align:right;">
+topics(reviewLDA_pos)
+</th>
+<th style="text-align:right;">
+n
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+327
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+1117
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+3
+</td>
+<td style="text-align:right;">
+266
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+4
+</td>
+<td style="text-align:right;">
+343
+</td>
+</tr>
+</tbody>
+</table>
+<p>We can also get the per-topic per-word probabilities, or “beta”.</p>
+<pre class="r"><code>topics_pos &lt;- tidy(reviewLDA_pos, matrix = &quot;beta&quot;)
+topics_pos</code></pre>
+<pre><code>## # A tibble: 46,844 x 3
+##    topic term            beta
+##    &lt;int&gt; &lt;chr&gt;          &lt;dbl&gt;
+##  1     1 telefon    0.00376  
+##  2     2 telefon    0.00358  
+##  3     3 telefon    0.0165   
+##  4     4 telefon    0.00319  
+##  5     1 abonnement 0.00326  
+##  6     2 abonnement 0.00871  
+##  7     3 abonnement 0.00193  
+##  8     4 abonnement 0.0130   
+##  9     1 navn       0.000964 
+## 10     2 navn       0.0000227
+## # ... with 46,834 more rows</code></pre>
+<p>Now, we can find the top terms for each topic, i.e. the words with the highest probability/beta. Here, we choose the top five words, which we will show in a plot.</p>
+<pre class="r"><code>topTerms_pos &lt;- topics_pos %&gt;% group_by(topic) %&gt;% top_n(5, beta) %&gt;% ungroup() %&gt;% 
+    arrange(topic, -beta) %&gt;% mutate(order = rev(row_number()))  # necessary for ordering words properly</code></pre>
+</div>
+<div id="topic-modelling-for-negative-reviews" class="section level2">
+<h2>Topic modelling for negative reviews</h2>
+<p>Let’s first do the same for negative reviews creating a data frame with 973 reviews with a sentiment score below -1.</p>
+<pre class="r"><code>df_neg &lt;- df %&gt;% filter(Sentiment &lt; -1) %&gt;% select(-Sentiment) %&gt;% unnest_tokens(word, 
+    Review)
+
+words_neg &lt;- df_neg %&gt;% count(Name, word, sort = TRUE) %&gt;% ungroup()
+
+reviewDTM_neg &lt;- words_neg %&gt;% cast_dtm(Name, word, n)
+
+reviewLDA_neg &lt;- LDA(reviewDTM_neg, k = 4, control = list(seed = 347))
+
+tibble(topics(reviewLDA_neg)) %&gt;% group_by(`topics(reviewLDA_neg)`) %&gt;% count() %&gt;% 
+    kable() %&gt;% kable_styling(full_width = F, position = &quot;left&quot;)</code></pre>
+<table class="table" style="width: auto !important; ">
+<thead>
+<tr>
+<th style="text-align:right;">
+topics(reviewLDA_neg)
+</th>
+<th style="text-align:right;">
+n
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+157
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+180
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+3
+</td>
+<td style="text-align:right;">
+349
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+4
+</td>
+<td style="text-align:right;">
+231
+</td>
+</tr>
+</tbody>
+</table>
+<pre class="r"><code>topics_neg &lt;- tidy(reviewLDA_neg, matrix = &quot;beta&quot;)
+
+topTerms_neg &lt;- topics_neg %&gt;% group_by(topic) %&gt;% top_n(5, beta) %&gt;% ungroup() %&gt;% 
+    arrange(topic, -beta) %&gt;% mutate(order = rev(row_number()))  # necessary for ordering words</code></pre>
+</div>
+<div id="plotting-the-topic-models" class="section level2">
+<h2>Plotting the topic models</h2>
+<p>Finally, let’s plot the results…</p>
+<pre class="r"><code>plot_pos &lt;- topTerms_pos %&gt;% ggplot(aes(order, beta)) + ggtitle(&quot;Positive review topics&quot;) + 
+    geom_col(show.legend = FALSE, fill = &quot;steelblue&quot;) + scale_x_continuous(breaks = topTerms_pos$order, 
+    labels = topTerms_pos$term, expand = c(0, 0)) + facet_wrap(~topic, scales = &quot;free&quot;) + 
+    coord_flip(ylim = c(0, 0.02)) + my_theme() + theme(axis.title = element_blank())
+
+plot_neg &lt;- topTerms_neg %&gt;% ggplot(aes(order, beta, fill = factor(topic))) + 
+    ggtitle(&quot;Negative review topics&quot;) + geom_col(show.legend = FALSE, fill = &quot;indianred&quot;) + 
+    scale_x_continuous(breaks = topTerms_neg$order, labels = topTerms_neg$term, 
+        expand = c(0, 0)) + facet_wrap(~topic, scales = &quot;free&quot;) + coord_flip(ylim = c(0, 
+    0.02)) + my_theme() + theme(axis.title = element_blank())
+
+grid.arrange(plot_pos, plot_neg, ncol = 1)</code></pre>
+<p><img src="/post/2018-08-09-topic-modelling-of-trustpilot-reviews-with-r-and-tidytext_files/figure-html/unnamed-chunk-13-1.png" width="960" /></p>
+<p>So, what do 3 customers writing reviews on Trustpilot.dk like and dislike? Unfortunately, the reviews are in Danish, but here’s what people tend to highlight, given four-topic models of positive and negative reviews:</p>
+<p>Positive Reviews:</p>
+<ol style="list-style-type: decimal">
+<li>coverage and data<br />
+</li>
+<li>service<br />
+</li>
+<li>phone, again, store and new - <em>maybe 3 stores often replace malfunctioning cell phones?</em><br />
+</li>
+<li>plan (service), kr (Danish currency), pay, bill - <em>something positive about plans and payment?</em></li>
+</ol>
+<p>Negative reviews:</p>
+<ol style="list-style-type: decimal">
+<li>customer service, plan<br />
+</li>
+<li>customer service, phone, error, plan<br />
+</li>
+<li>phone, coverage, store<br />
+</li>
+<li>pay, bill, kr, plan</li>
+</ol>
+<p>Interestingly, customers seem to have both positive and negative experiences with respect to pretty much the same topics. Some customers appear to experience good coverage, whereas others seem to complain about poor coverage. The same pattern appears for (customer) service and payment.</p>
+<p>Let’s explore this further..</p>
+</div>
+<div id="word-co-occurrence-within-reviews" class="section level2">
+<h2>Word co-occurrence within reviews</h2>
+<p>To see whether word pairs like “good service” and “bad service” are frequent in our two data sets, we’ll count how many times each pair of words occurs together in a title or description field. This is easy with pairwise_count() from the widyr package.</p>
+<pre class="r"><code>word_pairs_pos &lt;- df_pos %&gt;% pairwise_count(word, Name, sort = TRUE)
+
+word_pairs_neg &lt;- df_neg %&gt;% pairwise_count(word, Name, sort = TRUE)</code></pre>
+<p>We can then plot the most common word pairs co-occurring in the reviews by means of the igraph and ggraph packages.</p>
+<pre class="r"><code>set.seed(611)
+
+pairs_plot_pos &lt;- word_pairs_pos %&gt;% filter(n &gt;= 140) %&gt;% graph_from_data_frame() %&gt;% 
+    ggraph(layout = &quot;fr&quot;) + geom_edge_link(aes(edge_alpha = n, edge_width = n), 
+    edge_colour = &quot;steelblue&quot;) + ggtitle(&quot;Positive word pairs&quot;) + geom_node_point(size = 5) + 
+    geom_node_text(aes(label = name), repel = TRUE, point.padding = unit(0.2, 
+        &quot;lines&quot;)) + my_theme() + theme(axis.title = element_blank(), axis.text = element_blank(), 
+    axis.ticks = element_blank())
+
+pairs_plot_neg &lt;- word_pairs_neg %&gt;% filter(n &gt;= 80) %&gt;% graph_from_data_frame() %&gt;% 
+    ggraph(layout = &quot;fr&quot;) + geom_edge_link(aes(edge_alpha = n, edge_width = n), 
+    edge_colour = &quot;indianred&quot;) + ggtitle(&quot;Negative word pairs&quot;) + geom_node_point(size = 5) + 
+    geom_node_text(aes(label = name), repel = TRUE, point.padding = unit(0.2, 
+        &quot;lines&quot;)) + my_theme() + theme(axis.title = element_blank(), axis.text = element_blank(), 
+    axis.ticks = element_blank())
+
+grid.arrange(pairs_plot_pos, pairs_plot_neg, ncol = 2)</code></pre>
+<p><img src="/post/2018-08-09-topic-modelling-of-trustpilot-reviews-with-r-and-tidytext_files/figure-html/unnamed-chunk-15-1.png" width="960" /></p>
+<p>In the positive reviews, it is clear that the word for “good” (“god”) tends to co-occur with the word for “service”, “coverage” and “always”. In the negative reviews, we see that “bad” (“dårlig”) co-occurs with “service”, “coverage” and “never”. The pattern is very much the same, yet opposite!</p>
+</div>
+<div id="word-pair-correlations" class="section level2">
+<h2>Word pair correlations</h2>
+<p>A more direct approach to finding out what customers consider good and bad about 3 is to use the pairwise_cor() function and look specifically for the words that correlate the most with the words for “good” and “bad” in Danish. Alternatively, we could perform an n-gram analysis to find out which words most frequently follow “good” and “bad”.</p>
+<pre class="r"><code>cor_pos &lt;- df_pos %&gt;% group_by(word) %&gt;% filter(n() &gt;= 100) %&gt;% pairwise_cor(word, 
+    Name, sort = TRUE) %&gt;% filter(item1 == &quot;god&quot;) %&gt;% top_n(7)
+
+cor_neg &lt;- df_neg %&gt;% group_by(word) %&gt;% filter(n() &gt;= 100) %&gt;% pairwise_cor(word, 
+    Name, sort = TRUE) %&gt;% filter(item1 == &quot;dårlig&quot;) %&gt;% top_n(7)</code></pre>
+<p>Let’s combine the data in a single plot.</p>
+<pre class="r"><code>cor_words &lt;- rbind(cor_pos, cor_neg) %&gt;% mutate(order = rev(row_number()), item1 = factor(item1, 
+    levels = c(&quot;god&quot;, &quot;dårlig&quot;)))
+
+cor_words %&gt;% ggplot(aes(x = order, y = correlation, fill = item1)) + geom_col(show.legend = FALSE) + 
+    scale_x_continuous(breaks = cor_words$order, labels = cor_words$item2, expand = c(0, 
+        0)) + facet_wrap(~item1, scales = &quot;free&quot;) + scale_fill_manual(values = c(&quot;steelblue&quot;, 
+    &quot;indianred&quot;)) + coord_flip() + labs(x = &quot;words&quot;) + my_theme()</code></pre>
+<p><img src="/post/2018-08-09-topic-modelling-of-trustpilot-reviews-with-r-and-tidytext_files/figure-html/unnamed-chunk-17-1.png" width="960" /></p>
+<p>This analysis confirms that some reviewers like the (customer) service and the coverage provided by 3, whereas others have a negative view of their service and coverage.</p>
+</div>
+
+    </div>
+
+    
+
+
+<div class="article-tags">
+  
+  <a class="badge badge-light" href="/tags/tidytext/">Tidytext</a>
+  
+  <a class="badge badge-light" href="/tags/topic-modelling/">Topic modelling</a>
+  
+</div>
+
+
+
+    
+
+
+
+
+
+
+<div class="media author-card" itemscope itemtype="http://schema.org/Person">
+  
+  <img class="portrait mr-3" src="/img/peer_christensen_small@0,50x.png" itemprop="image" alt="Avatar">
+  
+  <div class="media-body">
+    <h5 class="card-title" itemprop="name"><a href="/">Peer Christensen</a></h5>
+    <h6 class="card-subtitle">Cognitive scientist</h6>
+    
+    <ul class="network-icon" aria-hidden="true">
+      
+      
+      
+      
+        
+      
+      
+      
+      
+      
+      <li>
+        <a itemprop="sameAs" href="mailto:hr.pchristensen@gmail.com" >
+          <i class="fas fa-envelope"></i>
+        </a>
+      </li>
+      
+      
+      
+      
+        
+      
+      
+      
+      
+      
+        
+      
+      <li>
+        <a itemprop="sameAs" href="https://twitter.com/PeerChristensen" target="_blank" rel="noopener">
+          <i class="fab fa-twitter"></i>
+        </a>
+      </li>
+      
+      
+      
+      
+      
+      
+      
+      
+        
+      
+      <li>
+        <a itemprop="sameAs" href="https://www.linkedin.com/in/peer-christensen-datascientist/" target="_blank" rel="noopener">
+          <i class="fa fa-linkedin"></i>
+        </a>
+      </li>
+      
+      
+      
+      
+      
+      
+      
+      
+        
+      
+      <li>
+        <a itemprop="sameAs" href="https://scholar.google.com/citations?user=5pMTzkwAAAAJ&amp;hl=en" target="_blank" rel="noopener">
+          <i class="ai ai-google-scholar"></i>
+        </a>
+      </li>
+      
+      
+      
+      
+      
+      
+      
+      
+        
+      
+      <li>
+        <a itemprop="sameAs" href="https://github.com/PeerChristensen" target="_blank" rel="noopener">
+          <i class="fa fa-github"></i>
+        </a>
+      </li>
+      
+      
+      
+      
+      
+      
+      
+      
+        
+      
+      <li>
+        <a itemprop="sameAs" href="https://www.researchgate.net/profile/Peer_Christensen" target="_blank" rel="noopener">
+          <i class="ai ai-researchgate"></i>
+        </a>
+      </li>
+      
+      
+      
+      
+      
+      
+      
+      
+        
+      
+      <li>
+        <a itemprop="sameAs" href="/files/cv.pdf" >
+          <i class="ai ai-cv"></i>
+        </a>
+      </li>
+      
+    </ul>
+  </div>
+</div>
+
+
+
+
+    
+    
+    <div class="article-widget">
+      <div class="hr-light"></div>
+      <h3>Related</h3>
+      <ul>
+        
+        <li><a href="/post/fair-is-foul-and-foul-is-fair-a-tidytext-entiment-analysis-of-shakespeare-s-tragedies/">Fair is foul, and foul is fair: a tidytext sentiment analysis of Shakespeare’s tragedies</a></li>
+        
+      </ul>
+    </div>
+    
+
+    
+
+    
+<section id="comments">
+  <div id="disqus_thread"></div>
+<script type="application/javascript">
+    var disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "peerchristensen-netlify-com" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</section>
+
+
+
+  </div>
+</article>
+
+<div class="container">
+  <footer class="site-footer">
+  
+  <p class="powered-by">
+    <a href="/privacy/">Privacy Policy</a>
+  </p>
+  
+
+  <p class="powered-by">
+    &copy; 2018 &middot; 
+
+    Powered by the
+    <a href="https://sourcethemes.com/academic/" target="_blank" rel="noopener">Academic theme</a> for
+    <a href="https://gohugo.io" target="_blank" rel="noopener">Hugo</a>.
+
+    
+    <span class="float-right" aria-hidden="true">
+      <a href="#" id="back_to_top">
+        <span class="button_icon">
+          <i class="fas fa-chevron-up fa-2x"></i>
+        </span>
+      </a>
+    </span>
+    
+  </p>
+</footer>
+
+</div>
+
+
+<div id="modal" class="modal fade" role="dialog">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Cite</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <pre><code class="tex hljs"></code></pre>
+      </div>
+      <div class="modal-footer">
+        <a class="btn btn-outline-primary my-1 js-copy-cite" href="#" target="_blank">
+          <i class="fas fa-copy"></i> Copy
+        </a>
+        <a class="btn btn-outline-primary my-1 js-download-cite" href="#" target="_blank">
+          <i class="fas fa-download"></i> Download
+        </a>
+        <div id="modal-error"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+    
+
+    
+    
+    
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha512-+NqPlbbtM1QqiK8ZAo4Yrj2c4lNQoGv8P79DPtKzj++l5jnN39rHA/xsqn8zE9l0uSoxaCdrOgFs6yjyfbBxSg==" crossorigin="anonymous"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.imagesloaded/4.1.3/imagesloaded.pkgd.min.js" integrity="sha512-umsR78NN0D23AzgoZ11K7raBD+R6hqKojyBZs1w8WvYlsI+QuKRGBx3LFCwhatzBunCjDuJpDHwxD13sLMbpRA==" crossorigin="anonymous"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha256-VsEqElsCHSGmnmHXGQzvoWjWwoznFSZc6hs7ARLRacQ=" crossorigin="anonymous"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.isotope/3.0.4/isotope.pkgd.min.js" integrity="sha512-VDBOIlDbuC4VWxGJNmuFRQ0Li0SKkDpmGyuhAG5LTDLd/dJ/S0WMVxriR2Y+CyPL5gzjpN4f/6iqWVBJlht0tQ==" crossorigin="anonymous"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.2.5/jquery.fancybox.min.js" integrity="sha256-X5PoE3KU5l+JcX+w09p/wHl9AzK333C4hJ2I9S5mD4M=" crossorigin="anonymous"></script>
+
+      
+        
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js" integrity="sha256-/BfiIkHlHoVihZdc6TFuj7MmJ0TWcWsMXkeDFwhi0zw=" crossorigin="anonymous"></script>
+        
+      
+
+      
+      
+    
+
+    
+    
+      <script async defer src="//maps.googleapis.com/maps/api/js?key="></script>
+      
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/gmaps.js/0.4.25/gmaps.min.js" integrity="sha256-7vjlAeb8OaTrCXZkCNun9djzuB2owUsaO72kXaFDBJs=" crossorigin="anonymous"></script>
+      
+    
+
+    
+    
+    
+    <script id="dsq-count-scr" src="//peerchristensen-netlify-com.disqus.com/count.js" async></script>
+    
+
+    
+    
+    <script>hljs.initHighlightingOnLoad();</script>
+    
+
+    
+    
+    <script>
+      const search_index_filename = "/index.json";
+      const i18n = {
+        'placeholder': "Search...",
+        'results': "results found",
+        'no_results': "No results found"
+      };
+      const content_type = {
+        'post': "Posts",
+        'project': "Projects",
+        'publication' : "Publications",
+        'talk' : "Talks"
+        };
+    </script>
+    
+
+    
+    
+
+    
+    
+    <script id="search-hit-fuse-template" type="text/x-template">
+      <div class="search-hit" id="summary-{{key}}">
+      <div class="search-hit-content">
+        <div class="search-hit-name">
+          <a href="{{relpermalink}}">{{title}}</a>
+          <div class="article-metadata search-hit-type">{{type}}</div>
+          <p class="search-hit-description">{{snippet}}</p>
+        </div>
+      </div>
+      </div>
+    </script>
+    
+
+    
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/3.2.1/fuse.min.js" integrity="sha256-VzgmKYmhsGNNN4Ph1kMW+BjoYJM2jV5i4IlFoeZA9XI=" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/jquery.mark.min.js" integrity="sha256-4HLtjeVgH0eIB3aZ9mLYF6E8oU5chNdjU6p6rrXpl9U=" crossorigin="anonymous"></script>
+    
+
+    
+    
+
+    
+    
+    
+    
+    
+    
+    
+    
+    <script src="/js/academic.min.d037ee5294b166a79dec317c58aea9cc.js"></script>
+
+    
+
+  </body>
+</html>
+

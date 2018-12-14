@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Text mining on Peer Christensen</title>
+    <link>/categories/text-mining/</link>
+    <description>Recent content in Text mining on Peer Christensen</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <copyright>&amp;copy; 2018</copyright>
+    <lastBuildDate>Thu, 09 Aug 2018 00:00:00 +0000</lastBuildDate>
+    
+	<atom:link href="/categories/text-mining/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>Topic Modelling of Trustpilot Reviews with R and tidytext</title>
+      <link>/post/topic-modelling-of-trustpilot-reviews-with-r-and-tidytext/</link>
+      <pubDate>Thu, 09 Aug 2018 00:00:00 +0000</pubDate>
+      
+      <guid>/post/topic-modelling-of-trustpilot-reviews-with-r-and-tidytext/</guid>
+      <description>In this tutorial and analysis, we’ll apply topic modelling to Danish Trustpilot reviews of “3” (“three” in other countries), my current telecommunications provider. I’m dissatisfied with their customer service and thought this would be an interesting use case for topic modelling. With this approach, we can try to find out which aspects of the customer experience come up in positive and negative reviews.
+I used a Python script to scrape 4000 customer reviews of “3” from trustpilot.</description>
+    </item>
+    
+    <item>
+      <title>Fair is foul, and foul is fair: a tidytext sentiment analysis of Shakespeare’s tragedies</title>
+      <link>/post/fair-is-foul-and-foul-is-fair-a-tidytext-entiment-analysis-of-shakespeare-s-tragedies/</link>
+      <pubDate>Thu, 07 Jun 2018 00:00:00 +0000</pubDate>
+      
+      <guid>/post/fair-is-foul-and-foul-is-fair-a-tidytext-entiment-analysis-of-shakespeare-s-tragedies/</guid>
+      <description>Sentiment analysis can be used for many purposes and applied to all kinds of texts. In this exploratory analysis, we’ll use a tidytext approach to examine the use of sentiment words in the tragedies written by William Shakespeare. I’ve previously used Python for scraping and mining texts. However, I recently stumbled upon the tidytext R package by Julia Silge and David Robinson as well as their excellent book and ressource on combining tidytext with other tidy tools in R.</description>
+    </item>
+    
+  </channel>
+</rss>

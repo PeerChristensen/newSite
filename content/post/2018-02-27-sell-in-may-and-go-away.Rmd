@@ -1,0 +1,193 @@
+---
+title: "Sell in May and go away?"
+summary: "Using quantmod and R to explore seasonal stock market returns since 1950"
+author: "Peer Christensen"
+date: '2018-02-27'
+slug: sell-in-may-and-go-away?
+categories:
+- R
+- finance
+- regression
+- time series analysis
+tags:
+- stocks
+- quantmod
+---
+
+---
+title: "Sell in May and go away?"
+author: "Peer Christensen"
+date: "26/2/2018"
+output: html_document
+---
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE, fig.width=10)
+```
+
+Many stock market analysts frequently make the claim that you should "sell in May and go away". 
+In this post, we will try to find out if there's any truth to the idea behind this claim. Namely, that holding stocks over the summer period from May to October is historically  detrimental to annual returns from a statistical perspective.
+<br>
+
+## Loading (and installing) packages
+
+```{r message=F}
+if(!require("pacman")) install.packages("pacman")
+pacman::p_load(quantmod,ggplot2,plyr,lme4,lmerTest,effects,jtools,tidyverse)
+```
+
+## Customizing a ggplot theme
+
+```{r}
+my_theme <- function() {
+  theme_apa(legend.pos = "none") +
+    theme(panel.background = element_blank()) +
+    theme(plot.background = element_rect(fill = "azure")) +
+    theme(panel.border = element_blank()) +                       # facet border
+    theme(strip.background = element_blank()) +                  # facet title background
+    theme(plot.margin = unit(c(.5, .5, .5, .5), "cm")) 
+}
+```
+
+## Loading data
+
+The selection of data here is crucial and will obviously affect our analysis.
+In this case, we will use the adjusted close price of the S&P 500 from 1950 to 2018. This is easy to do thanks to the 'quantmod' package.
+
+```{r, message=F, warning=F}
+getSymbols(c("^GSPC"),from = "1950-01-01",to = "2018-01-01",src = "yahoo",class = ts)
+
+dim(GSPC)
+
+head(GSPC)
+
+ggplot(GSPC,aes(y = GSPC.Close, x = Index)) + 
+  geom_line() +
+  my_theme()
+```
+
+## Average stock market return by month 
+
+First, let's take a look at monthly returns since 1950. We'll also add a line indicating the average return. 
+
+```{r}
+returnsByMonth=periodReturn(GSPC, period = 'monthly', subset = '1950::')
+
+returnsByMonth %>%
+ggplot(aes(y = monthly.returns, x = Index)) + 
+  geom_line() +
+  geom_hline(yintercept = mean(returnsByMonth), colour = "gold", size = 1, alpha = .5) +
+  my_theme()
+```
+
+This is not very helpful to us. Instead we'll group our data by month and compare the average return of each from the twelve months. We create a data frame and include a factor variable with month names and summarize our data using ddply().
+
+```{r}
+df = as.data.frame(returnsByMonth)
+#note that month.name and month.abb are constants built into base R
+df$Month = factor(rep(month.abb, length(returnsByMonth) / 12), levels = month.abb)
+head(df)
+
+meanReturns = ddply(df, "Month", summarize,
+           Mean = mean(monthly.returns),
+           SE = sd(monthly.returns) / sqrt(length(monthly.returns)))
+meanReturns
+```
+
+We can then plot our data (with error bars indicating standard errors of the means).
+
+```{r}
+meanReturns %>% 
+  ggplot(aes(x = Month, y = Mean)) +
+  geom_bar(stat = "identity",fill = "royalblue4") +
+  geom_errorbar(aes(ymin = Mean - SE, ymax = Mean + SE), width = .2,
+                position = position_dodge(.9)) +
+  ggtitle("S&P 500 monthly average returns from 1950 to 2017") +
+  my_theme()
+```
+
+Let's instead visualize monthly returns with a boxplot. The dashed line is intended to make it a little easier to compare the medians to 0 on the y axis.
+
+```{r}
+df %>% 
+  ggplot(aes(x = Month, y = monthly.returns)) +
+    geom_jitter(alpha = .5, width = 0.25) +
+
+  geom_boxplot(fill = "royalblue4", alpha = .8) +
+  geom_hline(yintercept = 0, colour = "gold", linetype = "dashed", alpha = .5, size = 1) +
+  ggtitle("S&P 500 monthly average returns from 1950 to 2017") +
+  my_theme()
+
+```
+
+We can also perform a simple regression analysis to test whether average returns for individual months deviate significantly from 0.
+
+```{r}
+fit = lm(monthly.returns ~ 0 + Month, data = df)
+summary(fit)
+```
+
+For the sake of illustration, we can then use the effects package to easily create a plot of the estimates, which of course are identical to the means plotted in the bar chart above.
+
+```{r}
+plot(allEffects(fit))
+```
+
+Let's make the plot a little prettier ourselves.
+
+```{r}
+eff_month = data.frame(allEffects(fit)$Month, order = seq(1:12))
+
+eff_month %>%
+  ggplot(aes(x = reorder(Month, order), y = fit)) +
+  geom_point() +
+  geom_errorbar(aes(ymin = lower, ymax = upper), width = 0.2) +
+  my_theme() +
+  labs(x = "month", y = "estimate")
+```
+
+<p>
+We see that some of the monthly estimates do in fact deviate from 0, but only in the form of positive returns.  We also observe that the strongest positive months appear to be in the winter periods (November-April). Furthermore, much in agreement with the "Sell in May" investment approach, the negative estimates all fall within summer periods.
+<p>
+Lets's now look further into this by comparing average seasonal returns for summer and winter periods.
+
+```{r, fig.width = 6}
+df = df %>%
+  mutate(season = factor(ifelse(df$Month %in% month.abb[5:10],"Summer", "Winter")))
+
+meanReturnsSeason = ddply(df, "season", summarize,
+           Mean = mean(monthly.returns),
+           sem = sd(monthly.returns) / sqrt(length(monthly.returns)))
+
+meanReturnsSeason %>%
+  ggplot(aes(x=season, y=Mean)) +
+  geom_bar(stat="identity",fill="royalblue4") +
+  geom_errorbar(aes(ymin=Mean-sem, ymax=Mean+sem), width=.2,
+                position=position_dodge(.9)) +
+  ggtitle("S&P 500 average seasonal returns from 1950 to 2017") +
+  my_theme()
+```
+We see a clear difference between summer and winter return estimates. However, it is not obvious that the "Sell in May" strategy is better than holding stocks throughout the year.
+<p>
+As a final step in our analysis, we create two regression models: One in which we compare the season estimates to 0, and another that compares the two return estimates directly.
+
+```{r}
+mod2=lm(monthly.returns~0+season,data=df)
+summary(mod2)
+```
+
+The most interesting observation to be made here is perhaps that the estimated return for summer periods is not significantly different from 0. Let's set winter as the reference level in the final model.
+
+```{r}
+df$season=relevel(df$season,ref = "Winter")
+mod3=lm(monthly.returns~season,data=df)
+summary(mod3)
+```
+
+Not surprisingly, we see a clear significant difference between returns for the two seasons.
+<p>
+In sum, we see that the S&P 500 does in fact tend to rise between May and November, though significantly less than between November and April. In the future, I might take a look at other indices, compare data from different decades and redo this analysis with extreme outliers removed.
+<p>
+It is perhaps not self-evident that it is generally advisable to sell off stocks in May and wait until November before re-entering the stock market. Even so, it might still be a good way for risk-aversive investors to eliminate part of the risk involved in investing in the stock market.
+<p>
+I find financial markets fascinating, confusing and sometimes overwhelmingly complicated. There will always be a lot of talk, bold claims and noise generated by experts and analysts, who may not always be as insightful as they would like to think. Thankfully, data and statistics can help us in determining who's right and who's wrong amidst the constant influx of information. 
+

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>leaflet on Peer Christensen</title>
+    <link>/tags/leaflet/</link>
+    <description>Recent content in leaflet on Peer Christensen</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <copyright>&amp;copy; 2018</copyright>
+    <lastBuildDate>Sun, 25 Feb 2018 00:00:00 +0000</lastBuildDate>
+    
+	<atom:link href="/tags/leaflet/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>Mapping street art in Athens with leaflet and R</title>
+      <link>/post/mapping-street-art-with-leaflet-and-r/</link>
+      <pubDate>Sun, 25 Feb 2018 00:00:00 +0000</pubDate>
+      
+      <guid>/post/mapping-street-art-with-leaflet-and-r/</guid>
+      <description>My colleague and fellow doctoral student at Lund University, George Stampoulidis, is documenting political street art in Athens as part of his research project. The data consist of images and other variables describing each piece of street art. In this post, we’ll do the following:  use R to extract geotagged data from the images’ exif files  use the leaflet package to map locations  customise our map and add popup with images and various information   Installing packages I sometimes use the ‘pacman’ package, which installs (if necessary) and loads multiple packages.</description>
+    </item>
+    
+  </channel>
+</rss>

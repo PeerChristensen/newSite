@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>ETFs on Peer Christensen</title>
+    <link>/tags/etfs/</link>
+    <description>Recent content in ETFs on Peer Christensen</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <copyright>&amp;copy; 2018</copyright>
+    <lastBuildDate>Tue, 20 Mar 2018 00:00:00 +0000</lastBuildDate>
+    
+	<atom:link href="/tags/etfs/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>Stocks: Exploring leveraged investing with quantmod and R</title>
+      <link>/post/stocks-exploring-leveraged-investing-with-quantmod-and-r/</link>
+      <pubDate>Tue, 20 Mar 2018 00:00:00 +0000</pubDate>
+      
+      <guid>/post/stocks-exploring-leveraged-investing-with-quantmod-and-r/</guid>
+      <description>Is it reasonable to hold leveraged ETFs tracking major stock indices for long periods of time?  Finance and investment professionals generally advise against buying leveraged ETFs, particularly those with high multiples in combination with log-term strategies. For the sole purpose of illustration, we’ll consider theoretical returns as high as 20x the underlying index (which is of course ludicrous!).  To explore the above question, we will use the quantmod package to get our data: the closing price of the S&amp;amp;P 500 between 2008 and 2017.</description>
+    </item>
+    
+  </channel>
+</rss>

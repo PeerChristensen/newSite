@@ -1,0 +1,199 @@
+---
+title: "Mapping hurricane search data from Google Trends!"
+summary: "Using R to fetch and visualize Google search data in beautiful maps"
+author: Peer Christensen
+date: '2018-04-30'
+slug: mapping-hurricane-search-data-from-google-trends
+categories:
+  - R
+  - Google Trends
+  - maps
+tags:
+  - ggplot2
+  - gtrendsR
+  - hurricanes
+---
+
+
+
+This is a quick introduction on how to get and visualize google search data with both time and geographical components using the packages gtrendsR, maps and ggplot2. In this example, we will look at search interest for named hurricanes that hit the US mainland starting with ‘Katrina’. We’ll also explore different ways of using colour palettes in ggplot2.
+<p>
+<p>First, we load the required packages. Note that we use devtools to download a developer version of gtrendsR.</p>
+<pre class="r"><code>if (!require(&#39;gtrendsR&#39;)) 
+devtools::install_github(&#39;PMassicotte/gtrendsR&#39;)
+## Loading required package: gtrendsR
+
+if(!require(&quot;pacman&quot;)) install.packages(&quot;pacman&quot;)
+## Loading required package: pacman
+pacman::p_load(gtrendsR,maps,ggplot2,lettercase,viridis,pals,scico,ggrepel)</code></pre>
+<p>
+Let’s first look at how the impact of hurricanes Katrina (August 2005) and Harvey (August 2017) are reflected in how Americans have used these names as google search items over time. We’ll also add change some of the plot settings by creating our own ggplot theme.
+<p>
+The gprop argument controls whether we want general web, news, image or youtube searches.<br> The time argument is set to “all” and will gather data between 2004 and the time the code is run.<br> Focusing on searches made in the us, we’ll set the geo argument to “US”.
+<p>
+NOTE: adding a line for Hurricane Irma used to work just fine, but it currently seems to mess up the output and only show straight lines. Using the plot function returns a ggplot object, which we can then customize. However, I was unable to suppress the default plot.
+<p>
+<pre class="r"><code>my_theme &lt;- function() {
+    theme_bw() +
+    theme(panel.background = element_blank()) +
+    theme(plot.background = element_rect(fill = &quot;seashell&quot;)) +
+    theme(panel.border = element_blank()) +                     # facet border
+    theme(strip.background = element_blank()) +                 # facet title background
+    theme(plot.margin = unit(c(.5, .5, .5, .5), &quot;cm&quot;)) +
+    theme(panel.spacing = unit(3, &quot;lines&quot;)) +
+    theme(panel.grid.major = element_blank()) +
+    theme(panel.grid.minor = element_blank()) +
+    theme(legend.background = element_blank()) +
+    theme(legend.key = element_blank()) +
+    theme(legend.title = element_blank())
+  }
+
+hurricanes = gtrends(c(&quot;katrina&quot;,&quot;harvey&quot;),time=&quot;all&quot;, gprop = &quot;web&quot;, geo = c(&quot;US&quot;))
+
+plot(hurricanes) + 
+  my_theme() +
+  geom_line(size=1.5) +
+  scale_colour_viridis_d(option = &quot;C&quot;, begin = .2, end = .7)</code></pre>
+<img src="/post/2018-02-17-mapping-hurricane-search-data-from-google-trends_files/figure-html/unnamed-chunk-2-1.png" width="960" /><img src="/post/2018-02-17-mapping-hurricane-search-data-from-google-trends_files/figure-html/unnamed-chunk-2-2.png" width="960" />
+<p>
+To understand what is actually measured on the y-axis, have a look here:<br> <a href="https://support.google.com/trends/answer/4365533?hl=en" class="uri">https://support.google.com/trends/answer/4365533?hl=en</a>
+<p>
+The above plot shows clear spikes around the time when Katrina and Harvey hit the US. We could also plot more cyclical data.
+<p>
+<pre class="r"><code>cycles = gtrends(c(&quot;spring break&quot;,&quot;vacation&quot;),time=&quot;2008-01-01 2018-01-01&quot;, gprop = &quot;web&quot;, geo = c(&quot;US&quot;))
+
+plot(cycles) +
+  my_theme() +
+  geom_line(size=1.5) +
+  scale_colour_viridis_d(option = &quot;C&quot;, begin = .2, end = .7)</code></pre>
+<img src="/post/2018-02-17-mapping-hurricane-search-data-from-google-trends_files/figure-html/unnamed-chunk-3-1.png" width="960" /><img src="/post/2018-02-17-mapping-hurricane-search-data-from-google-trends_files/figure-html/unnamed-chunk-3-2.png" width="960" />
+<p>
+As you can see in the output below, the gtrends function actually returns a list of data frames with various kinds of data.
+<p>
+<pre class="r"><code>hurricanes = gtrends(c(&quot;Katrina&quot;,&quot;Harvey&quot;,&quot;Irma&quot;),time=&quot;all&quot;, gprop = &quot;web&quot;, geo = c(&quot;US&quot;))
+
+for(df in hurricanes){
+  print(head(df))
+  }
+##         date hits keyword geo gprop category
+## 1 2004-01-01   &lt;1 Katrina  US   web        0
+## 2 2004-02-01   &lt;1 Katrina  US   web        0
+## 3 2004-03-01    1 Katrina  US   web        0
+## 4 2004-04-01    1 Katrina  US   web        0
+## 5 2004-05-01   &lt;1 Katrina  US   web        0
+## 6 2004-06-01   &lt;1 Katrina  US   web        0
+## NULL
+##               location hits keyword geo gprop
+## 1            Louisiana  100 Katrina  US   web
+## 2          Mississippi   72 Katrina  US   web
+## 3             Virginia   48 Katrina  US   web
+## 4              Alabama   36 Katrina  US   web
+## 5 District of Columbia   34 Katrina  US   web
+## 6               Kansas   31 Katrina  US   web
+##                location hits keyword geo gprop
+## 1  Roanoke-Lynchburg VA  100 Katrina  US   web
+## 2    Biloxi-Gulfport MS   98 Katrina  US   web
+## 3        New Orleans LA   86 Katrina  US   web
+## 4        Baton Rouge LA   57 Katrina  US   web
+## 5 Hattiesburg-Laurel MS   49 Katrina  US   web
+## 6            Jackson MS   45 Katrina  US   web
+##      location hits keyword geo gprop
+## 1   Brookneal  100 Katrina  US   web
+## 2 New Orleans   57 Katrina  US   web
+## 3    Leesburg   44 Katrina  US   web
+## 4 Baton Rouge   37 Katrina  US   web
+## 5     Dearing   NA Katrina  US   web
+## 6 Santa Clara   33 Katrina  US   web
+## NULL
+##   subject related_queries               value geo keyword category
+## 1     100             top           hurricane  US Katrina        0
+## 2      96             top   katrina hurricane  US Katrina        0
+## 3      38             top        katrina kaif  US Katrina        0
+## 4      15             top new orleans katrina  US Katrina        0
+## 5      15             top         new orleans  US Katrina        0
+## 6      12             top      katrina bowden  US Katrina        0</code></pre>
+<p>
+Now, let’s compare the amount of interest in Hurricane Harvey for each US state.
+<p>
+<pre class="r"><code>harvey = gtrends(c(&quot;Harvey&quot;), gprop = &quot;web&quot;,time=&quot;2017-08-18 2017-08-25&quot;, geo = c(&quot;US&quot;))
+harvey = harvey$interest_by_region
+harvey$region = sapply(harvey$location,tolower) #change to lower case for merging with map data
+statesMap = map_data(&quot;state&quot;)
+harveyMerged = merge(statesMap,harvey,by=&quot;region&quot;)</code></pre>
+<p>
+On the fourth line in the code above, we fetch an empty map for plotting our geographical data. On the fifth line, we merge our google trends data with the underlying map data. Both data sets contain a column called “region”, which will be used to merge the data frames. Note that the region labels need to be identical. therefore, on line 3, we change the capitalized state names to lowercase. Now we can plot the data! But first we’ll modify our ggplot theme for plotting maps.
+<p>
+<pre class="r"><code>my_theme2 = function() {
+  my_theme() +
+  theme(axis.title = element_blank()) +
+  theme(axis.text = element_blank()) +
+  theme(axis.ticks = element_blank())
+}
+
+ggplot() +
+  geom_polygon(data=harveyMerged,aes(x=long,y=lat,group=group,fill=log(hits)),colour=&quot;white&quot;) +
+  scale_fill_gradientn(colours = rev(scico(15, palette = &quot;tokyo&quot;)[2:7])) +
+  my_theme2() +
+  ggtitle(&quot;Google search interest for Hurricane Harvey\nin each state from the week prior to landfall in the US&quot;) </code></pre>
+<img src="/post/2018-02-17-mapping-hurricane-search-data-from-google-trends_files/figure-html/unnamed-chunk-6-1.png" width="960" />
+<p>
+Note that we have plotted the log-transformed hits variable. We then use the same procedure for plotting regional searches for Hurricane Irma, except we add a label for each state, change the colours and add the coord_fixed argument for a nicer looking map. Placing the state names is a bit tricky. I’ve used a simple solution that centers the names. However, some of the smaller eastern state names would overlap when using geom_text(). Luckily, geom_text_repel() from the ggrepel package takes care of this issue.
+<p>
+<pre class="r"><code>irma = gtrends(c(&quot;irma&quot;), gprop = &quot;web&quot;, time=&quot;2017-09-03 2017-09-10&quot;,geo = c(&quot;US&quot;))
+irma = irma$interest_by_region
+statesMap = map_data(&quot;state&quot;)
+irma$region = sapply(irma$location,tolower)
+irmaMerged = merge(statesMap ,irma,by=&quot;region&quot;)
+
+regionLabels &lt;- aggregate(cbind(long, lat) ~ region, data=irmaMerged, 
+                          FUN=function(x) mean(range(x)))
+
+irmaMerged %&gt;%
+  ggplot() +
+  geom_polygon(aes(x=long,y=lat,group=group,fill=log(hits)),colour=&quot;white&quot;) +
+  my_theme2() +
+  geom_text_repel(data=regionLabels, aes(long, lat, label = str_title_case(region)), size=3) +
+  coord_fixed(1.3) +
+  ggtitle(&quot;Google search interest for Hurricane Irma\nin each state from the week prior to landfall in the US&quot;) +
+  scale_fill_gradientn(colours = ocean.tempo(15)[2:10])</code></pre>
+<img src="/post/2018-02-17-mapping-hurricane-search-data-from-google-trends_files/figure-html/unnamed-chunk-7-1.png" width="960" />
+<p>
+Lastly, we,’ll plot searches for Hurricane Katrina by state, but focusing on searches between its formation and dissipation.
+<p>
+<pre class="r"><code>katrina = gtrends(c(&quot;katrina&quot;), gprop = &quot;web&quot;, time=&quot;2005-08-23 2005-08-31&quot;, geo = c(&quot;US&quot;))
+katrina = katrina$interest_by_region
+statesMap = map_data(&quot;state&quot;)
+katrina$region = sapply(katrina$location,tolower)
+katrinaMerged = merge(statesMap ,katrina,by=&quot;region&quot;)
+
+regionLabels &lt;- aggregate(cbind(long, lat) ~ region, data=katrinaMerged, 
+                          FUN=function(x) mean(range(x)))
+
+katrinaMerged %&gt;% ggplot() +
+  geom_polygon(aes(x=long,y=lat,group=group,fill=log(hits)),colour=&quot;white&quot;) +
+  scale_fill_continuous(low=&quot;ivory&quot;,high=&quot;midnightblue&quot;) +
+  guides(fill = &quot;colorbar&quot;) +
+  geom_text_repel(data=regionLabels, aes(long, lat, label = str_title_case(region)), size=3) +
+  my_theme2() +
+  coord_fixed(1.3) +
+  ggtitle(&quot;Google search interest for Hurricane Katrina\nin each state between formation and dissipation&quot;)</code></pre>
+<img src="/post/2018-02-17-mapping-hurricane-search-data-from-google-trends_files/figure-html/unnamed-chunk-8-1.png" width="960" />
+<p>
+<p>BONUS: In which US states do people search for “guns” the most?</p>
+<pre class="r"><code>guns = gtrends(c(&quot;guns&quot;), gprop = &quot;web&quot;, time=&quot;all&quot;, geo = c(&quot;US&quot;))
+guns = guns$interest_by_region
+statesMap = map_data(&quot;state&quot;)
+guns$region = sapply(guns$location,tolower)
+gunsMerged = merge(statesMap,guns,by=&quot;region&quot;)
+
+regionLabels &lt;- aggregate(cbind(long, lat) ~ region, data=gunsMerged, 
+                          FUN=function(x) mean(range(x)))
+
+gunsMerged %&gt;% ggplot() +
+  geom_polygon(aes(x=long,y=lat,group=group,fill=log(hits)),colour=&quot;white&quot;) +
+  geom_text_repel(data=regionLabels, aes(long, lat, label = str_title_case(region)), size=3) +
+  my_theme2() +
+  coord_fixed(1.3) +
+  scale_fill_distiller(palette = &quot;Reds&quot;) +
+  ggtitle(&quot;Google search interest for guns in each state&quot;)</code></pre>
+<p><img src="/post/2018-02-17-mapping-hurricane-search-data-from-google-trends_files/figure-html/unnamed-chunk-9-1.png" width="960" /></p>

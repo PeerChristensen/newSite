@@ -1,0 +1,116 @@
+---
+title: Mapping street art in Athens with leaflet and R
+summary: "Creating interactive maps with images and metadata in R"
+author: Peer Christensen
+date: '2018-02-25'
+categories:
+  - R
+  - maps
+  - street art
+tags:
+  - leaflet
+  - exif
+  
+slug: mapping-street-art-with-leaflet-and-r
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE,fig.width=9, fig.height = 9)
+```
+
+My colleague and fellow doctoral student at Lund University, George Stampoulidis, is documenting political street art in Athens as part of his research project. The data consist of images and other variables describing each piece of street art. In this post, we'll do the following:
+<p>
+1. use R to extract geotagged data from the images' exif files <br>
+2. use the leaflet package to map locations <br>
+3. customise our map and add popup with images and various information
+<p>
+
+## Installing packages
+
+I sometimes use the 'pacman' package, which installs (if necessary) and loads multiple packages.
+
+```{r}
+if(!require("pacman")) install.packages("pacman")
+pacman::p_load(exifr,dplyr,leaflet,mapview,magrittr)
+```
+<p>
+## Extracting geodata from exif files
+
+The geodata has already been included in the data file. But this is an easy way of creating a data frame with coordinates for each image file.
+We'll do this in R. You can also do on the command line if you install 'exiftool' and use the following line of code:
+<br>
+exiftool -filename -gpslatitude -gpslongitude -T -n NAME_OF_DIRECTORY > out.txt
+
+```{r,eval=F}
+exifData <- read_exif("imageFolderName",recursive=T)
+
+exifData <- select(exifData,FileName,
+               GPSLongitude, GPSLatitude)
+
+write.csv2(exifData, 'exifData.csv',sep=",",
+          row.names = F)
+```
+<p>
+## Loading and handling data
+
+Since we already have all the variables we need in the data file, there's no need to merge it with the exif data. We simply do some minor cleaning of the data and add a variable for a remote repository in which all image files are stored.
+
+```{r}
+df=read.csv2("streetArtUpdate1.csv",stringsAsFactors =F,header = T)
+
+# change coordinates to numeric values
+df$Longitude=as.numeric(df$Longitude)
+df$Latitude=as.numeric(df$Latitude)
+
+# add remote path for image files
+df$remotePath=paste0("http://dev.humlab.lu.se/tmp/img/",df$Filename)
+
+# remove one data point with erroneous geodata
+df=df[df$Title!="The Greek health system",] 
+```
+<p>
+## Basic mapping with leaflet
+
+Let's first have a look at how easy it is to create a leaflet map with markers for each location in our data.
+
+```{r}
+#Create basic world map
+athensMap <- leaflet() %>% 
+  addTiles() %>%
+  # add points
+  addMarkers(lng=df$Longitude,lat=df$Latitude)
+
+athensMap
+```
+<p>
+## Customizing our map with popups etc.
+
+Let's add the following elements to our map:
+<br>
+1. A different tile layer <br>
+2. Markers with popup capability <br>
+3. Include popup images and multiple variables containing information <br>
+4. Cluster our markers <br>
+
+Please note that for some reason, you might need to click more than once on a marker to see images.
+
+```{r}
+athensMap2 <- leaflet() %>%
+  # Add a base layer
+  addTiles('https://cartodb-basemaps-{s}.global.ssl.fastly.net/light_all/{z}/{x}/{y}.png') %>%
+  # add markers
+  addAwesomeMarkers(lng=df$Longitude, lat=df$Latitude,
+      # add popup with images and variables as text
+      popup=paste(popupImage(df$remotePath, src = c("remote")),"<br>",
+                                "Title: ",paste("<a href=",df$remotePath,">",df$Title,"</a>"),"<br>",
+                                "Creator: ",df$Name_of_the_creator,"<br>",
+                                "Type: ",df$Pictorial_verbopictorial,"<br>",
+                                "Text: ",paste("'",df$Text,"'")),
+      # organise points as clusters
+      clusterOptions = markerClusterOptions(),
+      label = df$Title) %>%
+      # include minimap
+      addMiniMap()
+
+athensMap2
+```

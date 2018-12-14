@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>syntax on Peer Christensen</title>
+    <link>/tags/syntax/</link>
+    <description>Recent content in syntax on Peer Christensen</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <copyright>&amp;copy; 2018</copyright>
+    <lastBuildDate>Tue, 20 Feb 2018 00:00:00 +0000</lastBuildDate>
+    
+	<atom:link href="/tags/syntax/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>Constraints on Word Order in Emerging Communication Systems</title>
+      <link>/project/silent-gesture/</link>
+      <pubDate>Tue, 20 Feb 2018 00:00:00 +0000</pubDate>
+      
+      <guid>/project/silent-gesture/</guid>
+      <description>What are the underlying motivations for the conceptualization of events? Recent studies show, that people prefer the semantic order Agent-Patient-Act, or SOV when asked to gesture about transitive events. This pattern is argued to reflect a “cognitively natural order” for the conceptualization of events. We consider alternative explanations and explore these by means of referential games in which pairs of participants use silent gesture to communicate about two types of transitive events: (i) object manipulation events, and (ii) object construction events.</description>
+    </item>
+    
+  </channel>
+</rss>

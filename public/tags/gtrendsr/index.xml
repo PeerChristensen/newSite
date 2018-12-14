@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>gtrendsR on Peer Christensen</title>
+    <link>/tags/gtrendsr/</link>
+    <description>Recent content in gtrendsR on Peer Christensen</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <copyright>&amp;copy; 2018</copyright>
+    <lastBuildDate>Mon, 30 Apr 2018 00:00:00 +0000</lastBuildDate>
+    
+	<atom:link href="/tags/gtrendsr/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>Mapping hurricane search data from Google Trends!</title>
+      <link>/post/mapping-hurricane-search-data-from-google-trends/</link>
+      <pubDate>Mon, 30 Apr 2018 00:00:00 +0000</pubDate>
+      
+      <guid>/post/mapping-hurricane-search-data-from-google-trends/</guid>
+      <description>This is a quick introduction on how to get and visualize google search data with both time and geographical components using the packages gtrendsR, maps and ggplot2. In this example, we will look at search interest for named hurricanes that hit the US mainland starting with ‘Katrina’. We’ll also explore different ways of using colour palettes in ggplot2.  First, we load the required packages. Note that we use devtools to download a developer version of gtrendsR.</description>
+    </item>
+    
+  </channel>
+</rss>

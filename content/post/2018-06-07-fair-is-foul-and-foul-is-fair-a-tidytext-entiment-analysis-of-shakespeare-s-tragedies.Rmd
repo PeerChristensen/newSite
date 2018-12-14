@@ -1,0 +1,325 @@
+---
+title: "Fair is foul, and foul is fair: a tidytext sentiment analysis of Shakespeare’s tragedies"
+summary: "Part 1 of my exploration of the tidytext R package for various text mining tasks"
+author: "Peer Christensen"
+date: '2018-06-07'
+slug: fair-is-foul-and-foul-is-fair-a-tidytext-entiment-analysis-of-shakespeare-s-tragedies
+categories:
+  - R
+  - Text mining
+tags:
+  - Sentiment analysis
+  - Tidytext
+  - gutenbergr
+header:
+  caption: ''
+  image: ''
+---
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE,warning=FALSE,message=FALSE,fig.width=10)
+```
+<p>
+Sentiment analysis can be used for many purposes and applied to all kinds of texts. In this exploratory analysis, we'll use a tidytext approach to examine the use of sentiment words in the tragedies written by William Shakespeare. I've previously used Python for scraping and mining texts. However, I recently stumbled upon the tidytext R package by Julia Silge and David Robinson as well as their excellent [book](https://www.tidytextmining.com/) and ressource on combining tidytext with other tidy tools in R. This approach has made my life so much easier! 
+<p>
+### Loading packages
+```{r warning=F, message=F}
+if(!require("pacman")) install.packages("pacman")
+pacman::p_load(tidyverse,tidytext,jtools,gridExtra,zoo,data.table,gutenbergr)
+```
+<p>
+### Customizing a ggplot2 theme
+Because we'll create several ggplots to visualize sentiments in Shakespeare's tragedies, it'll be worth storing some plotting options in a customized theme. Rather than starting from scratch, we'll use the APA theme from the jtools package and override some of the theme settings.
+<p>
+```{r}
+my_theme <- function() {
+  theme_apa(legend.pos = "none") +
+    theme(panel.background = element_blank()) +
+    theme(plot.background = element_rect(fill = "antiquewhite1")) +
+    theme(panel.border = element_blank()) +                       # facet border
+    theme(strip.background = element_blank()) +                  # facet title background
+    theme(plot.margin = unit(c(.5, .5, .5, .5), "cm")) 
+}
+```
+<p>
+### Loading our data
+Initially when I started working on Shakespeare's plays, I downloaded the texts as .txt files and cleaned them in several steps. At the bottom of this page, I provide some code showing how I did it.
+<p>
+A more efficient way to gather public domain literary texts, such as Shakespeare's plays, is to use David Robinson's gutenbergr package.
+Let's first see what's available by Shakespeare.
+<p>
+```{r}
+shakespeare <- gutenberg_works(author == "Shakespeare, William") 
+
+shakespeare
+```
+<p>
+We then collect the IDs for the plays that we want and check that they match before we download the texts.
+<p>
+```{r}
+IDs = shakespeare[c(15,23,33,34,53,54,55,56,57,58),]$gutenberg_id
+
+shakespeare %>% filter(gutenberg_id %in% IDs)
+```
+<p>
+It looks like we have the right texts. Let's download the texts, store them in a tibble and look at the data.
+<p>
+```{r}
+plays = gutenberg_download(IDs,meta_fields = "title")
+
+plays
+```
+<p>
+### Creating a data frame of sentiment words
+<p>
+We see that the text variable contains one line of text for each row.
+Given this format, we can create a new data frame with a row for each word token found in the Bing lexicon of sentiment words. By using this lexicon, sentiment words are simpky assigned a value of positive or negative. Have a look at the other options with ?get_sentiments.
+We will try using the nrc lexicon later on.
+```{r message=F}
+sentiments = plays %>% 
+  group_by(title) %>%
+  mutate(line = row_number()) %>%      # we will use line numbers later
+  unnest_tokens(word, text) %>%        #tokenize words
+  #anti_join(stop_words) %>%           # in case we would like to remove stop words
+  inner_join(get_sentiments("bing"))   # keep only words found in the Bing lexicon
+
+sentiments
+```
+<p>
+We could also further subset our data frame by omitting so-called "stop words" defined in the stop_words variable. However, this is perhaps not ideal when we examine the following output showing which stop words match words in our data. Note that our choice here is important and will likely affect the analysis. In particular, it is clear that most of the words in question have a positive valence in the lexicon.
+<p>
+```{r}
+table(sentiments$word[sentiments$word %in% stop_words$word])
+```
+<p>
+With that in mind, we can now plot the number of positive and negative words in each play.
+<p>
+```{r fig.height=9}
+sentiments %>% 
+  count(sentiment) %>%
+  ggplot(aes(x = sentiment, y = n, fill = title)) + 
+  geom_bar(stat = "identity") +
+  facet_wrap(~title) +
+  scale_fill_viridis_d(option = "B") +
+  my_theme()
+```
+<p>
+For the figure below, we'll use the nrc lexicon, which associates words with basic emotions.
+<p>
+```{r fig.height=9}
+plays %>% 
+  group_by(title) %>%
+  mutate(line = row_number()) %>%
+  unnest_tokens(word, text) %>%
+  #anti_join(stop_words) %>%
+  inner_join(get_sentiments("nrc")) %>% 
+  count(sentiment) %>%
+  ggplot(aes(x = sentiment, y = n, fill = sentiment)) + 
+  geom_bar(stat = "identity") +
+  facet_wrap(~title) +
+  scale_fill_viridis_d(option = "B") +
+  my_theme() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) 
+```
+<p>
+Using our first data frame created with the Bing lexicon, let's now rank the plays according to their ratio of negative words.
+<p>
+```{r}
+sentiments %>% 
+  count(sentiment) %>%
+  spread(sentiment, n, fill = 0) %>%
+  mutate(ratio = negative / (negative + positive)) %>%
+  ungroup() %>%
+  ggplot(aes(x = reorder(title, ratio), y = ratio, fill = ratio)) + 
+  geom_bar(stat = "identity") +
+  scale_fill_viridis_c(option = "B", direction = -1) +
+  my_theme() + 
+  labs(title = "Plays ranked by ratio of negative sentiment words",
+       y = "ratio negative words",
+       x = "plays") +
+  coord_flip()
+```
+<p>
+### Sentiments over time
+It might also be interesting to examine the ebb and flow of sentiments as each play unfolds. To do so, we can use integer division and find the number of positive and negative words for each chunk of text. Here, we'll use chunks with 100 words in each and subtract the number of negative from positive words.  
+
+```{r fig.height=9, fig.width=12}
+sentiments %>%
+  count(title, index = line %/% 100, sentiment) %>%  # count number of positive and negative words for each chunk of 100 lines
+  spread(sentiment, n, fill = 0) %>%                 
+  mutate(sentiment = positive - negative) %>%
+  ggplot(aes(index, sentiment, fill = sentiment)) +
+  geom_col(show.legend = FALSE) +
+  facet_wrap(~title,scales = "free_x") +
+  scale_fill_viridis_c(option = "B") +
+  my_theme()
+```
+<p>
+It might also be useful to further examine the "trend"" by adding a line indicating the rolling mean sentiment score. As an example, let's try this with Romeo and Juliet using a lag of 5 indices.
+<p>
+```{r warning = F}
+sentiments %>%
+  filter(title == "Romeo and Juliet") %>%
+  count(title, index = line %/% 100, sentiment) %>%
+  spread(sentiment, n, fill = 0) %>%
+  mutate(sentiment = positive - negative) %>%
+  mutate(rollMean = rollmean(sentiment, 5, fill = NA)) %>%             # zoo package
+  ggplot(aes(index, sentiment, fill = sentiment)) +
+  geom_col(show.legend = FALSE) +
+  geom_line(aes(x = index, y = rollMean),size = 4, colour = "antiquewhite1") +
+  geom_line(aes(x = index, y = rollMean), size = 1) +
+  scale_fill_viridis_c(option = "B") +
+  labs(title = "Romeo and Juliet") +
+  my_theme()
+```
+<p>
+Though it requires a bit more work, it might be worthwhile to indicate where the individual acts begin.
+First, we will create a data frame containing the lines in which individual acts begin. We find the relevant lines with regular expressions in line 4 of the below code looking for the word "act" (or, in some cases, "actus"). For each hit, we assign a number
+<p>
+```{r}
+acts = plays %>% 
+  filter(title == "Romeo and Juliet") %>%
+  mutate(line = row_number()) %>%
+  mutate(act = cumsum(str_detect(text, regex("^act |^actus ", ignore_case = T)))) %>% 
+  ungroup() %>%
+  unnest_tokens(word, text) %>%
+  #anti_join(stop_words) %>%
+  inner_join(get_sentiments("bing")) %>%
+  count(act, index = line %/% 100, sentiment) %>%
+  mutate(new_act = act != shift(act,1)) %>%         # add a logical vector indicating where acts begin
+  spread(sentiment, n, fill = 0) %>%
+  mutate(sentiment = positive - negative) %>%
+  filter(new_act == T, act > 0) %>%                   # keep only indices where acts begin, remove indices before act 1
+  select(index,act)
+
+acts
+```
+<p>
+We'll also create a new data frame with the functions we used to prepare the data for the previous plot.
+<p>
+```{r}
+sentiments2 = plays %>% 
+  filter(title == "Romeo and Juliet") %>%
+  mutate(line = row_number()) %>%
+  ungroup() %>%
+  unnest_tokens(word, text) %>%
+  #anti_join(stop_words) %>%
+  inner_join(get_sentiments("bing")) %>%
+  count(index = line %/% 100, sentiment) %>%
+  spread(sentiment, n, fill = 0) %>%
+  mutate(sentiment = positive - negative)
+```
+<p>
+Let's then plot the same data only with lines and text indicating the beginning of each act.
+<p>
+```{r}
+sentiments2 %>% ggplot(aes(index, sentiment, fill = sentiment)) +
+  geom_vline(data = acts[-1,],
+             aes(xintercept = index - 0.5),linetype = "dashed") +
+  geom_col(show.legend = FALSE,position = "dodge") +
+  scale_fill_viridis_c(option = "B") + 
+  labs(title = "Romeo and Juliet") +
+  annotate("text", x = acts$index + 2, y = 22, label = paste0("act ", acts$act), size = 5) +
+  my_theme()
+```
+<p>
+### Finding the most common sentiment words
+Focusing now on the words themselves, we can easily get an overview of the most common positive and negative words. In this case, we select the ten most common words for each category.
+<p>
+```{r}
+word_counts <- sentiments %>%
+  ungroup() %>%
+  count(word, sentiment, sort = TRUE) %>%
+  group_by(sentiment) %>%
+  top_n(10) %>%
+  ungroup() %>%
+  arrange(sentiment, -n) %>%
+  mutate(order = rev(row_number()))       # we need the order variable to ensure proper ranking of words
+```
+<p>
+Recall that we chose to keep the sentiment words that matched stop words. In the plot below, we clearly see the consequence of our choice. The top four spots among positive words are populated by stop words.
+<p>
+```{r}
+word_counts %>%
+  ggplot(aes(order, n, fill = sentiment)) +
+  geom_col(show.legend = FALSE) +
+  scale_x_continuous(
+    breaks = word_counts$order,
+    labels = word_counts$word,
+    expand = c(0,0)) +
+  facet_wrap(~sentiment, scales = "free_y") +
+  labs(y = "Contribution to sentiment", x = NULL) +
+  coord_flip() +
+  scale_fill_viridis_d(option = "B", begin = .2, end = .8) +
+  my_theme()
+```
+<p>
+Let's do the same for each play and store individual plots in a list using a for loop. Note that if there are ties for tenth place, all tied words are plotted.
+<p>
+```{r}
+titles = unique(sentiments$title)
+plots = list()
+for (i in titles){
+  word_counts = sentiments %>%
+    filter(title == i) %>%
+    count(word, sentiment, sort = TRUE) %>%
+    ungroup() %>%
+    group_by(sentiment) %>%
+    top_n(10) %>%
+    ungroup() %>%
+    arrange(sentiment, -n) %>%
+    mutate(order = rev(row_number()))
+  
+  plots[[i]] = word_counts %>%
+    ggplot(aes(order, n, fill = sentiment)) +
+    geom_col(show.legend = FALSE) +
+    scale_x_continuous(
+      breaks = word_counts$order,
+      labels = word_counts$word,
+      expand = c(0,0)) +
+    facet_wrap(~sentiment, scales = "free_y") +
+    labs(y = "Contribution to sentiment",x = NULL) +
+    ggtitle(i) +
+    coord_flip() +
+    scale_fill_viridis_d(option = "B",begin = .2,end = .8) +
+    my_theme()
+  
+    #print(plots[[i]])              # in case we want to create individual plots                 
+}
+```
+<p>
+Let's create a grid and plot the first nine plays.
+<p>
+```{r fig.height=9, fig.width=12, width=12}
+grid.arrange(grobs = plots[1:9], ncol = 3)
+```
+<p>
+### Conclusion
+The aim of this analysis was simply to illustrate the ease with which one can quantify and explore texts with the tidytext package in combination with other tidy tools. In future posts, I will apply other text mining methods (e.g. word frequency, n-gram analysis and topic modeling) to Shakespeare's tragedies.
+<p>
+### Preparing data from .txt files
+I started out with a .txt file containing the text for each play before using gutenbergr to grab the text. Of course, we may want to use the same text mining methods on many other kinds of texts not in the Gutenberg Project catalogue. The following code shows how one can take a collection of .txt files to produce a data frame structured in the same way as before.
+```{r, eval=T, message=F}
+##### manual cleaning
+playList = list.files(pattern = "txt")        # create a list of documents
+
+df = tibble()
+for (play in playList){
+  
+  text = glue(read_file(play))
+  text = str_trim(gsub("[A-Z]{2,}","",text))  # remove uppercase words
+  text = tolower(text)                        # all words to lowercase
+  #text = removeWords(text,stopwords("en"))   # remove stop words
+  tokens = data_frame(text = text) %>%        # tokenize words
+    unnest_tokens(word, text)
+  
+  sentiments = tokens %>%
+    inner_join(get_sentiments("bing")) %>%
+    count(sentiment) %>%
+    spread(sentiment, n, fill = 0) %>% 
+    mutate(sentiment = positive - negative) 
+  
+  playDF = tibble(Play = play,Sentiments = names(sentiments),Values = t(sentiments)[,1])
+  df = rbind(df,playDF)
+}
+```
+

@@ -1,0 +1,268 @@
+---
+title: 'Stocks: Exploring leveraged investing with quantmod and R'
+summary: "Is it reasonable to hold leveraged ETFs for long periods of time?"
+author: Peer Christensen
+date: '2018-03-20'
+slug: stocks-exploring-leveraged-investing-with-quantmod-and-r
+categories:
+  - R
+  - finance
+tags:
+  - quantmod
+  - ETFs
+  - stocks
+---
+
+
+
+Is it reasonable to hold leveraged ETFs tracking major stock indices for long periods of time?
+<p>
+Finance and investment professionals generally advise against buying leveraged ETFs, particularly those with high multiples in combination with log-term strategies. For the sole purpose of illustration, we’ll consider theoretical returns as high as 20x the underlying index (which is of course ludicrous!). <br>
+<p>
+To explore the above question, we will use the quantmod package to get our data: the closing price of the S&amp;P 500 between 2008 and 2017. We will then do the following:
+<p>
+<ol style="list-style-type: decimal">
+<li>Explore the theoretical performance of ETFs varying in leverage <br></li>
+<li>Simulate stock price movement <br></li>
+<li>Compare actual ETFs <br></li>
+</ol>
+<div id="loading-packages" class="section level3">
+<h3>Loading packages</h3>
+<pre class="r"><code>if(!require(&quot;pacman&quot;)) install.packages(&quot;pacman&quot;)
+pacman::p_load(quantmod,ggplot2,reshape2,lubridate,plyr,plotly,data.table,tidyr,viridis)
+options(&quot;getSymbols.warning4.0&quot;=FALSE) # disable warning messages
+options(&quot;getSymbols.yahoo.warning&quot;=FALSE)</code></pre>
+</div>
+<div id="section-1-exploring-the-theoretical-performance-of-etfs-varying-in-leverage" class="section level2">
+<h2>Section 1: Exploring the theoretical performance of ETfs varying in leverage</h2>
+<div id="loading-data-with-quantmod" class="section level3">
+<h3>Loading data with quantmod</h3>
+<p>We get our data from Yahoo Finance and calculate what would be the cumulated daily return of ETFs leveraged n times. Data for each year is then stored in a separate data frame. This could probably be done in a much leaner way, but until then, I’ll be ok with the for loop solution.</p>
+<pre class="r"><code>years    = 2008:2017 
+dfList   = list() # empty list for storing a data frame for each year
+
+for (year in years){
+  
+  getSymbols(c(&quot;^GSPC&quot;),from=paste0(year,&quot;-01-01&quot;),to=paste0(year,&quot;-12-31&quot;),src=&quot;yahoo&quot;,class=ts)
+  x1=data.frame(cumsum(dailyReturn(GSPC)))
+  df=data.frame(date=as.Date(row.names(x1)),x1,
+                  x1*3,
+                  x1*5,
+                  x1*10,
+                  x1*15,
+                  x1*20)
+  names(df) = c(&quot;date&quot;,&quot;x1&quot;,&quot;x3&quot;,&quot;x5&quot;,&quot;x10&quot;,&quot;x15&quot;,&quot;x20&quot;)
+  df &lt;- melt(df,id=&quot;date&quot;)
+  dfList[[year]] = df
+}</code></pre>
+</div>
+<div id="plotting-the-data" class="section level3">
+<h3>Plotting the data</h3>
+<p>data.table’s rbindlist function is a very fast and easy way of concatenating a list of data frames. We add year and day number (aka julian day) variables based on dates.</p>
+<pre class="r"><code>dfConcat=rbindlist(dfList)
+dfConcat$year=year(dfConcat$date)
+dfConcat$Day=yday(dfConcat$date) #julian day</code></pre>
+<p>Before creating the plot, we’ll customize some plot settings that we can use for all our plots.</p>
+<pre class="r"><code>my_theme &lt;- function() {
+    theme_bw() +
+    theme(panel.background = element_blank()) +
+    theme(plot.background = element_rect(fill = &quot;grey13&quot;)) +
+    theme(panel.border = element_blank()) +                     # facet border
+    theme(strip.background = element_blank()) +                 # facet title background
+    theme(plot.margin = unit(c(.5, .5, .5, .5), &quot;cm&quot;)) +
+    theme(text = element_text(colour = &quot;snow&quot;, size = 20)) +
+    theme(axis.text = element_text(colour = &quot;snow&quot;, size = 15)) +
+    theme(plot.title = element_text(colour = &quot;snow&quot;)) +
+    theme(strip.text.x = element_text(colour = &quot;snow&quot;, face = &quot;bold&quot;)) +
+    theme(panel.spacing = unit(3, &quot;lines&quot;)) +
+    theme(panel.grid.major = element_line(colour = &quot;black&quot;)) +
+    theme(panel.grid.minor = element_line(colour = &quot;black&quot;)) +
+    theme(panel.grid.major.x = element_blank()) +
+    theme(panel.grid.minor.x = element_blank()) +
+    theme(legend.background = element_blank()) +
+    theme(legend.key = element_blank()) +
+    theme(legend.title = element_blank()) +
+    theme(legend.position = c(0.9,0.08))
+}
+
+ggplot(dfConcat, aes(x=Day,y=value)) + 
+  geom_line(aes(colour = variable)) +
+  facet_wrap(~year,ncol=3) +
+  my_theme() +
+  scale_color_viridis_d(option=&quot;C&quot;,begin = .2)</code></pre>
+<p><img src="/post/2018-03-20-stocks-exploring-leveraged-investing-with-quantmod-and-r_files/figure-html/unnamed-chunk-4-1.png" width="960" /></p>
+</div>
+<div id="bar-charts-of-annual-return" class="section level3">
+<h3>Bar charts of annual return</h3>
+<p>If we’re only interested in the annual return, bar charts are easier to inspect. We can use the ddply function to extract the last row of each year.</p>
+<pre class="r"><code>annReturn=ddply(dfConcat, .(variable,year), function(x) x[nrow(x), ])
+
+annReturn %&gt;% ggplot(aes(x=variable,y=value)) +
+  geom_bar(stat=&quot;identity&quot;,aes(fill=variable))+
+  facet_wrap(~year,ncol=3) +
+  my_theme() +
+  scale_fill_viridis_d(option=&quot;C&quot;,begin = .2) +
+  labs(x = &quot;x leverage&quot;, y = &quot;return&quot;)</code></pre>
+<p><img src="/post/2018-03-20-stocks-exploring-leveraged-investing-with-quantmod-and-r_files/figure-html/unnamed-chunk-5-1.png" width="960" /></p>
+</div>
+<div id="checking-the-validity-of-the-method" class="section level3">
+<h3>Checking the validity of the method</h3>
+<p>To check whether our method is reliable, we can scale and compare the original data with data generated by our method for calculating leveraged daily returns.</p>
+<pre class="r"><code>df=data.frame(GSPC[,6], cumsum(dailyReturn(GSPC)))
+df=data.frame(date = as.Date(row.names(df)), scale(df))
+
+df %&gt;% 
+  ggplot() +
+  geom_line(data = df, aes(x = date, y = GSPC.Adjusted, colour = &quot;yellow&quot;), size = 1) +
+  geom_line(data = df, aes(x = date, y = daily.returns, colour = &quot;snow&quot;), size = 1) +
+  my_theme() +
+  theme(legend.position = &quot;top&quot;) +
+  labs(y = &quot;value&quot;) +
+  scale_colour_manual(name = &#39;the colour&#39;, 
+         values =c(&#39;yellow&#39;=&#39;yellow&#39;,&#39;snow&#39;=&#39;snow&#39;), labels = c(&#39;GSPC.Adjusted   &#39;,&#39;daily.returns&#39;))</code></pre>
+<p><img src="/post/2018-03-20-stocks-exploring-leveraged-investing-with-quantmod-and-r_files/figure-html/unnamed-chunk-6-1.png" width="960" /></p>
+<p>Luckily, the figure indicates that the data generated by our method is pretty much perfectly correlated with the actual daily return of the SP500.</p>
+</div>
+</div>
+<div id="section-2-simulating-stock-price-movement" class="section level2">
+<h2>Section 2: Simulating stock price movement</h2>
+<p>Next, we can create simulated data using stochastic processes and tinker with the expected outcome and variance. For this simulation, I’ve used the mean annual return of the S&amp;P 500 and standard deviation I’ve reused the code found here: <a href="https://www.r-bloggers.com/stochastic-processes-and-stocks-simulation/" class="uri">https://www.r-bloggers.com/stochastic-processes-and-stocks-simulation/</a></p>
+<pre class="r"><code>set.seed(18293)
+dfListRand = list()
+
+for (i in 1:1000){             # 1000 simulations
+  Z         = rnorm(255,0,1)   # Random normally distributed values, mean = 0, stdv = 1
+  returnAnn = 0.10              # Expected annual return (10%)
+  sd        = 0.16              # Expected annual standard deviation (16%)
+  start     = 100              # Starting price
+  price     = c(start)         # Price vector
+  count     = 2                # See below
+  days      = 1:256            # Time. Days to put on the x axis
+
+  for(j in Z){
+    
+    S = start + start*(returnAnn/255 + sd/sqrt(255)*j)
+    price[count] = S
+    start = S
+    count = count + 1
+    }
+
+  price = ts(price)
+  diff = c(price[1],diff(price))
+  dayChangePCT = diff/price*100
+  dayChangePCT[1] = 0
+  x1 = cumsum(dayChangePCT)
+  dfListRand[[i]] = data.frame(days,x1,
+                 x3=x1*3,
+                 x5=x1*5,
+                 x10=x1*10,
+                 x15=x1*15,
+                 x20=x1*20)
+}</code></pre>
+<div id="plotting-a-random-selection-of-simulations" class="section level3">
+<h3>Plotting a random selection of simulations</h3>
+<p>Let’s plot some of the simulated data to see if they resemble actual stock price movements.</p>
+<pre class="r"><code>set.seed(3235)
+dfListRandPlot = list()
+pickedDFs = sample(1:1000,6)
+
+for (i in pickedDFs){
+  
+  melted=melt(dfListRand[[i]],id=&quot;days&quot;)
+  melted$Sim = factor(paste0(&quot;Simulation &quot;,i))
+  dfListRandPlot[[i]] = melted
+}
+
+dfConcatRandPick=rbindlist(dfListRandPlot)
+
+ggplot(dfConcatRandPick, aes(x=days,y=value)) + geom_line(aes(colour = variable)) +
+  facet_wrap(~Sim,ncol=3) +
+  my_theme() +
+  theme(legend.position = &quot;top&quot;) +
+  scale_colour_viridis_d(option=&quot;C&quot;,begin = .2)</code></pre>
+<p><img src="/post/2018-03-20-stocks-exploring-leveraged-investing-with-quantmod-and-r_files/figure-html/unnamed-chunk-8-1.png" width="960" /></p>
+</div>
+<div id="mean-annual-returns" class="section level3">
+<h3>Mean annual returns</h3>
+<p>We can also make a bar chart illustrating the mean annual returns of all simulations with error bars showing standard deviations.</p>
+<pre class="r"><code>df=data.frame()
+
+for(i in dfListRand){
+  
+  df=rbind(df,i[256,])
+}
+
+dfLong=melt(df[,-1])
+
+dfAgg = ddply(dfLong, c(&quot;variable&quot;), summarise,
+               mean=mean(value),sd=sd(value))
+
+ggplot(dfAgg, aes(x=variable, y=mean,fill=variable)) + 
+  geom_bar(position=position_dodge(),stat=&quot;identity&quot;) +
+  geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), colour = &quot;gray54&quot;, width=.2,
+                position=position_dodge(.9)) +
+  my_theme() +
+  theme(legend.position = &quot;top&quot;) +
+  scale_fill_viridis_d(option=&quot;C&quot;,begin = .2) +
+  labs(x = &quot;x leverage&quot;)</code></pre>
+<p><img src="/post/2018-03-20-stocks-exploring-leveraged-investing-with-quantmod-and-r_files/figure-html/unnamed-chunk-9-1.png" width="960" /></p>
+</div>
+</div>
+<div id="section-3-comparing-actual-etfs" class="section level2">
+<h2>Section 3: Comparing actual ETFs</h2>
+<p>Let’s now compare actual 3x leveraged ETFs with their theoretical performance (according to our method for calculating this). We’ll again create line and bar charts to visualise the data.</p>
+<pre class="r"><code>years=2010:2017 # Unfortunately UPRO was not available prior to 2010
+dfListETFs=list()
+
+for (y in years){
+  
+  getSymbols(c(&quot;^GSPC&quot;,&quot;UPRO&quot;,&quot;SPXL&quot;),from=paste0(y,&quot;-01-01&quot;),to=paste0(y,&quot;-12-31&quot;),
+             src=&quot;yahoo&quot;,class=ts)
+  
+  df=data.frame(date=index(GSPC),
+                cumsum(dailyReturn(GSPC)),
+                cumsum(dailyReturn(UPRO)),
+                cumsum(dailyReturn(SPXL)),
+                cumsum(dailyReturn(GSPC))*3)
+  
+  names(df) = c(&quot;date&quot;,&quot;SP500&quot;,&quot;UPRO&quot;,&quot;SPXL&quot;,&quot;X3&quot;)
+  df &lt;- melt(df,id=&quot;date&quot;)
+  dfListETFs[[y]] = df
+}</code></pre>
+<div id="line-charts-for-each-year" class="section level3">
+<h3>Line charts for each year</h3>
+<pre class="r"><code>dfConcat3=rbindlist(dfListETFs)
+dfConcat3$year=year(dfConcat3$date)
+dfConcat3$Day=yday(dfConcat3$date) #julian day
+ggplot(dfConcat3, aes(x=Day,y=value)) + geom_line(aes(colour = variable)) +
+  facet_wrap(~year,ncol=3) +
+  my_theme() +
+  scale_colour_viridis_d(option = &quot;C&quot;, begin = .4)</code></pre>
+<p><img src="/post/2018-03-20-stocks-exploring-leveraged-investing-with-quantmod-and-r_files/figure-html/unnamed-chunk-11-1.png" width="960" /></p>
+<pre class="r"><code>dfConcatWide = spread(dfConcat3, variable, value)
+cor(dfConcatWide[,4:7])</code></pre>
+<pre><code>##           SP500      UPRO      SPXL        X3
+## SP500 1.0000000 0.9864571 0.9865866 1.0000000
+## UPRO  0.9864571 1.0000000 0.9992977 0.9864571
+## SPXL  0.9865866 0.9992977 1.0000000 0.9865866
+## X3    1.0000000 0.9864571 0.9865866 1.0000000</code></pre>
+</div>
+<div id="annual-return" class="section level3">
+<h3>Annual return</h3>
+<pre class="r"><code>annReturn=ddply(dfConcat3, .(variable,year), function(x) x[nrow(x), ])
+annReturnBars=ggplot(annReturn,aes(x=variable,y=value)) +
+  geom_bar(stat=&quot;identity&quot;,aes(fill=variable))+
+  facet_wrap(~year,ncol=2) +
+  my_theme() +
+  scale_fill_viridis_d(option = &quot;C&quot;, begin = .2) +
+  theme(legend.position = &quot;right&quot;)
+
+annReturnBars</code></pre>
+<p><img src="/post/2018-03-20-stocks-exploring-leveraged-investing-with-quantmod-and-r_files/figure-html/unnamed-chunk-12-1.png" width="960" /></p>
+<p>It appears that both UPRO and SPXL track the S&amp;P 500 quite well.</p>
+</div>
+</div>
+<div id="conclusion" class="section level2">
+<h2>Conclusion</h2>
+<p>Buying ETFs with very high leverage is extremely risky and not for passive or inexperienced investors. It should be kept in mind that even relatively small market corrections will likely result in the loss of most, if not all of the invested funds. ETFs that track major indices with low volatility and double or triple the return may however be good additions to an investment portfolio, even as long-term investments.</p>
+</div>

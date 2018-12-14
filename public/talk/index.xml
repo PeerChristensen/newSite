@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Recent &amp; Upcoming Talks on Peer Christensen</title>
+    <link>/talk/</link>
+    <description>Recent content in Recent &amp; Upcoming Talks on Peer Christensen</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <copyright>&amp;copy; 2018</copyright>
+    <lastBuildDate>Sun, 01 Jan 2017 00:00:00 +0100</lastBuildDate>
+    
+	<atom:link href="/talk/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>High and thin tones in speech and gesture: Convergence in Turkish-Swedish bilinguals&#39; metaphors for musical pitch</title>
+      <link>/talk/eurosla18/</link>
+      <pubDate>Mon, 30 Apr 2018 00:00:00 +0200</pubDate>
+      
+      <guid>/talk/eurosla18/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Bimodal musical pitch metaphors in Swedish and Turkish: when speech and gesture both converge and diverge</title>
+      <link>/talk/isgs8/</link>
+      <pubDate>Mon, 01 Jan 2018 00:00:00 +0100</pubDate>
+      
+      <guid>/talk/isgs8/</guid>
+      <description></description>
+    </item>
+    
+  </channel>
+</rss>

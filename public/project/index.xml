@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Projects on Peer Christensen</title>
+    <link>/project/</link>
+    <description>Recent content in Projects on Peer Christensen</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <copyright>&amp;copy; 2018</copyright>
+    <lastBuildDate>Tue, 20 Feb 2018 00:00:00 +0000</lastBuildDate>
+    
+	<atom:link href="/project/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>Constraints on Word Order in Emerging Communication Systems</title>
+      <link>/project/silent-gesture/</link>
+      <pubDate>Tue, 20 Feb 2018 00:00:00 +0000</pubDate>
+      
+      <guid>/project/silent-gesture/</guid>
+      <description>What are the underlying motivations for the conceptualization of events? Recent studies show, that people prefer the semantic order Agent-Patient-Act, or SOV when asked to gesture about transitive events. This pattern is argued to reflect a “cognitively natural order” for the conceptualization of events. We consider alternative explanations and explore these by means of referential games in which pairs of participants use silent gesture to communicate about two types of transitive events: (i) object manipulation events, and (ii) object construction events.</description>
+    </item>
+    
+    <item>
+      <title>Embodied bilingualism</title>
+      <link>/project/embodied-bilingualism-project/</link>
+      <pubDate>Tue, 20 Feb 2018 00:00:00 +0000</pubDate>
+      
+      <guid>/project/embodied-bilingualism-project/</guid>
+      <description>Most people speak several languages and coordinate speech and gestures in language-specific ways. Yet we know very little about the processes that drive multimodal language use and learning. This project explores experimentally how adults manage the interaction between their languages - seen e.g. in foreign accent - using techniques such as motion capture, electrophysiology, and virtual reality.
+Most people in the world speak several languages and often learn new languages in adulthood.</description>
+    </item>
+    
+    <item>
+      <title>Unravelling the Multilingual Mind</title>
+      <link>/project/multilingual/</link>
+      <pubDate>Tue, 20 Feb 2018 00:00:00 +0000</pubDate>
+      
+      <guid>/project/multilingual/</guid>
+      <description>How do we acquire and process language? What are the premises and potentials of our language capacity? Although there is a large body of research on and knowledge about these issues, the vast majority of studies are situated in Western, monolingual contexts, so-called WEIRD contexts (Western, Educated, Industrialised, Rich, Democratic; Henrich et al., 2010). These only encompass 12 % of the world’s population, and barely 1% of the world’s languages. It is therefore urgent to broaden the knowledge base to include contexts where multilingualism is the norm and not the exception.</description>
+    </item>
+    
+  </channel>
+</rss>

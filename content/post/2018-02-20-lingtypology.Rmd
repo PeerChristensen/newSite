@@ -1,0 +1,384 @@
+---
+title: "Interactive language maps in R with lingtypology"
+summary: "If you're a linguist or interested in the languages of the world, the lingtypology package is for you"
+author: "Peer Christensen"
+date: 2018-02-21
+categories:
+  - R
+  - languistics
+  - maps
+tags:
+  - lingtypology
+---
+```{r setup, include=FALSE,}
+knitr::opts_chunk$set(collapse = TRUE,fig.width=9)
+```
+
+
+<br>
+The awesome lingtypology package by George Moroz can be used for many purposes. In this tutorial, we'll explore various features showing how the package can be used to a) gather data from Glottolog about the many languages of the world; b) showcase your research with interactive maps and clickable content, and c) create teaching materials.
+<br>
+
+## Contents
+
+1. Installing and loading lingtypology <br>
+2. Where is a particular language spoken? <br>
+3. Which languages are spoken in a given country? <br>
+4. Gathering data about a language <br>
+5. Creating a data frame with all data for a specific country <br>
+6. Mapping the languages of a given country <br>
+7. Mapping a set of languages with custom features <br>
+8. Mapping a language using custom coordinates <br>
+9. Adding a pop-up video to a map <br>
+10. Changing the map type <br>
+11. Mapping members of a language family <br>
+12. Mapping two language families <br>
+13. Getting data from typological databases <br>
+14. Mapping predictions about linguistic features <br>
+15. Mapping links between languages on an interactive globe <br>
+<br>
+
+## 1. Installing and loading lingtypology
+
+
+```{r, warning=F, message=F}
+if (!require('lingtypology')) {
+  install.packages("lingtypology")}
+library(lingtypology)
+```
+
+## 2. Where is a particular language spoken?
+
+Let's start with something simple, and ask where, say, Michif is spoken.
+
+```{r}
+country.lang("Michif")
+```
+
+## 3. Which languages are spoken in a given country?
+
+We can also ask start with a country and ask which languages are spoken in it. Let's try Australia and save the output in a variable we call ausLang.
+
+```{r}
+ausLang = lang.country("Australia")
+length(ausLang) # returns the number of languages in our vector
+head(ausLang) # returns the first few entries
+```
+
+## 4. Gathering data about a language
+
+We can also get various data about a language. Let's see what we can learn about Gooniyandi.
+
+```{r}
+gooniyandi = data.frame(subset(glottolog.original,language=="Gooniyandi"))
+names(gooniyandi) # lists the variables in the data frame
+```
+
+## 5. Creating a data frame with data for a specific country
+
+We also remove rows in which all data columns are "NA" and limit our data frame to include the following variables: 
+<br>
+1. language <br>
+2. family <br>
+3. location <br>
+4. language status <br>
+
+Our data frame will be nice and tidy, but due to long strings within certain variables, it's difficult to inspect our data. We therefore write our data to a html table using xtable(). However, you need to uncomment (remove the "#" symbol) the final line.
+
+```{r}
+za = data.frame(glottolog.original)
+za = za[za$country=="South Africa",]
+ind <- apply(za, 1, function(x) all(is.na(x)))
+za <- za[ !ind, ]
+za=za[,c(1,6,12,14)] # the column indices corresponding to the variables we want
+
+if (!require('xtable')) 
+install.packages("xtable")
+
+library(xtable)
+za=xtable(za)
+#print.xtable(za, type="html", file="za1.html")
+```
+
+## 6. Mapping the languages of a given country
+
+We use our previously declared variable 'ausLang' to create an interactive map using the map.feature function. Alternatively, we could simply use map.feature(lang.country("Australia")).
+
+```{r}
+map.feature(ausLang)
+```
+
+## 7. Mapping a set of languages with custom features
+
+We can also produce a map of languages with user-specified features such as case-marking.
+
+```{r}
+myLanguages=c("Nyulnyul", "Warrwa", "Guugu Yimidhirr","Warlpiri","Gooniyandi")
+myFeatures=c("accusative","unknown","neutral","unknown","accusative")
+map.feature(myLanguages,myFeatures)
+```
+
+## 8. Mapping a language using custom coordinates
+
+Some languages appear to be missing geographical coordinates, which the user can then supply, or change cureent coordinates.
+In the following map, we will also add these features: 
+<br>
+1. zoom control <br>
+2. zoom level <br>
+3. a minimap <br>
+4. pop-up text <br>
+
+```{r}
+map.feature("Gooniyandi",
+            label="Gooniyandi", 
+            minimap=T, #logical value, True or False (or T/F), False by default
+            zoom.control=T, 
+            zoom.level=3,
+            popup="You can add additional info here <br>another line with info",
+            latitude = -19, 
+            longitude = 125)
+```
+
+## 9. Adding a pop-up video to a map
+
+We may even add a popup video ((which unfortunately might not show properly on this site). This feature could be useful for field linguists who would like to add a short video introduction to a language they're documenting, maybe even from the field. The particular video in this example is unrelated to Gooniyandi and only intended to illustrate the idea.
+
+```{r}
+video="https://media.spreadthesign.com/video/mp4/13/48600.mp4"
+video= paste("<video width='200' height='150' controls> <source src='",
+                         as.character(video),
+                         "' type='video/mp4'></video>", sep = "")
+map.feature("Gooniyandi",popup=video,zoom.level=4)
+```
+
+## 10. Changing the map type
+
+There are several map types available. have a look here: 
+https://leaflet-extras.github.io/leaflet-providers/preview/index.html
+
+By adding the control parameter, we can also create a map with two layers to choose from.
+
+```{r}
+map.feature("Swedish", tile =c("OpenTopoMap","Stamen.Watercolor"),control=T, zoom.level=4)
+```
+<br>
+The world at night. This map and the next seem to not show unless we specify a zoom level.
+<br>
+```{r}
+map.feature("Swedish", tile ="NASAGIBS.ViirsEarthAtNight2012",zoom.level=5)
+```
+<br>
+My personal favourite..
+<br>
+```{r}
+map.feature("Swedish", tile ="Thunderforest.SpinalMap",zoom.level = 5)
+```
+
+## 11. Mapping members of a language family
+
+We will map the Khoisan languages and add a density contour.
+
+```{r}
+map.feature(lang.aff("Khoisan"),density.estimation = TRUE,density.width=5)
+```
+<br>
+And if we only want the area without points..
+<br>
+```{r}
+map.feature(lang.aff("Khoisan"),density.estimation = TRUE,density.points = FALSE,density.width=5)
+```
+
+## 12. Mapping two language families
+
+Mapping two language families gets slightly more tricky and requires a bit of coding. Here we'll map Bantu and Khoisan languages. <br>
+1. We first gather the languages belonging to Khoisan and Bantu.<br>
+2. Because the aff.lang variable contains many details, we use grepl() to search the strings of text for "Bantu" and "Khoisan" and assign these labels in a new variable we call "family". <br>
+3. We then join the individual languages with their family labels in a data frame. <br>
+4. As a bonus, we add coordinates to our data. <br>
+5. Lastly, we remove the redundant row names. <br>
+
+```{r, warning=F}
+language=lang.aff(c("Khoisan","Bantu")) # Step 1
+family=aff.lang(language) # this is an extra step needed for this document to work
+family[grepl("Bantu",aff.lang(language))==T]="Bantu" # Step 2
+family[grepl("Khoisan",aff.lang(language))==T]="Khoisan"
+africa=data.frame(language,family) # Step 3
+africa$long=long.lang(africa$language) # Step 4
+africa$lat=lat.lang(africa$language) 
+rownames(africa) <- c() # Step 5
+head(africa)
+table(africa$family)
+```
+We can now plot our data.
+<br>
+```{r}
+map.feature(africa$language,
+            features=africa$family,
+            longitude = africa$long,
+            latitude = africa$lat,
+            density.estimation = africa$family,
+            density.width=5)
+```
+We can also create the same map with a few modifications.
+<br>
+```{r, warning=F}
+map.feature(africa$language,
+            features=africa$family,
+            longitude = africa$long,
+            latitude = africa$lat,
+            density.estimation =africa$family,
+            density.width=5,
+            color=c("red","blue"),
+            density.estimation.opacity=0.3,
+            density.estimation.color = c("red","blue"),
+            zoom.level=4,
+            zoom.control = T)
+```
+
+## 13. Getting data from typological databases
+
+We can download and use data from the following sources:
+<br>
+1. WALS <br>
+2. AUTOTYP <br>
+3. PHOIBLE <br>
+4. Affix borrowing database <br>
+5. South American indigenous language structures <br>
+6. Austronesian basic vocabulary database <br>
+
+As an example, lets map Matt Dryer's basic word order data (WALS feature 81a).
+
+```{r, warning=F}
+wordOrder <- wals.feature(c("81a"))
+head(wordOrder)
+
+map.feature(wordOrder$language,
+            features = wordOrder$`81a`,
+            latitude = wordOrder$latitude,
+            longitude = wordOrder$longitude,
+            label = wordOrder$language,
+            title = "Word Order",
+            control=T,
+            zoom.control = T)
+```
+
+## 14. Mapping predictions about linguistic features
+
+This is a very simple example of how you can map predictions about typological features based on a machine learning approach. In this case, we will use a decision tree for classification to predict word order purely from geographical coordinates. We could of course apply more sophisticated methods with model evaluation and include other predictor variables from e.g. WALS and Glottolog to optimize our model. However for our purposes, we will only consider longitude and latitude in a simple model.
+
+```{r}
+library(rpart) # rpart is included in base R, but needs to be loaded
+
+# We first merge our previously defined wordOrder data frame with Glottolog data.
+# Our old wordOrder data frame is replaced by the new data frame
+wordOrder=merge(glottolog.original,wordOrder,by="language")
+
+# We then add a new column with word order data as a factor variable
+wordOrder$wo=factor(wordOrder$`81a`)
+
+# Now we can split our data into a training and a test set
+set.seed(43282) #this allows for reproducibility of the analysis
+smp_size <- round(0.7 * nrow(wordOrder)) #our training data will contain 70% of the rows
+train_ind <- sample(seq_len(nrow(wordOrder)), size = smp_size) #choosing a random sample of row numbers
+train <- wordOrder[train_ind, ]
+test <- wordOrder[-train_ind, ] # the test set contains the rows not included in the training set
+
+# We fit our simple model on the training set
+fit <- rpart(wo ~ longitude.x+latitude.x,
+             method="class", data=train,na.action = na.exclude)
+
+# Based on our fitted model, we can assign the predicted word orders to a new variable 
+# and add it to our test data frame
+test$pred=predict(fit,test,type="class")
+
+# We then create another column that tells us whether individual predictions were correct or not
+# The logical operator '==' means "is equal to", compares two values and returns TRUE if values match
+# '!=' means "is not equal to"
+test$correct[test$pred==test$wo]="Correct"
+test$correct[test$pred!=test$wo]="Incorrect"
+test$correct=factor(test$correct)
+
+# How many correct/incorrect predictions?
+table(test$correct)
+cat("in percent: ", prop.table(table(test$correct))*100)
+
+# Relative importance of our variables
+fit$variable.importance
+cat("Scaled to 100: ", fit$variable.importance/sum(fit$variable.importance)*100)
+```
+
+We now have a good idea about our model's performance. Let's create a map revealing correct and incorrect test predictions. Notice the text in the popups, which doesn't seem to show clearly on this page.
+
+```{r}
+map.feature(languages=test$language,
+            features=test$correct,
+            color=c("green","red"),
+            minimap=T,
+            zoom.control=T,
+            popup = paste("actual: ",test$wo,"<br>","predicted: ",test$pred))
+```
+
+## 15. Mapping links between languages on an interactive globe
+In this last part, we map data gathered with lingtypology onto an interactive 3d map of the world and create links between coordinates. Among many other things, this can be used to map geographical dispersal between related languages. In this example, we map links between Danish and other Germanic languages, as well as links between all members of the Cree languages.
+
+```{r, warning=F, message=F}
+if (!require('threejs')) 
+install.packages("threejs")
+library(threejs)
+
+# A picture of the earth which we'll turn into a globe
+earth <- "http://eoimages.gsfc.nasa.gov/images/imagerecords/73000/73909/world.topo.bathy.200412.3x5400x2700.jpg"
+
+# We create data frame with all Germanic languages and coordinates
+language=lang.aff("Germanic")
+Danish=data.frame(language,
+                   lat=lat.lang(language),
+                   long=long.lang(language))
+
+# We do a bit of cleaning, though it may not be strictly necessary
+Danish=subset(Danish,language="Danish") #remove Danish
+Danish=na.omit(Danish) #unfortunately, some of thee languages do not have 
+# coordinates, including Norwegian
+rownames(Danish)=c() #not necessary, but the row names are redundant
+
+# Similarly for Cree
+language=lang.aff("Cree")
+Cree=data.frame(language,
+                  lat=lat.lang(language),
+                  long=long.lang(language))
+rownames(Cree)=c()
+
+# Combining into one data frame
+DanCree=data.frame(rbind(Danish,Cree))
+
+# Assigning coordinates to create links between Danish and other Germanic languages
+coordsDan=cbind(rep(lat.lang("Danish",nrow(Danish))), # column 1: latitude location 1
+           rep(long.lang("Danish",nrow(Danish))), # column 2: longitude location 1
+           Danish$lat, # column 3: latitude location 2
+           Danish$long) # column 4: longitude location 2
+
+# For Cree 
+language=lang.aff("Cree")
+linkCree=data.frame(expand.grid(l1=language,l2=language))
+linkCree=subset(linkCree,l1!=l2) 
+linkCree=linkCree[!duplicated(t(apply(linkCree,1,sort))),] #remove repeated pairs
+coordsCree=cbind(lat.lang(linkCree$l1),
+                 long.lang(linkCree$l1),
+                 lat.lang(linkCree$l2),
+                 long.lang(linkCree$l2))
+
+coords=rbind(coordsDan,coordsCree)
+
+globejs(img = earth, 
+        lat = DanCree$lat, 
+        long =DanCree$long,
+        arcs=coords,
+        arcsColor="gold",
+        value=20,
+        color="red",
+        arcsOpacity = 0.6,
+        arcsHeight = 0.4,
+        arcsLwd = 4,
+        atmosphere=T)
+```
+

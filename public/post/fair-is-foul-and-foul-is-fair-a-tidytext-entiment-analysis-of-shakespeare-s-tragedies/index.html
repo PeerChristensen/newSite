@@ -1,0 +1,1178 @@
+<!DOCTYPE html>
+<html lang="en-us">
+<head>
+
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="generator" content="Source Themes Academic 3.2.0">
+  <meta name="generator" content="Hugo 0.52" />
+  <meta name="author" content="Peer Christensen">
+
+  
+  
+  
+  
+    
+  
+  <meta name="description" content="Part 1 of my exploration of the tidytext R package for various text mining tasks">
+
+  
+  <link rel="alternate" hreflang="en-us" href="/post/fair-is-foul-and-foul-is-fair-a-tidytext-entiment-analysis-of-shakespeare-s-tragedies/">
+
+  
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+  
+  
+  <meta name="theme-color" content="hsl(339, 90%, 68%)">
+  
+
+  
+  
+  
+  
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha256-eSi1q2PG6J7g7ib17yAaWMcrr5GrtohYChqibrV7PBE=" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/academicons/1.8.6/css/academicons.min.css" integrity="sha256-uFVgMKfistnJAfoCUQigIl+JfUaP47GrRKjf6CTPVmw=" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.0/css/all.css" integrity="sha384-aOkxzJ5uQz7WBObEZcHvV5JvRW3TUc2rNPA7pe3AwnsUohiw1Vj2Rgx2KSOkF5+h" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.2.5/jquery.fancybox.min.css" integrity="sha256-ygkqlh3CYSUri3LhQxzdcm0n1EQvH2Y+U5S2idbLtxs=" crossorigin="anonymous">
+
+    
+    
+    
+      
+    
+    
+      
+      
+        
+          <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/dracula.min.css" crossorigin="anonymous">
+        
+      
+    
+
+    
+
+    
+
+  
+
+  
+  
+  <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Montserrat:400,700|Roboto:400,400italic,700|Roboto+Mono">
+  
+
+  <link rel="stylesheet" href="/styles.css">
+  
+
+  
+  
+    <script>
+      window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+      ga('create', 'UA-114535548-1', 'auto');
+      
+      ga('require', 'eventTracker');
+      ga('require', 'outboundLinkTracker');
+      ga('require', 'urlChangeTracker');
+      ga('send', 'pageview');
+    </script>
+    <script async src="//www.google-analytics.com/analytics.js"></script>
+    
+    <script async src="https://cdnjs.cloudflare.com/ajax/libs/autotrack/2.4.1/autotrack.js" integrity="sha512-HUmooslVKj4m6OBu0OgzjXXr+QuFYy/k7eLI5jdeEy/F4RSgMn6XRWRGkFi5IFaFgy7uFTkegp3Z0XnJf3Jq+g==" crossorigin="anonymous"></script>
+    
+  
+  
+
+  
+  <link rel="alternate" href="/index.xml" type="application/rss+xml" title="Peer Christensen">
+  <link rel="feed" href="/index.xml" type="application/rss+xml" title="Peer Christensen">
+  
+
+  <link rel="manifest" href="/site.webmanifest">
+  <link rel="icon" type="image/png" href="/img/icon.png">
+  <link rel="apple-touch-icon" type="image/png" href="/img/icon-192.png">
+
+  <link rel="canonical" href="/post/fair-is-foul-and-foul-is-fair-a-tidytext-entiment-analysis-of-shakespeare-s-tragedies/">
+
+  
+  
+  
+  
+    
+    
+  
+  <meta property="twitter:card" content="summary">
+  
+  <meta property="twitter:site" content="@@PeerChristensen">
+  <meta property="twitter:creator" content="@@PeerChristensen">
+  
+  <meta property="og:site_name" content="Peer Christensen">
+  <meta property="og:url" content="/post/fair-is-foul-and-foul-is-fair-a-tidytext-entiment-analysis-of-shakespeare-s-tragedies/">
+  <meta property="og:title" content="Fair is foul, and foul is fair: a tidytext sentiment analysis of Shakespeare’s tragedies | Peer Christensen">
+  <meta property="og:description" content="Part 1 of my exploration of the tidytext R package for various text mining tasks"><meta property="og:image" content="/img/peer_christensen_small@0,50x.png">
+  <meta property="og:locale" content="en-us">
+  
+  <meta property="article:published_time" content="2018-06-07T00:00:00&#43;00:00">
+  
+  <meta property="article:modified_time" content="2018-06-07T00:00:00&#43;00:00">
+  
+
+  
+
+  
+
+  <title>Fair is foul, and foul is fair: a tidytext sentiment analysis of Shakespeare’s tragedies | Peer Christensen</title>
+
+</head>
+<body id="top" data-spy="scroll" data-target="#TableOfContents" data-offset="71" class="dark">
+  <aside class="search-results" id="search">
+  <div class="container">
+    <section class="search-header">
+
+      <div class="row no-gutters justify-content-between mb-3">
+        <div class="col-6">
+          <h1>Search</h1>
+        </div>
+        <div class="col-6 col-search-close">
+          <a class="js-search" href="#"><i class="fas fa-times-circle text-muted" aria-hidden="true"></i></a>
+        </div>
+      </div>
+
+      <div id="search-box">
+        
+        <input name="q" id="search-query" placeholder="Search..." autocapitalize="off"
+        autocomplete="off" autocorrect="off" role="textbox" spellcheck="false" type="search">
+        
+      </div>
+
+    </section>
+    <section class="section-search-results">
+
+      <div id="search-hits">
+        
+      </div>
+
+    </section>
+  </div>
+</aside>
+
+
+<nav class="navbar navbar-light fixed-top navbar-expand-lg py-0" id="navbar-main">
+  <div class="container">
+
+    
+      <a class="navbar-brand" href="/">Peer Christensen</a>
+      
+      <button type="button" class="navbar-toggler" data-toggle="collapse"
+              data-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
+        <span><i class="fas fa-bars"></i></span>
+      </button>
+      
+
+    
+    <div class="collapse navbar-collapse" id="navbar">
+
+      
+      
+      <ul class="navbar-nav ml-auto">
+        
+
+        
+
+        
+        
+        
+          
+        
+
+        <li class="nav-item">
+          <a class="nav-link" href="/#about">
+            
+            <span>Home</span>
+            
+          </a>
+        </li>
+
+        
+        
+
+        
+
+        
+        
+        
+          
+        
+
+        <li class="nav-item">
+          <a class="nav-link" href="/#posts">
+            
+            <span>Posts</span>
+            
+          </a>
+        </li>
+
+        
+        
+
+        
+
+        
+        
+        
+          
+        
+
+        <li class="nav-item">
+          <a class="nav-link" href="/#publications">
+            
+            <span>Publications</span>
+            
+          </a>
+        </li>
+
+        
+        
+
+        
+
+        
+        
+        
+          
+        
+
+        <li class="nav-item">
+          <a class="nav-link" href="/#projects">
+            
+            <span>Projects</span>
+            
+          </a>
+        </li>
+
+        
+        
+
+        
+
+        
+        
+        
+          
+        
+
+        <li class="nav-item">
+          <a class="nav-link" href="/#contact">
+            
+            <span>Contact</span>
+            
+          </a>
+        </li>
+
+        
+        
+
+        
+
+        
+        
+        
+          
+        
+
+        <li class="nav-item">
+          <a class="nav-link" href="/files/cv.pdf">
+            
+            <span>CV</span>
+            
+          </a>
+        </li>
+
+        
+        
+
+      
+
+        
+
+        
+        <li class="nav-item">
+          <a class="nav-link js-search" href="#"><i class="fas fa-search" aria-hidden="true"></i></a>
+        </li>
+        
+
+        
+
+        
+        <li class="nav-item">
+          <a class="nav-link js-dark-toggle" href="#"><i class="fas fa-moon" aria-hidden="true"></i></a>
+        </li>
+        
+
+      </ul>
+
+    </div>
+  </div>
+</nav>
+
+
+<article class="article" itemscope itemtype="http://schema.org/Article">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+  
+  
+<div class="article-container pt-3">
+  <h1 itemprop="name">Fair is foul, and foul is fair: a tidytext sentiment analysis of Shakespeare’s tragedies</h1>
+
+  
+
+  
+    
+
+<div class="article-metadata">
+
+  
+  
+  <span itemscope itemprop="author" itemtype="http://schema.org/Person">
+    <meta itemprop="name" content="Peer Christensen">
+  </span>
+  
+
+  <span class="article-date">
+    
+    <meta content="2018-06-07 00:00:00 &#43;0000 UTC" itemprop="datePublished">
+    <time datetime="2018-06-07 00:00:00 &#43;0000 UTC" itemprop="dateModified">
+      Jun 7, 2018
+    </time>
+  </span>
+  <span itemscope itemprop="publisher" itemtype="http://schema.org/Person">
+    <meta itemprop="name" content="Peer Christensen">
+  </span>
+
+  
+  <span class="middot-divider"></span>
+  <span class="article-reading-time">
+    11 min read
+  </span>
+  
+
+  
+  
+  <span class="middot-divider"></span>
+  <a href="/post/fair-is-foul-and-foul-is-fair-a-tidytext-entiment-analysis-of-shakespeare-s-tragedies/#disqus_thread"></a>
+  
+
+  
+  
+  
+  <span class="middot-divider"></span>
+  <span class="article-categories">
+    <i class="fas fa-folder"></i>
+    
+    <a href="/categories/r/">R</a>, 
+    
+    <a href="/categories/text-mining/">Text mining</a>
+    
+  </span>
+  
+  
+
+  
+  
+<div class="share-box" aria-hidden="true">
+  <ul class="share">
+    <li>
+      <a class="twitter"
+         href="https://twitter.com/intent/tweet?text=Fair%20is%20foul%2c%20and%20foul%20is%20fair%3a%20a%20tidytext%20sentiment%20analysis%20of%20Shakespeare%e2%80%99s%20tragedies&amp;url=%2fpost%2ffair-is-foul-and-foul-is-fair-a-tidytext-entiment-analysis-of-shakespeare-s-tragedies%2f"
+         target="_blank" rel="noopener">
+        <i class="fab fa-twitter"></i>
+      </a>
+    </li>
+    <li>
+      <a class="facebook"
+         href="https://www.facebook.com/sharer.php?u=%2fpost%2ffair-is-foul-and-foul-is-fair-a-tidytext-entiment-analysis-of-shakespeare-s-tragedies%2f"
+         target="_blank" rel="noopener">
+        <i class="fab fa-facebook-f"></i>
+      </a>
+    </li>
+    <li>
+      <a class="linkedin"
+         href="https://www.linkedin.com/shareArticle?mini=true&amp;url=%2fpost%2ffair-is-foul-and-foul-is-fair-a-tidytext-entiment-analysis-of-shakespeare-s-tragedies%2f&amp;title=Fair%20is%20foul%2c%20and%20foul%20is%20fair%3a%20a%20tidytext%20sentiment%20analysis%20of%20Shakespeare%e2%80%99s%20tragedies"
+         target="_blank" rel="noopener">
+        <i class="fab fa-linkedin-in"></i>
+      </a>
+    </li>
+    <li>
+      <a class="weibo"
+         href="http://service.weibo.com/share/share.php?url=%2fpost%2ffair-is-foul-and-foul-is-fair-a-tidytext-entiment-analysis-of-shakespeare-s-tragedies%2f&amp;title=Fair%20is%20foul%2c%20and%20foul%20is%20fair%3a%20a%20tidytext%20sentiment%20analysis%20of%20Shakespeare%e2%80%99s%20tragedies"
+         target="_blank" rel="noopener">
+        <i class="fab fa-weibo"></i>
+      </a>
+    </li>
+    <li>
+      <a class="email"
+         href="mailto:?subject=Fair%20is%20foul%2c%20and%20foul%20is%20fair%3a%20a%20tidytext%20sentiment%20analysis%20of%20Shakespeare%e2%80%99s%20tragedies&amp;body=%2fpost%2ffair-is-foul-and-foul-is-fair-a-tidytext-entiment-analysis-of-shakespeare-s-tragedies%2f">
+        <i class="fas fa-envelope"></i>
+      </a>
+    </li>
+  </ul>
+</div>
+
+
+  
+
+</div>
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+</div>
+
+
+
+  <div class="article-container">
+
+    <div class="article-style" itemprop="articleBody">
+      
+
+
+<p>
+Sentiment analysis can be used for many purposes and applied to all kinds of texts. In this exploratory analysis, we’ll use a tidytext approach to examine the use of sentiment words in the tragedies written by William Shakespeare. I’ve previously used Python for scraping and mining texts. However, I recently stumbled upon the tidytext R package by Julia Silge and David Robinson as well as their excellent <a href="https://www.tidytextmining.com/">book</a> and ressource on combining tidytext with other tidy tools in R. This approach has made my life so much easier!
+<p>
+<div id="loading-packages" class="section level3">
+<h3>Loading packages</h3>
+<pre class="r"><code>if(!require(&quot;pacman&quot;)) install.packages(&quot;pacman&quot;)
+pacman::p_load(tidyverse,tidytext,jtools,gridExtra,zoo,data.table,gutenbergr)</code></pre>
+<p>
+</div>
+<div id="customizing-a-ggplot2-theme" class="section level3">
+<h3>Customizing a ggplot2 theme</h3>
+Because we’ll create several ggplots to visualize sentiments in Shakespeare’s tragedies, it’ll be worth storing some plotting options in a customized theme. Rather than starting from scratch, we’ll use the APA theme from the jtools package and override some of the theme settings.
+<p>
+<pre class="r"><code>my_theme &lt;- function() {
+  theme_apa(legend.pos = &quot;none&quot;) +
+    theme(panel.background = element_blank()) +
+    theme(plot.background = element_rect(fill = &quot;antiquewhite1&quot;)) +
+    theme(panel.border = element_blank()) +                       # facet border
+    theme(strip.background = element_blank()) +                  # facet title background
+    theme(plot.margin = unit(c(.5, .5, .5, .5), &quot;cm&quot;)) 
+}</code></pre>
+<p>
+</div>
+<div id="loading-our-data" class="section level3">
+<h3>Loading our data</h3>
+Initially when I started working on Shakespeare’s plays, I downloaded the texts as .txt files and cleaned them in several steps. At the bottom of this page, I provide some code showing how I did it.
+<p>
+A more efficient way to gather public domain literary texts, such as Shakespeare’s plays, is to use David Robinson’s gutenbergr package. Let’s first see what’s available by Shakespeare.
+<p>
+<pre class="r"><code>shakespeare &lt;- gutenberg_works(author == &quot;Shakespeare, William&quot;) 
+
+shakespeare</code></pre>
+<pre><code>## # A tibble: 79 x 8
+##    gutenberg_id title author gutenberg_autho… language gutenberg_books…
+##           &lt;int&gt; &lt;chr&gt; &lt;chr&gt;             &lt;int&gt; &lt;chr&gt;    &lt;chr&gt;           
+##  1         1041 Shak… Shake…               65 en       &lt;NA&gt;            
+##  2         1045 Venu… Shake…               65 en       &lt;NA&gt;            
+##  3         1500 King… Shake…               65 en       &lt;NA&gt;            
+##  4         1501 Hist… Shake…               65 en       &lt;NA&gt;            
+##  5         1502 The … Shake…               65 en       &lt;NA&gt;            
+##  6         1503 The … Shake…               65 en       &lt;NA&gt;            
+##  7         1504 The … Shake…               65 en       &lt;NA&gt;            
+##  8         1505 The … Shake…               65 en       &lt;NA&gt;            
+##  9         1507 The … Shake…               65 en       &lt;NA&gt;            
+## 10         1508 The … Shake…               65 en       &lt;NA&gt;            
+## # ... with 69 more rows, and 2 more variables: rights &lt;chr&gt;,
+## #   has_text &lt;lgl&gt;</code></pre>
+<p>
+We then collect the IDs for the plays that we want and check that they match before we download the texts.
+<p>
+<pre class="r"><code>IDs = shakespeare[c(15,23,33,34,53,54,55,56,57,58),]$gutenberg_id
+
+shakespeare %&gt;% filter(gutenberg_id %in% IDs)</code></pre>
+<pre><code>## # A tibble: 10 x 8
+##    gutenberg_id title author gutenberg_autho… language gutenberg_books…
+##           &lt;int&gt; &lt;chr&gt; &lt;chr&gt;             &lt;int&gt; &lt;chr&gt;    &lt;chr&gt;           
+##  1         1513 Rome… Shake…               65 en       &lt;NA&gt;            
+##  2         1522 Juli… Shake…               65 en       &lt;NA&gt;            
+##  3         1533 Macb… Shake…               65 en       Opera           
+##  4         1534 Anto… Shake…               65 en       &lt;NA&gt;            
+##  5         2259 Cori… Shake…               65 en       &lt;NA&gt;            
+##  6         2260 Titu… Shake…               65 en       &lt;NA&gt;            
+##  7         2262 Timo… Shake…               65 en       &lt;NA&gt;            
+##  8         2265 Haml… Shake…               65 en       Best Books Ever…
+##  9         2266 King… Shake…               65 en       Banned Books fr…
+## 10         2267 Othe… Shake…               65 en       &lt;NA&gt;            
+## # ... with 2 more variables: rights &lt;chr&gt;, has_text &lt;lgl&gt;</code></pre>
+<p>
+It looks like we have the right texts. Let’s download the texts, store them in a tibble and look at the data.
+<p>
+<pre class="r"><code>plays = gutenberg_download(IDs,meta_fields = &quot;title&quot;)
+
+plays</code></pre>
+<pre><code>## # A tibble: 46,795 x 3
+##    gutenberg_id text                       title           
+##           &lt;int&gt; &lt;chr&gt;                      &lt;chr&gt;           
+##  1         1513 ROMEO AND JULIET           Romeo and Juliet
+##  2         1513 &quot;&quot;                         Romeo and Juliet
+##  3         1513 by William Shakespeare     Romeo and Juliet
+##  4         1513 &quot;&quot;                         Romeo and Juliet
+##  5         1513 &quot;&quot;                         Romeo and Juliet
+##  6         1513 &quot;&quot;                         Romeo and Juliet
+##  7         1513 &quot;&quot;                         Romeo and Juliet
+##  8         1513 PERSONS REPRESENTED        Romeo and Juliet
+##  9         1513 &quot;&quot;                         Romeo and Juliet
+## 10         1513 Escalus, Prince of Verona. Romeo and Juliet
+## # ... with 46,785 more rows</code></pre>
+<p>
+</div>
+<div id="creating-a-data-frame-of-sentiment-words" class="section level3">
+<h3>Creating a data frame of sentiment words</h3>
+<p>
+<p>We see that the text variable contains one line of text for each row. Given this format, we can create a new data frame with a row for each word token found in the Bing lexicon of sentiment words. By using this lexicon, sentiment words are simpky assigned a value of positive or negative. Have a look at the other options with ?get_sentiments. We will try using the nrc lexicon later on.</p>
+<pre class="r"><code>sentiments = plays %&gt;% 
+  group_by(title) %&gt;%
+  mutate(line = row_number()) %&gt;%      # we will use line numbers later
+  unnest_tokens(word, text) %&gt;%        #tokenize words
+  #anti_join(stop_words) %&gt;%           # in case we would like to remove stop words
+  inner_join(get_sentiments(&quot;bing&quot;))   # keep only words found in the Bing lexicon
+
+sentiments</code></pre>
+<pre><code>## # A tibble: 16,562 x 5
+## # Groups:   title [?]
+##    gutenberg_id title             line word       sentiment
+##           &lt;int&gt; &lt;chr&gt;            &lt;int&gt; &lt;chr&gt;      &lt;chr&gt;    
+##  1         1513 Romeo and Juliet    50 dignity    positive 
+##  2         1513 Romeo and Juliet    51 fair       positive 
+##  3         1513 Romeo and Juliet    52 grudge     negative 
+##  4         1513 Romeo and Juliet    52 break      negative 
+##  5         1513 Romeo and Juliet    53 unclean    negative 
+##  6         1513 Romeo and Juliet    54 fatal      negative 
+##  7         1513 Romeo and Juliet    56 overthrows negative 
+##  8         1513 Romeo and Juliet    57 death      negative 
+##  9         1513 Romeo and Juliet    57 strife     negative 
+## 10         1513 Romeo and Juliet    58 fearful    negative 
+## # ... with 16,552 more rows</code></pre>
+<p>
+We could also further subset our data frame by omitting so-called “stop words” defined in the stop_words variable. However, this is perhaps not ideal when we examine the following output showing which stop words match words in our data. Note that our choice here is important and will likely affect the analysis. In particular, it is clear that most of the words in question have a positive valence in the lexicon.
+<p>
+<pre class="r"><code>table(sentiments$word[sentiments$word %in% stop_words$word])</code></pre>
+<pre><code>## 
+## available      best    better     clear    enough      good     great 
+##        12       159       151         7        87       762       264 
+##  greatest important      like     right  sensible     sorry     thank 
+##        15         1       503        81         6        26        21 
+##    useful   welcome      well   willing    wonder      work 
+##         1       121       606         9        28        25</code></pre>
+<p>
+With that in mind, we can now plot the number of positive and negative words in each play.
+<p>
+<pre class="r"><code>sentiments %&gt;% 
+  count(sentiment) %&gt;%
+  ggplot(aes(x = sentiment, y = n, fill = title)) + 
+  geom_bar(stat = &quot;identity&quot;) +
+  facet_wrap(~title) +
+  scale_fill_viridis_d(option = &quot;B&quot;) +
+  my_theme()</code></pre>
+<img src="/post/2018-06-07-fair-is-foul-and-foul-is-fair-a-tidytext-entiment-analysis-of-shakespeare-s-tragedies_files/figure-html/unnamed-chunk-8-1.png" width="960" />
+<p>
+For the figure below, we’ll use the nrc lexicon, which associates words with basic emotions.
+<p>
+<pre class="r"><code>plays %&gt;% 
+  group_by(title) %&gt;%
+  mutate(line = row_number()) %&gt;%
+  unnest_tokens(word, text) %&gt;%
+  #anti_join(stop_words) %&gt;%
+  inner_join(get_sentiments(&quot;nrc&quot;)) %&gt;% 
+  count(sentiment) %&gt;%
+  ggplot(aes(x = sentiment, y = n, fill = sentiment)) + 
+  geom_bar(stat = &quot;identity&quot;) +
+  facet_wrap(~title) +
+  scale_fill_viridis_d(option = &quot;B&quot;) +
+  my_theme() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) </code></pre>
+<img src="/post/2018-06-07-fair-is-foul-and-foul-is-fair-a-tidytext-entiment-analysis-of-shakespeare-s-tragedies_files/figure-html/unnamed-chunk-9-1.png" width="960" />
+<p>
+Using our first data frame created with the Bing lexicon, let’s now rank the plays according to their ratio of negative words.
+<p>
+<pre class="r"><code>sentiments %&gt;% 
+  count(sentiment) %&gt;%
+  spread(sentiment, n, fill = 0) %&gt;%
+  mutate(ratio = negative / (negative + positive)) %&gt;%
+  ungroup() %&gt;%
+  ggplot(aes(x = reorder(title, ratio), y = ratio, fill = ratio)) + 
+  geom_bar(stat = &quot;identity&quot;) +
+  scale_fill_viridis_c(option = &quot;B&quot;, direction = -1) +
+  my_theme() + 
+  labs(title = &quot;Plays ranked by ratio of negative sentiment words&quot;,
+       y = &quot;ratio negative words&quot;,
+       x = &quot;plays&quot;) +
+  coord_flip()</code></pre>
+<img src="/post/2018-06-07-fair-is-foul-and-foul-is-fair-a-tidytext-entiment-analysis-of-shakespeare-s-tragedies_files/figure-html/unnamed-chunk-10-1.png" width="960" />
+<p>
+</div>
+<div id="sentiments-over-time" class="section level3">
+<h3>Sentiments over time</h3>
+<p>It might also be interesting to examine the ebb and flow of sentiments as each play unfolds. To do so, we can use integer division and find the number of positive and negative words for each chunk of text. Here, we’ll use chunks with 100 words in each and subtract the number of negative from positive words.</p>
+<pre class="r"><code>sentiments %&gt;%
+  count(title, index = line %/% 100, sentiment) %&gt;%  # count number of positive and negative words for each chunk of 100 lines
+  spread(sentiment, n, fill = 0) %&gt;%                 
+  mutate(sentiment = positive - negative) %&gt;%
+  ggplot(aes(index, sentiment, fill = sentiment)) +
+  geom_col(show.legend = FALSE) +
+  facet_wrap(~title,scales = &quot;free_x&quot;) +
+  scale_fill_viridis_c(option = &quot;B&quot;) +
+  my_theme()</code></pre>
+<img src="/post/2018-06-07-fair-is-foul-and-foul-is-fair-a-tidytext-entiment-analysis-of-shakespeare-s-tragedies_files/figure-html/unnamed-chunk-11-1.png" width="1152" />
+<p>
+It might also be useful to further examine the “trend”&quot; by adding a line indicating the rolling mean sentiment score. As an example, let’s try this with Romeo and Juliet using a lag of 5 indices.
+<p>
+<pre class="r"><code>sentiments %&gt;%
+  filter(title == &quot;Romeo and Juliet&quot;) %&gt;%
+  count(title, index = line %/% 100, sentiment) %&gt;%
+  spread(sentiment, n, fill = 0) %&gt;%
+  mutate(sentiment = positive - negative) %&gt;%
+  mutate(rollMean = rollmean(sentiment, 5, fill = NA)) %&gt;%             # zoo package
+  ggplot(aes(index, sentiment, fill = sentiment)) +
+  geom_col(show.legend = FALSE) +
+  geom_line(aes(x = index, y = rollMean),size = 4, colour = &quot;antiquewhite1&quot;) +
+  geom_line(aes(x = index, y = rollMean), size = 1) +
+  scale_fill_viridis_c(option = &quot;B&quot;) +
+  labs(title = &quot;Romeo and Juliet&quot;) +
+  my_theme()</code></pre>
+<img src="/post/2018-06-07-fair-is-foul-and-foul-is-fair-a-tidytext-entiment-analysis-of-shakespeare-s-tragedies_files/figure-html/unnamed-chunk-12-1.png" width="960" />
+<p>
+Though it requires a bit more work, it might be worthwhile to indicate where the individual acts begin. First, we will create a data frame containing the lines in which individual acts begin. We find the relevant lines with regular expressions in line 4 of the below code looking for the word “act” (or, in some cases, “actus”). For each hit, we assign a number
+<p>
+<pre class="r"><code>acts = plays %&gt;% 
+  filter(title == &quot;Romeo and Juliet&quot;) %&gt;%
+  mutate(line = row_number()) %&gt;%
+  mutate(act = cumsum(str_detect(text, regex(&quot;^act |^actus &quot;, ignore_case = T)))) %&gt;% 
+  ungroup() %&gt;%
+  unnest_tokens(word, text) %&gt;%
+  #anti_join(stop_words) %&gt;%
+  inner_join(get_sentiments(&quot;bing&quot;)) %&gt;%
+  count(act, index = line %/% 100, sentiment) %&gt;%
+  mutate(new_act = act != shift(act,1)) %&gt;%         # add a logical vector indicating where acts begin
+  spread(sentiment, n, fill = 0) %&gt;%
+  mutate(sentiment = positive - negative) %&gt;%
+  filter(new_act == T, act &gt; 0) %&gt;%                   # keep only indices where acts begin, remove indices before act 1
+  select(index,act)
+
+acts</code></pre>
+<pre><code>## # A tibble: 5 x 2
+##   index   act
+##   &lt;dbl&gt; &lt;int&gt;
+## 1     0     1
+## 2    13     2
+## 3    25     3
+## 4    38     4
+## 5    45     5</code></pre>
+<p>
+We’ll also create a new data frame with the functions we used to prepare the data for the previous plot.
+<p>
+<pre class="r"><code>sentiments2 = plays %&gt;% 
+  filter(title == &quot;Romeo and Juliet&quot;) %&gt;%
+  mutate(line = row_number()) %&gt;%
+  ungroup() %&gt;%
+  unnest_tokens(word, text) %&gt;%
+  #anti_join(stop_words) %&gt;%
+  inner_join(get_sentiments(&quot;bing&quot;)) %&gt;%
+  count(index = line %/% 100, sentiment) %&gt;%
+  spread(sentiment, n, fill = 0) %&gt;%
+  mutate(sentiment = positive - negative)</code></pre>
+<p>
+Let’s then plot the same data only with lines and text indicating the beginning of each act.
+<p>
+<pre class="r"><code>sentiments2 %&gt;% ggplot(aes(index, sentiment, fill = sentiment)) +
+  geom_vline(data = acts[-1,],
+             aes(xintercept = index - 0.5),linetype = &quot;dashed&quot;) +
+  geom_col(show.legend = FALSE,position = &quot;dodge&quot;) +
+  scale_fill_viridis_c(option = &quot;B&quot;) + 
+  labs(title = &quot;Romeo and Juliet&quot;) +
+  annotate(&quot;text&quot;, x = acts$index + 2, y = 22, label = paste0(&quot;act &quot;, acts$act), size = 5) +
+  my_theme()</code></pre>
+<img src="/post/2018-06-07-fair-is-foul-and-foul-is-fair-a-tidytext-entiment-analysis-of-shakespeare-s-tragedies_files/figure-html/unnamed-chunk-15-1.png" width="960" />
+<p>
+</div>
+<div id="finding-the-most-common-sentiment-words" class="section level3">
+<h3>Finding the most common sentiment words</h3>
+Focusing now on the words themselves, we can easily get an overview of the most common positive and negative words. In this case, we select the ten most common words for each category.
+<p>
+<pre class="r"><code>word_counts &lt;- sentiments %&gt;%
+  ungroup() %&gt;%
+  count(word, sentiment, sort = TRUE) %&gt;%
+  group_by(sentiment) %&gt;%
+  top_n(10) %&gt;%
+  ungroup() %&gt;%
+  arrange(sentiment, -n) %&gt;%
+  mutate(order = rev(row_number()))       # we need the order variable to ensure proper ranking of words</code></pre>
+<p>
+Recall that we chose to keep the sentiment words that matched stop words. In the plot below, we clearly see the consequence of our choice. The top four spots among positive words are populated by stop words.
+<p>
+<pre class="r"><code>word_counts %&gt;%
+  ggplot(aes(order, n, fill = sentiment)) +
+  geom_col(show.legend = FALSE) +
+  scale_x_continuous(
+    breaks = word_counts$order,
+    labels = word_counts$word,
+    expand = c(0,0)) +
+  facet_wrap(~sentiment, scales = &quot;free_y&quot;) +
+  labs(y = &quot;Contribution to sentiment&quot;, x = NULL) +
+  coord_flip() +
+  scale_fill_viridis_d(option = &quot;B&quot;, begin = .2, end = .8) +
+  my_theme()</code></pre>
+<img src="/post/2018-06-07-fair-is-foul-and-foul-is-fair-a-tidytext-entiment-analysis-of-shakespeare-s-tragedies_files/figure-html/unnamed-chunk-17-1.png" width="960" />
+<p>
+Let’s do the same for each play and store individual plots in a list using a for loop. Note that if there are ties for tenth place, all tied words are plotted.
+<p>
+<pre class="r"><code>titles = unique(sentiments$title)
+plots = list()
+for (i in titles){
+  word_counts = sentiments %&gt;%
+    filter(title == i) %&gt;%
+    count(word, sentiment, sort = TRUE) %&gt;%
+    ungroup() %&gt;%
+    group_by(sentiment) %&gt;%
+    top_n(10) %&gt;%
+    ungroup() %&gt;%
+    arrange(sentiment, -n) %&gt;%
+    mutate(order = rev(row_number()))
+  
+  plots[[i]] = word_counts %&gt;%
+    ggplot(aes(order, n, fill = sentiment)) +
+    geom_col(show.legend = FALSE) +
+    scale_x_continuous(
+      breaks = word_counts$order,
+      labels = word_counts$word,
+      expand = c(0,0)) +
+    facet_wrap(~sentiment, scales = &quot;free_y&quot;) +
+    labs(y = &quot;Contribution to sentiment&quot;,x = NULL) +
+    ggtitle(i) +
+    coord_flip() +
+    scale_fill_viridis_d(option = &quot;B&quot;,begin = .2,end = .8) +
+    my_theme()
+  
+    #print(plots[[i]])              # in case we want to create individual plots                 
+}</code></pre>
+<p>
+Let’s create a grid and plot the first nine plays.
+<p>
+<pre class="r"><code>grid.arrange(grobs = plots[1:9], ncol = 3)</code></pre>
+<img src="/post/2018-06-07-fair-is-foul-and-foul-is-fair-a-tidytext-entiment-analysis-of-shakespeare-s-tragedies_files/figure-html/unnamed-chunk-19-1.png" width="1152" />
+<p>
+</div>
+<div id="conclusion" class="section level3">
+<h3>Conclusion</h3>
+The aim of this analysis was simply to illustrate the ease with which one can quantify and explore texts with the tidytext package in combination with other tidy tools. In future posts, I will apply other text mining methods (e.g. word frequency, n-gram analysis and topic modeling) to Shakespeare’s tragedies.
+<p>
+</div>
+<div id="preparing-data-from-.txt-files" class="section level3">
+<h3>Preparing data from .txt files</h3>
+<p>I started out with a .txt file containing the text for each play before using gutenbergr to grab the text. Of course, we may want to use the same text mining methods on many other kinds of texts not in the Gutenberg Project catalogue. The following code shows how one can take a collection of .txt files to produce a data frame structured in the same way as before.</p>
+<pre class="r"><code>##### manual cleaning
+playList = list.files(pattern = &quot;txt&quot;)        # create a list of documents
+
+df = tibble()
+for (play in playList){
+  
+  text = glue(read_file(play))
+  text = str_trim(gsub(&quot;[A-Z]{2,}&quot;,&quot;&quot;,text))  # remove uppercase words
+  text = tolower(text)                        # all words to lowercase
+  #text = removeWords(text,stopwords(&quot;en&quot;))   # remove stop words
+  tokens = data_frame(text = text) %&gt;%        # tokenize words
+    unnest_tokens(word, text)
+  
+  sentiments = tokens %&gt;%
+    inner_join(get_sentiments(&quot;bing&quot;)) %&gt;%
+    count(sentiment) %&gt;%
+    spread(sentiment, n, fill = 0) %&gt;% 
+    mutate(sentiment = positive - negative) 
+  
+  playDF = tibble(Play = play,Sentiments = names(sentiments),Values = t(sentiments)[,1])
+  df = rbind(df,playDF)
+}</code></pre>
+</div>
+
+    </div>
+
+    
+
+
+<div class="article-tags">
+  
+  <a class="badge badge-light" href="/tags/sentiment-analysis/">Sentiment analysis</a>
+  
+  <a class="badge badge-light" href="/tags/tidytext/">Tidytext</a>
+  
+  <a class="badge badge-light" href="/tags/gutenbergr/">gutenbergr</a>
+  
+</div>
+
+
+
+    
+
+
+
+
+
+
+<div class="media author-card" itemscope itemtype="http://schema.org/Person">
+  
+  <img class="portrait mr-3" src="/img/peer_christensen_small@0,50x.png" itemprop="image" alt="Avatar">
+  
+  <div class="media-body">
+    <h5 class="card-title" itemprop="name"><a href="/">Peer Christensen</a></h5>
+    <h6 class="card-subtitle">Cognitive scientist</h6>
+    
+    <ul class="network-icon" aria-hidden="true">
+      
+      
+      
+      
+        
+      
+      
+      
+      
+      
+      <li>
+        <a itemprop="sameAs" href="mailto:hr.pchristensen@gmail.com" >
+          <i class="fas fa-envelope"></i>
+        </a>
+      </li>
+      
+      
+      
+      
+        
+      
+      
+      
+      
+      
+        
+      
+      <li>
+        <a itemprop="sameAs" href="https://twitter.com/PeerChristensen" target="_blank" rel="noopener">
+          <i class="fab fa-twitter"></i>
+        </a>
+      </li>
+      
+      
+      
+      
+      
+      
+      
+      
+        
+      
+      <li>
+        <a itemprop="sameAs" href="https://www.linkedin.com/in/peer-christensen-datascientist/" target="_blank" rel="noopener">
+          <i class="fa fa-linkedin"></i>
+        </a>
+      </li>
+      
+      
+      
+      
+      
+      
+      
+      
+        
+      
+      <li>
+        <a itemprop="sameAs" href="https://scholar.google.com/citations?user=5pMTzkwAAAAJ&amp;hl=en" target="_blank" rel="noopener">
+          <i class="ai ai-google-scholar"></i>
+        </a>
+      </li>
+      
+      
+      
+      
+      
+      
+      
+      
+        
+      
+      <li>
+        <a itemprop="sameAs" href="https://github.com/PeerChristensen" target="_blank" rel="noopener">
+          <i class="fa fa-github"></i>
+        </a>
+      </li>
+      
+      
+      
+      
+      
+      
+      
+      
+        
+      
+      <li>
+        <a itemprop="sameAs" href="https://www.researchgate.net/profile/Peer_Christensen" target="_blank" rel="noopener">
+          <i class="ai ai-researchgate"></i>
+        </a>
+      </li>
+      
+      
+      
+      
+      
+      
+      
+      
+        
+      
+      <li>
+        <a itemprop="sameAs" href="/files/cv.pdf" >
+          <i class="ai ai-cv"></i>
+        </a>
+      </li>
+      
+    </ul>
+  </div>
+</div>
+
+
+
+
+    
+    
+
+    
+
+    
+<section id="comments">
+  <div id="disqus_thread"></div>
+<script type="application/javascript">
+    var disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "peerchristensen-netlify-com" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</section>
+
+
+
+  </div>
+</article>
+
+<div class="container">
+  <footer class="site-footer">
+  
+  <p class="powered-by">
+    <a href="/privacy/">Privacy Policy</a>
+  </p>
+  
+
+  <p class="powered-by">
+    &copy; 2018 &middot; 
+
+    Powered by the
+    <a href="https://sourcethemes.com/academic/" target="_blank" rel="noopener">Academic theme</a> for
+    <a href="https://gohugo.io" target="_blank" rel="noopener">Hugo</a>.
+
+    
+    <span class="float-right" aria-hidden="true">
+      <a href="#" id="back_to_top">
+        <span class="button_icon">
+          <i class="fas fa-chevron-up fa-2x"></i>
+        </span>
+      </a>
+    </span>
+    
+  </p>
+</footer>
+
+</div>
+
+
+<div id="modal" class="modal fade" role="dialog">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Cite</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <pre><code class="tex hljs"></code></pre>
+      </div>
+      <div class="modal-footer">
+        <a class="btn btn-outline-primary my-1 js-copy-cite" href="#" target="_blank">
+          <i class="fas fa-copy"></i> Copy
+        </a>
+        <a class="btn btn-outline-primary my-1 js-download-cite" href="#" target="_blank">
+          <i class="fas fa-download"></i> Download
+        </a>
+        <div id="modal-error"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+    
+
+    
+    
+    
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha512-+NqPlbbtM1QqiK8ZAo4Yrj2c4lNQoGv8P79DPtKzj++l5jnN39rHA/xsqn8zE9l0uSoxaCdrOgFs6yjyfbBxSg==" crossorigin="anonymous"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.imagesloaded/4.1.3/imagesloaded.pkgd.min.js" integrity="sha512-umsR78NN0D23AzgoZ11K7raBD+R6hqKojyBZs1w8WvYlsI+QuKRGBx3LFCwhatzBunCjDuJpDHwxD13sLMbpRA==" crossorigin="anonymous"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha256-VsEqElsCHSGmnmHXGQzvoWjWwoznFSZc6hs7ARLRacQ=" crossorigin="anonymous"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.isotope/3.0.4/isotope.pkgd.min.js" integrity="sha512-VDBOIlDbuC4VWxGJNmuFRQ0Li0SKkDpmGyuhAG5LTDLd/dJ/S0WMVxriR2Y+CyPL5gzjpN4f/6iqWVBJlht0tQ==" crossorigin="anonymous"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.2.5/jquery.fancybox.min.js" integrity="sha256-X5PoE3KU5l+JcX+w09p/wHl9AzK333C4hJ2I9S5mD4M=" crossorigin="anonymous"></script>
+
+      
+        
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js" integrity="sha256-/BfiIkHlHoVihZdc6TFuj7MmJ0TWcWsMXkeDFwhi0zw=" crossorigin="anonymous"></script>
+        
+      
+
+      
+      
+    
+
+    
+    
+      <script async defer src="//maps.googleapis.com/maps/api/js?key="></script>
+      
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/gmaps.js/0.4.25/gmaps.min.js" integrity="sha256-7vjlAeb8OaTrCXZkCNun9djzuB2owUsaO72kXaFDBJs=" crossorigin="anonymous"></script>
+      
+    
+
+    
+    
+    
+    <script id="dsq-count-scr" src="//peerchristensen-netlify-com.disqus.com/count.js" async></script>
+    
+
+    
+    
+    <script>hljs.initHighlightingOnLoad();</script>
+    
+
+    
+    
+    <script>
+      const search_index_filename = "/index.json";
+      const i18n = {
+        'placeholder': "Search...",
+        'results': "results found",
+        'no_results': "No results found"
+      };
+      const content_type = {
+        'post': "Posts",
+        'project': "Projects",
+        'publication' : "Publications",
+        'talk' : "Talks"
+        };
+    </script>
+    
+
+    
+    
+
+    
+    
+    <script id="search-hit-fuse-template" type="text/x-template">
+      <div class="search-hit" id="summary-{{key}}">
+      <div class="search-hit-content">
+        <div class="search-hit-name">
+          <a href="{{relpermalink}}">{{title}}</a>
+          <div class="article-metadata search-hit-type">{{type}}</div>
+          <p class="search-hit-description">{{snippet}}</p>
+        </div>
+      </div>
+      </div>
+    </script>
+    
+
+    
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/3.2.1/fuse.min.js" integrity="sha256-VzgmKYmhsGNNN4Ph1kMW+BjoYJM2jV5i4IlFoeZA9XI=" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/jquery.mark.min.js" integrity="sha256-4HLtjeVgH0eIB3aZ9mLYF6E8oU5chNdjU6p6rrXpl9U=" crossorigin="anonymous"></script>
+    
+
+    
+    
+
+    
+    
+    
+    
+    
+    
+    
+    
+    <script src="/js/academic.min.d037ee5294b166a79dec317c58aea9cc.js"></script>
+
+    
+
+  </body>
+</html>
+

@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>maps on Peer Christensen</title>
+    <link>/categories/maps/</link>
+    <description>Recent content in maps on Peer Christensen</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <copyright>&amp;copy; 2018</copyright>
+    <lastBuildDate>Mon, 30 Apr 2018 00:00:00 +0000</lastBuildDate>
+    
+	<atom:link href="/categories/maps/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>Mapping hurricane search data from Google Trends!</title>
+      <link>/post/mapping-hurricane-search-data-from-google-trends/</link>
+      <pubDate>Mon, 30 Apr 2018 00:00:00 +0000</pubDate>
+      
+      <guid>/post/mapping-hurricane-search-data-from-google-trends/</guid>
+      <description>This is a quick introduction on how to get and visualize google search data with both time and geographical components using the packages gtrendsR, maps and ggplot2. In this example, we will look at search interest for named hurricanes that hit the US mainland starting with ‘Katrina’. We’ll also explore different ways of using colour palettes in ggplot2.  First, we load the required packages. Note that we use devtools to download a developer version of gtrendsR.</description>
+    </item>
+    
+    <item>
+      <title>Mapping street art in Athens with leaflet and R</title>
+      <link>/post/mapping-street-art-with-leaflet-and-r/</link>
+      <pubDate>Sun, 25 Feb 2018 00:00:00 +0000</pubDate>
+      
+      <guid>/post/mapping-street-art-with-leaflet-and-r/</guid>
+      <description>My colleague and fellow doctoral student at Lund University, George Stampoulidis, is documenting political street art in Athens as part of his research project. The data consist of images and other variables describing each piece of street art. In this post, we’ll do the following:  use R to extract geotagged data from the images’ exif files  use the leaflet package to map locations  customise our map and add popup with images and various information   Installing packages I sometimes use the ‘pacman’ package, which installs (if necessary) and loads multiple packages.</description>
+    </item>
+    
+    <item>
+      <title>Interactive language maps in R with lingtypology</title>
+      <link>/post/2018-02-20-lingtypology/</link>
+      <pubDate>Wed, 21 Feb 2018 00:00:00 +0000</pubDate>
+      
+      <guid>/post/2018-02-20-lingtypology/</guid>
+      <description>The awesome lingtypology package by George Moroz can be used for many purposes. In this tutorial, we’ll explore various features showing how the package can be used to a) gather data from Glottolog about the many languages of the world; b) showcase your research with interactive maps and clickable content, and c) create teaching materials.</description>
+    </item>
+    
+  </channel>
+</rss>

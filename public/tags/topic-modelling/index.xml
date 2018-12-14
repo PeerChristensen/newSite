@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Topic modelling on Peer Christensen</title>
+    <link>/tags/topic-modelling/</link>
+    <description>Recent content in Topic modelling on Peer Christensen</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <copyright>&amp;copy; 2018</copyright>
+    <lastBuildDate>Thu, 09 Aug 2018 00:00:00 +0000</lastBuildDate>
+    
+	<atom:link href="/tags/topic-modelling/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>Topic Modelling of Trustpilot Reviews with R and tidytext</title>
+      <link>/post/topic-modelling-of-trustpilot-reviews-with-r-and-tidytext/</link>
+      <pubDate>Thu, 09 Aug 2018 00:00:00 +0000</pubDate>
+      
+      <guid>/post/topic-modelling-of-trustpilot-reviews-with-r-and-tidytext/</guid>
+      <description>In this tutorial and analysis, we’ll apply topic modelling to Danish Trustpilot reviews of “3” (“three” in other countries), my current telecommunications provider. I’m dissatisfied with their customer service and thought this would be an interesting use case for topic modelling. With this approach, we can try to find out which aspects of the customer experience come up in positive and negative reviews.
+I used a Python script to scrape 4000 customer reviews of “3” from trustpilot.</description>
+    </item>
+    
+  </channel>
+</rss>
