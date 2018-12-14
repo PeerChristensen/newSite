@@ -279,7 +279,7 @@ enableGitInfo = false
     
   [[params.social]]
     icon = "linkedin"
-    icon_pack = "fa"
+    icon_pack = "fab"
     link = "https://www.linkedin.com/in/peer-christensen-datascientist/"
 
   [[params.social]]
@@ -289,7 +289,7 @@ enableGitInfo = false
 
   [[params.social]]
     icon = "github"
-    icon_pack = "fa"
+    icon_pack = "fab"
     link = "https://github.com/PeerChristensen"
     
   [[params.social]]
