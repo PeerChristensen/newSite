@@ -6,7 +6,7 @@ image:
   caption: ''
   focal_point: ''
 slug: clustering-springsteen-albums-with-spotifyr
-summary: Can you really dance to 'Born to run'?
+summary: "Can you really dance to 'Born to run'?"
 tags: Spotifyr
 categories:
 - R
@@ -14,12 +14,6 @@ categories:
 - Music
 ---
 
----
-title: "Clustering Springsteen albums with spotifyr"
-author: "Peer Christensen"
-date: "15/12/2018"
-output: html_document
----
 
 ```{r setup, include = FALSE}
 knitr::opts_chunk$set(echo = TRUE, warning = F, message = F, tidy = T,fig.width= 8, fig.height=8)
