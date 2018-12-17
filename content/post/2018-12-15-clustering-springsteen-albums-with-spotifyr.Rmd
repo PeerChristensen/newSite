@@ -17,7 +17,7 @@ categories:
 
 
 ```{r setup, include = FALSE}
-knitr::opts_chunk$set(echo = TRUE, warning = F, message = F, tidy = T,fig.width= 8, fig.height=8)
+knitr::opts_chunk$set(echo = TRUE, warning = F, message = F, tidy = F,fig.width= 8, fig.height=8)
 ```  
 
 
@@ -25,7 +25,7 @@ The spotifyr package is great and let's you explore various aspects of music suc
 In this post, we'll explore Bruce Springsteen albums in terms of their similarities and dissimilarities.
 
 ```{r}
-#devtools::install_github('charlie86/spotifyr')
+# devtools::install_github('charlie86/spotifyr')
 
 library(spotifyr)
 library(tidyverse)
@@ -40,7 +40,7 @@ library(ggiraphExtra)
 Getting the data is easy with the get_artist_audio_features() function. Here, we'll load it from a csv file and have a look.
 
 ```{r}
-#df <- get_artist_audio_features(artist = "bruce springsteen")
+# df <- get_artist_audio_features(artist = "bruce springsteen")
 
 df <- read_csv("https://raw.github.com/peerchristensen/Springsteen_album_clusters/master/springsteen_albums.csv")
 
@@ -61,8 +61,8 @@ remove_albums <- c("Greatest Hits",
                    "Tracks")
 
 df %<>% 
-  filter(!album_name %in% remove_albums) %>%
-  filter(!grepl("live|Live",album_name)) %>%
+  filter(!album_name %in% remove_albums,
+         !grepl("live|Live",album_name)) %>%
   mutate(album_name = str_to_title(album_name))
 
 df$album_name <- gsub(":.*","",df$album_name)
@@ -71,16 +71,16 @@ df$album_name[grepl("Greetings",df$album_name)] <- "Greetings"
 df$album_name[grepl("Darkness",df$album_name)]  <- "Darkness"
 ```
 
-Let's first inspect the ten most used keys in Springsteen songs.
+Let's first inspect the five most used keys in Springsteen songs.
 
 ```{r}
-df %>% 
-  select(key_mode) %>%
+df                   %>% 
+  select(key_mode)  %>%
   group_by(key_mode) %>%
-  count() %>%
-  arrange(desc(n)) %>%
-  ungroup() %>%
-  top_n(5) %>%
+  count()            %>%
+  arrange(desc(n))   %>%
+  ungroup()          %>%
+  top_n(5)           %>%
   mutate(ordered = row_number()) %>%
   
   ggplot(aes(x = reorder(key_mode,desc(ordered)), y = n, fill = n)) +
@@ -89,7 +89,7 @@ df %>%
   ggtitle("Five most common keys") +
   scale_fill_viridis_c(option="B", direction = -1,guide=F) +
   theme_minimal() +
-  labs(y="n",x="key")
+  labs(y = "n",x = "key")
 ```
 
 As we've seen, spotifyr grabs a lot of interesting data from the spotify API. Let's first look at the danceability of each album. 'Born to Run' appears to be the lowest in danceability, whereas 'Tunnel of love' is highest.
@@ -168,7 +168,6 @@ dfScale %<>%
   select(-album_name) %>%
   data.frame()
 
-
 df_dist <- get_dist(dfScale, stand = TRUE)
 
 fviz_dist(df_dist,gradient = list(low = inferno(5)[2], mid = "white", high = inferno(5)[4])) +
@@ -184,8 +183,8 @@ To get a clearer picture, we can explore patterns between albums and features wi
 
 ```{r}
 dfScale %>%
-    mutate(albums = row.names(dfScale)) %>%
-    ggRadar(aes(group = albums), 
+  mutate(albums = row.names(dfScale)) %>%
+  ggRadar(aes(group = albums), 
         rescale = FALSE, legend.position = "none",
         size = 1, interactive = FALSE, use.label = TRUE) +
   facet_wrap(~albums) + 
@@ -200,14 +199,15 @@ dfScale %>%
 As a final step, we'll have a look at how albums may be grouped based on the various features using hierarchical and k-means clustering. We'll first use the fviz_nbclust() function from the factoExtra package to calculate the optimal number of clusters. Note that there are different methods included in the function to calculate the number of clusters. By default the "silhouette" method is used.
 
 ```{r}
-fviz_nbclust(dfScale, hcut)
+fviz_nbclust(dfScale, hcut) +
+  ggtitle("Optimal Number of Clusters: H-Clustering")
 ```
 
 ```{r}
 df.hc <- hclust(dist(scale(dfScale)))
 
 fviz_dend(df.hc, k = 3,
-          cex = .5,
+          cex = .9,
           k_colors = inferno(10)[c(4,7)],
           color_labels_by_k = TRUE, 
           rect = TRUE) +
@@ -215,8 +215,13 @@ fviz_dend(df.hc, k = 3,
 ```
 
 ```{r}
+fviz_nbclust(dfScale, kmeans) +
+  ggtitle("Optimal Number of Clusters: K-means Clustering")
+```
+
+```{r}
 set.seed(324789)
-km.res <- kmeans(dfScale, 3, nstart = 25)
+km.res <- kmeans(dfScale, 2, nstart = 25)
 
 fviz_cluster(km.res, data = dfScale,
              ellipse.type = "convex",
@@ -225,4 +230,5 @@ fviz_cluster(km.res, data = dfScale,
              ggtheme = theme_minimal(),
              main = "K-means Clustering") 
 ```
+
 
