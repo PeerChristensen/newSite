@@ -1,0 +1,1025 @@
+<!DOCTYPE html>
+<html lang="en-us">
+<head>
+
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="generator" content="Source Themes Academic 3.2.0">
+  <meta name="generator" content="Hugo 0.52" />
+  <meta name="author" content="Peer Christensen">
+
+  
+  
+  
+  
+    
+  
+  <meta name="description" content="Can you really dance to &#39;Born to run&#39;?">
+
+  
+  <link rel="alternate" hreflang="en-us" href="/post/clustering-springsteen-albums-with-spotifyr/">
+
+  
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+  
+  
+  <meta name="theme-color" content="hsl(339, 90%, 68%)">
+  
+
+  
+  
+  
+  
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha256-eSi1q2PG6J7g7ib17yAaWMcrr5GrtohYChqibrV7PBE=" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/academicons/1.8.6/css/academicons.min.css" integrity="sha256-uFVgMKfistnJAfoCUQigIl+JfUaP47GrRKjf6CTPVmw=" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.0/css/all.css" integrity="sha384-aOkxzJ5uQz7WBObEZcHvV5JvRW3TUc2rNPA7pe3AwnsUohiw1Vj2Rgx2KSOkF5+h" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.2.5/jquery.fancybox.min.css" integrity="sha256-ygkqlh3CYSUri3LhQxzdcm0n1EQvH2Y+U5S2idbLtxs=" crossorigin="anonymous">
+
+    
+    
+    
+      
+    
+    
+      
+      
+        
+          <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/dracula.min.css" crossorigin="anonymous">
+        
+      
+    
+
+    
+
+    
+
+  
+
+  
+  
+  <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Montserrat:400,700|Roboto:400,400italic,700|Roboto+Mono">
+  
+
+  <link rel="stylesheet" href="/styles.css">
+  
+
+  
+  
+    <script>
+      window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+      ga('create', 'UA-114535548-1', 'auto');
+      
+      ga('require', 'eventTracker');
+      ga('require', 'outboundLinkTracker');
+      ga('require', 'urlChangeTracker');
+      ga('send', 'pageview');
+    </script>
+    <script async src="//www.google-analytics.com/analytics.js"></script>
+    
+    <script async src="https://cdnjs.cloudflare.com/ajax/libs/autotrack/2.4.1/autotrack.js" integrity="sha512-HUmooslVKj4m6OBu0OgzjXXr+QuFYy/k7eLI5jdeEy/F4RSgMn6XRWRGkFi5IFaFgy7uFTkegp3Z0XnJf3Jq+g==" crossorigin="anonymous"></script>
+    
+  
+  
+
+  
+  <link rel="alternate" href="/index.xml" type="application/rss+xml" title="Peer Christensen">
+  <link rel="feed" href="/index.xml" type="application/rss+xml" title="Peer Christensen">
+  
+
+  <link rel="manifest" href="/site.webmanifest">
+  <link rel="icon" type="image/png" href="/img/icon.png">
+  <link rel="apple-touch-icon" type="image/png" href="/img/icon-192.png">
+
+  <link rel="canonical" href="/post/clustering-springsteen-albums-with-spotifyr/">
+
+  
+  
+  
+  
+    
+    
+  
+  <meta property="twitter:card" content="summary">
+  
+  <meta property="twitter:site" content="@@PeerChristensen">
+  <meta property="twitter:creator" content="@@PeerChristensen">
+  
+  <meta property="og:site_name" content="Peer Christensen">
+  <meta property="og:url" content="/post/clustering-springsteen-albums-with-spotifyr/">
+  <meta property="og:title" content="Clustering Springsteen albums with spotifyr | Peer Christensen">
+  <meta property="og:description" content="Can you really dance to &#39;Born to run&#39;?"><meta property="og:image" content="/img/peer_christensen_small@0,50x.png">
+  <meta property="og:locale" content="en-us">
+  
+  <meta property="article:published_time" content="2018-12-15T00:00:00&#43;00:00">
+  
+  <meta property="article:modified_time" content="2018-12-15T00:00:00&#43;00:00">
+  
+
+  
+
+  
+
+  <title>Clustering Springsteen albums with spotifyr | Peer Christensen</title>
+
+</head>
+<body id="top" data-spy="scroll" data-target="#TableOfContents" data-offset="71" class="dark">
+  <aside class="search-results" id="search">
+  <div class="container">
+    <section class="search-header">
+
+      <div class="row no-gutters justify-content-between mb-3">
+        <div class="col-6">
+          <h1>Search</h1>
+        </div>
+        <div class="col-6 col-search-close">
+          <a class="js-search" href="#"><i class="fas fa-times-circle text-muted" aria-hidden="true"></i></a>
+        </div>
+      </div>
+
+      <div id="search-box">
+        
+        <input name="q" id="search-query" placeholder="Search..." autocapitalize="off"
+        autocomplete="off" autocorrect="off" role="textbox" spellcheck="false" type="search">
+        
+      </div>
+
+    </section>
+    <section class="section-search-results">
+
+      <div id="search-hits">
+        
+      </div>
+
+    </section>
+  </div>
+</aside>
+
+
+<nav class="navbar navbar-light fixed-top navbar-expand-lg py-0" id="navbar-main">
+  <div class="container">
+
+    
+      <a class="navbar-brand" href="/">Peer Christensen</a>
+      
+      <button type="button" class="navbar-toggler" data-toggle="collapse"
+              data-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
+        <span><i class="fas fa-bars"></i></span>
+      </button>
+      
+
+    
+    <div class="collapse navbar-collapse" id="navbar">
+
+      
+      
+      <ul class="navbar-nav ml-auto">
+        
+
+        
+
+        
+        
+        
+          
+        
+
+        <li class="nav-item">
+          <a class="nav-link" href="/#about">
+            
+            <span>Home</span>
+            
+          </a>
+        </li>
+
+        
+        
+
+        
+
+        
+        
+        
+          
+        
+
+        <li class="nav-item">
+          <a class="nav-link" href="/#posts">
+            
+            <span>Posts</span>
+            
+          </a>
+        </li>
+
+        
+        
+
+        
+
+        
+        
+        
+          
+        
+
+        <li class="nav-item">
+          <a class="nav-link" href="/#publications">
+            
+            <span>Publications</span>
+            
+          </a>
+        </li>
+
+        
+        
+
+        
+
+        
+        
+        
+          
+        
+
+        <li class="nav-item">
+          <a class="nav-link" href="/#projects">
+            
+            <span>Projects</span>
+            
+          </a>
+        </li>
+
+        
+        
+
+        
+
+        
+        
+        
+          
+        
+
+        <li class="nav-item">
+          <a class="nav-link" href="/#contact">
+            
+            <span>Contact</span>
+            
+          </a>
+        </li>
+
+        
+        
+
+        
+
+        
+        
+        
+          
+        
+
+        <li class="nav-item">
+          <a class="nav-link" href="/files/cv.pdf">
+            
+            <span>CV</span>
+            
+          </a>
+        </li>
+
+        
+        
+
+      
+
+        
+
+        
+        <li class="nav-item">
+          <a class="nav-link js-search" href="#"><i class="fas fa-search" aria-hidden="true"></i></a>
+        </li>
+        
+
+        
+
+        
+        <li class="nav-item">
+          <a class="nav-link js-dark-toggle" href="#"><i class="fas fa-moon" aria-hidden="true"></i></a>
+        </li>
+        
+
+      </ul>
+
+    </div>
+  </div>
+</nav>
+
+
+<article class="article" itemscope itemtype="http://schema.org/Article">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+  
+  
+<div class="article-container pt-3">
+  <h1 itemprop="name">Clustering Springsteen albums with spotifyr</h1>
+
+  
+
+  
+    
+
+<div class="article-metadata">
+
+  
+  
+  <span itemscope itemprop="author" itemtype="http://schema.org/Person">
+    <meta itemprop="name" content="Peer Christensen">
+  </span>
+  
+
+  <span class="article-date">
+    
+    <meta content="2018-12-15 00:00:00 &#43;0000 UTC" itemprop="datePublished">
+    <time datetime="2018-12-15 00:00:00 &#43;0000 UTC" itemprop="dateModified">
+      Dec 15, 2018
+    </time>
+  </span>
+  <span itemscope itemprop="publisher" itemtype="http://schema.org/Person">
+    <meta itemprop="name" content="Peer Christensen">
+  </span>
+
+  
+  <span class="middot-divider"></span>
+  <span class="article-reading-time">
+    6 min read
+  </span>
+  
+
+  
+  
+  <span class="middot-divider"></span>
+  <a href="/post/clustering-springsteen-albums-with-spotifyr/#disqus_thread"></a>
+  
+
+  
+  
+  
+  <span class="middot-divider"></span>
+  <span class="article-categories">
+    <i class="fas fa-folder"></i>
+    
+    <a href="/categories/r/">R</a>, 
+    
+    <a href="/categories/clustering/">Clustering</a>, 
+    
+    <a href="/categories/music/">Music</a>
+    
+  </span>
+  
+  
+
+  
+  
+<div class="share-box" aria-hidden="true">
+  <ul class="share">
+    <li>
+      <a class="twitter"
+         href="https://twitter.com/intent/tweet?text=Clustering%20Springsteen%20albums%20with%20spotifyr&amp;url=%2fpost%2fclustering-springsteen-albums-with-spotifyr%2f"
+         target="_blank" rel="noopener">
+        <i class="fab fa-twitter"></i>
+      </a>
+    </li>
+    <li>
+      <a class="facebook"
+         href="https://www.facebook.com/sharer.php?u=%2fpost%2fclustering-springsteen-albums-with-spotifyr%2f"
+         target="_blank" rel="noopener">
+        <i class="fab fa-facebook-f"></i>
+      </a>
+    </li>
+    <li>
+      <a class="linkedin"
+         href="https://www.linkedin.com/shareArticle?mini=true&amp;url=%2fpost%2fclustering-springsteen-albums-with-spotifyr%2f&amp;title=Clustering%20Springsteen%20albums%20with%20spotifyr"
+         target="_blank" rel="noopener">
+        <i class="fab fa-linkedin-in"></i>
+      </a>
+    </li>
+    <li>
+      <a class="weibo"
+         href="http://service.weibo.com/share/share.php?url=%2fpost%2fclustering-springsteen-albums-with-spotifyr%2f&amp;title=Clustering%20Springsteen%20albums%20with%20spotifyr"
+         target="_blank" rel="noopener">
+        <i class="fab fa-weibo"></i>
+      </a>
+    </li>
+    <li>
+      <a class="email"
+         href="mailto:?subject=Clustering%20Springsteen%20albums%20with%20spotifyr&amp;body=%2fpost%2fclustering-springsteen-albums-with-spotifyr%2f">
+        <i class="fas fa-envelope"></i>
+      </a>
+    </li>
+  </ul>
+</div>
+
+
+  
+
+</div>
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+</div>
+
+
+
+  <div class="article-container">
+
+    <div class="article-style" itemprop="articleBody">
+      
+
+
+<p>The spotifyr package is great and let’s you explore various aspects of music such as tempo, danceability and valence. In this post, we’ll explore Bruce Springsteen albums in terms of their similarities and dissimilarities.</p>
+<pre class="r"><code># devtools::install_github(&#39;charlie86/spotifyr&#39;)
+
+library(spotifyr)
+library(tidyverse)
+library(magrittr)
+library(ggridges)
+library(ggcorrplot)
+library(viridisLite)
+library(factoextra)
+library(ggiraphExtra)</code></pre>
+<p>Getting the data is easy with the get_artist_audio_features() function. Here, we’ll load it from a csv file and have a look.</p>
+<pre class="r"><code># df &lt;- get_artist_audio_features(artist = &quot;bruce springsteen&quot;)
+
+df &lt;- read_csv(&quot;https://raw.github.com/peerchristensen/Springsteen_album_clusters/master/springsteen_albums.csv&quot;)
+
+glimpse(df)</code></pre>
+<pre><code>## Observations: 537
+## Variables: 31
+## $ artist_name            &lt;chr&gt; &quot;Bruce Springsteen&quot;, &quot;Bruce Springsteen...
+## $ artist_uri             &lt;chr&gt; &quot;3eqjTLE0HfPfh78zjh6TqT&quot;, &quot;3eqjTLE0HfPf...
+## $ album_uri              &lt;chr&gt; &quot;0PMasrHdpaoIRuHuhHp72O&quot;, &quot;0PMasrHdpaoI...
+## $ album_name             &lt;chr&gt; &quot;Born In The U.S.A.&quot;, &quot;Born In The U.S....
+## $ album_img              &lt;chr&gt; &quot;https://i.scdn.co/image/d002b63ceb5658...
+## $ album_type             &lt;chr&gt; &quot;album&quot;, &quot;album&quot;, &quot;album&quot;, &quot;album&quot;, &quot;al...
+## $ is_collaboration       &lt;lgl&gt; FALSE, FALSE, FALSE, FALSE, FALSE, FALS...
+## $ album_release_date     &lt;chr&gt; &quot;1984-06-04&quot;, &quot;1984-06-04&quot;, &quot;1984-06-04...
+## $ album_release_year     &lt;date&gt; 1984-06-04, 1984-06-04, 1984-06-04, 19...
+## $ album_popularity       &lt;dbl&gt; 76, 76, 76, 76, 76, 76, 76, 76, 76, 76,...
+## $ track_name             &lt;chr&gt; &quot;Born in the U.S.A.&quot;, &quot;Cover Me&quot;, &quot;Darl...
+## $ track_uri              &lt;chr&gt; &quot;0dOg1ySSI7NkpAe89Zo0b9&quot;, &quot;4U7NhC2rQTAh...
+## $ track_number           &lt;dbl&gt; 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, ...
+## $ disc_number            &lt;dbl&gt; 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, ...
+## $ danceability           &lt;dbl&gt; 0.398, 0.535, 0.536, 0.429, 0.544, 0.62...
+## $ energy                 &lt;dbl&gt; 0.952, 0.884, 0.982, 0.949, 0.762, 0.44...
+## $ key                    &lt;chr&gt; &quot;E&quot;, &quot;A&quot;, &quot;G&quot;, &quot;C&quot;, &quot;A#&quot;, &quot;C#&quot;, &quot;F&quot;, &quot;A...
+## $ loudness               &lt;dbl&gt; -6.042, -5.499, -4.674, -5.295, -7.289,...
+## $ mode                   &lt;chr&gt; &quot;major&quot;, &quot;minor&quot;, &quot;major&quot;, &quot;major&quot;, &quot;ma...
+## $ speechiness            &lt;dbl&gt; 0.0610, 0.0407, 0.0389, 0.0458, 0.0382,...
+## $ acousticness           &lt;dbl&gt; 0.000373, 0.001880, 0.014100, 0.084200,...
+## $ instrumentalness       &lt;dbl&gt; 7.75e-05, 1.26e-03, 3.67e-05, 0.00e+00,...
+## $ liveness               &lt;dbl&gt; 0.1000, 0.1400, 0.2740, 0.1540, 0.0740,...
+## $ valence                &lt;dbl&gt; 0.584, 0.796, 0.963, 0.967, 0.473, 0.86...
+## $ tempo                  &lt;dbl&gt; 122.093, 120.555, 119.201, 184.286, 120...
+## $ duration_ms            &lt;dbl&gt; 278680, 205987, 288027, 192267, 215427,...
+## $ time_signature         &lt;dbl&gt; 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, ...
+## $ key_mode               &lt;chr&gt; &quot;E major&quot;, &quot;A minor&quot;, &quot;G major&quot;, &quot;C maj...
+## $ track_popularity       &lt;dbl&gt; 72, 51, 45, 47, 49, 71, 50, 47, 53, 62,...
+## $ track_preview_url      &lt;chr&gt; &quot;https://p.scdn.co/mp3-preview/3b6a5b91...
+## $ track_open_spotify_url &lt;chr&gt; &quot;https://open.spotify.com/track/0dOg1yS...</code></pre>
+<p>We’ll need to do just a little bit of cleaning and remove a few non-studio albums.</p>
+<pre class="r"><code># some albums only have one song, some are alternate versions
+
+remove_albums &lt;- c(&quot;Greatest Hits&quot;,
+                   &quot;Hammersmith Odeon, London 75&quot;,
+                   &quot;The Essential Bruce Springsteen (Bonus Disc)&quot;,
+                   &quot;The Ties That Bind: The River Collection&quot;,
+                   &quot;Chapter and Verse&quot;,
+                   &quot;The Promise&quot;,
+                   &quot;Tracks&quot;)
+
+df %&lt;&gt;% 
+  filter(!album_name %in% remove_albums,
+         !grepl(&quot;live|Live&quot;,album_name)) %&gt;%
+  mutate(album_name = str_to_title(album_name))
+
+df$album_name &lt;- gsub(&quot;:.*&quot;,&quot;&quot;,df$album_name)
+df$album_name[grepl(&quot;Innocent&quot;,df$album_name)]  &lt;- &quot;The Wild, The Innocent..&quot;
+df$album_name[grepl(&quot;Greetings&quot;,df$album_name)] &lt;- &quot;Greetings&quot;
+df$album_name[grepl(&quot;Darkness&quot;,df$album_name)]  &lt;- &quot;Darkness&quot;</code></pre>
+<p>Let’s first inspect the five most used keys in Springsteen songs.</p>
+<pre class="r"><code>df                   %&gt;% 
+  select(key_mode)   %&gt;%
+  group_by(key_mode) %&gt;%
+  count()            %&gt;%
+  arrange(desc(n))   %&gt;%
+  ungroup()          %&gt;%
+  top_n(5)           %&gt;%
+  mutate(ordered = row_number()) %&gt;%
+  
+  ggplot(aes(x = reorder(key_mode,desc(ordered)), y = n, fill = n)) +
+  geom_col() +
+  coord_flip() +
+  ggtitle(&quot;Five most common keys&quot;) +
+  scale_fill_viridis_c(option=&quot;B&quot;, direction = -1,guide=F) +
+  theme_minimal() +
+  labs(y = &quot;n&quot;,x = &quot;key&quot;)</code></pre>
+<p><img src="/post/2018-12-15-clustering-springsteen-albums-with-spotifyr_files/figure-html/unnamed-chunk-4-1.png" width="768" /></p>
+<p>As we’ve seen, spotifyr grabs a lot of interesting data from the spotify API. Let’s first look at the danceability of each album. ‘Born to Run’ appears to be the lowest in danceability, whereas ‘Tunnel of love’ is highest.</p>
+<pre class="r"><code>df                     %&gt;% 
+  group_by(album_name) %&gt;%
+  
+  ggplot(aes(x    = danceability, 
+             y    = reorder(album_name,desc(album_release_year)),
+             fill = reorder(album_name,desc(album_release_year)))) +
+  geom_density_ridges(colour = &quot;snow&quot;) +
+  scale_fill_viridis_d(option = &quot;B&quot;, begin = .05, direction = -1, guide = F) +
+  theme_minimal() +
+  ggtitle(&quot;Danceability&quot;) +
+  labs(y=&quot;album&quot;)</code></pre>
+<p><img src="/post/2018-12-15-clustering-springsteen-albums-with-spotifyr_files/figure-html/unnamed-chunk-5-1.png" width="768" /></p>
+<p>Let’s instead put all features in the same plot.</p>
+<pre class="r"><code>df %&gt;% 
+  gather(key = feature, value = measure, 
+         danceability, energy, loudness, valence, tempo, acousticness) %&gt;%
+  group_by(album_name) %&gt;%
+  
+  ggplot(aes(x    = measure, 
+             y    = reorder(album_name,desc(album_release_year)), 
+             fill = album_release_date)) +
+  geom_density_ridges(rel_min_height = 0.005, legend = F, alpha = .9, size = .2, colour = &quot;snow&quot;) +
+  facet_wrap(~feature, scales = &quot;free&quot;, ncol = 2) +
+  scale_fill_viridis_d(option =&quot;B&quot; ,begin = .05) +
+  theme_minimal() +
+  theme(axis.text.y = element_text(size = 7)) +
+  labs(y = &quot;album name&quot;) +
+  ggtitle(&quot;Springsteen albums in six features&quot;,
+          subtitle = &quot;Acousticness, danceability, energy, loudness, tempo and valence&quot;) +
+  guides(fill = FALSE)</code></pre>
+<p><img src="/post/2018-12-15-clustering-springsteen-albums-with-spotifyr_files/figure-html/unnamed-chunk-6-1.png" width="768" /></p>
+<p>It will also be interesting to visualize how strongly the individual features are correlated. It is not too surprising that energy and loudness are positively correlated, whereas acousticness is negatively correlated with energy.</p>
+<pre class="r"><code>sign_test &lt;- df %&gt;% 
+  select(acousticness,danceability,energy,loudness,tempo,valence) %&gt;%
+  cor_pmat()
+
+df  %&gt;% 
+  select(acousticness,danceability,energy,loudness,tempo,valence) %&gt;%
+  cor() %&gt;%
+  ggcorrplot(type   = &quot;lower&quot;, 
+             p.mat  = sign_test,
+             colors = c(inferno(5)[2], &quot;snow&quot;, inferno(5)[4])) +
+  ggtitle(&quot;Correlations between features&quot;,
+          subtitle = &quot;Non-significant correlations marked with X&quot;)</code></pre>
+<p><img src="/post/2018-12-15-clustering-springsteen-albums-with-spotifyr_files/figure-html/unnamed-chunk-7-1.png" width="768" /></p>
+<p>Based on the features, we can also explore how similar the albums are in a distance matrix. In this plot, the orange colour indicates high dissimilarity or great “distance” between albums.</p>
+<pre class="r"><code>dfScale &lt;- df %&gt;%
+  select(album_name,acousticness,danceability,energy,loudness,tempo,valence) %&gt;%
+  group_by(album_name) %&gt;%
+  summarise(acousticness = mean(scale(acousticness)),
+            danceability = mean(scale(danceability)),
+            energy       = mean(scale(energy)),
+            loudness     = mean(scale(loudness)),
+            tempo        = mean(scale(tempo)),
+            valence      = mean(scale(valence))) %&gt;%
+  data.frame()
+
+row.names(dfScale) &lt;- dfScale$album_name
+
+dfScale %&lt;&gt;% 
+  select(-album_name) %&gt;%
+  data.frame()
+
+df_dist &lt;- get_dist(dfScale, stand = TRUE)
+
+fviz_dist(df_dist,gradient = list(low = inferno(5)[2], mid = &quot;white&quot;, high = inferno(5)[4])) +
+  theme_minimal() +
+  ggtitle(&quot;Distance matrix&quot;,
+          subtitle  = &quot;Similarity between albums based on all features&quot;) +
+  theme(axis.text.x = element_text(hjust = 1,angle = 45),
+        axis.title = element_blank())</code></pre>
+<p><img src="/post/2018-12-15-clustering-springsteen-albums-with-spotifyr_files/figure-html/unnamed-chunk-8-1.png" width="768" /></p>
+<p>To get a clearer picture, we can explore patterns between albums and features with radar plots from the ggiraphExtra package.</p>
+<pre class="r"><code>dfScale %&gt;%
+  mutate(albums = row.names(dfScale)) %&gt;%
+  ggRadar(aes(group = albums), 
+        rescale = FALSE, legend.position = &quot;none&quot;,
+        size = 1, interactive = FALSE, use.label = TRUE) +
+  facet_wrap(~albums) + 
+  scale_y_discrete(breaks = NULL) +
+  theme(axis.text.x = element_text(size = 10)) +
+  theme_minimal() +
+  theme(legend.position = &quot;none&quot;) +
+  scale_fill_viridis_d(option=&quot;B&quot;) +
+  scale_colour_viridis_d(option=&quot;B&quot;)</code></pre>
+<p><img src="/post/2018-12-15-clustering-springsteen-albums-with-spotifyr_files/figure-html/unnamed-chunk-9-1.png" width="768" /></p>
+<p>As a final step, we’ll have a look at how albums may be grouped based on the various features using hierarchical and k-means clustering. We’ll first use the fviz_nbclust() function from the factoExtra package to calculate the optimal number of clusters. Note that there are different methods included in the function to calculate the number of clusters. By default the “silhouette” method is used.</p>
+<pre class="r"><code>fviz_nbclust(dfScale, hcut) +
+  ggtitle(&quot;Optimal Number of Clusters: H-Clustering&quot;)</code></pre>
+<p><img src="/post/2018-12-15-clustering-springsteen-albums-with-spotifyr_files/figure-html/unnamed-chunk-10-1.png" width="768" /></p>
+<pre class="r"><code>df.hc &lt;- hclust(dist(scale(dfScale)))
+
+fviz_dend(df.hc, k = 3,
+          cex = .9,
+          k_colors = inferno(10)[c(4,7)],
+          color_labels_by_k = TRUE, 
+          rect = TRUE) +
+  ggtitle(&quot;Hierachical Clustering&quot;)</code></pre>
+<p><img src="/post/2018-12-15-clustering-springsteen-albums-with-spotifyr_files/figure-html/unnamed-chunk-11-1.png" width="768" /></p>
+<pre class="r"><code>fviz_nbclust(dfScale, kmeans) +
+  ggtitle(&quot;Optimal Number of Clusters: K-means Clustering&quot;)</code></pre>
+<p><img src="/post/2018-12-15-clustering-springsteen-albums-with-spotifyr_files/figure-html/unnamed-chunk-12-1.png" width="768" /></p>
+<pre class="r"><code>set.seed(324789)
+km.res &lt;- kmeans(dfScale, 2, nstart = 25)
+
+fviz_cluster(km.res, data = dfScale,
+             ellipse.type = &quot;convex&quot;,
+             repel = T,
+             palette = inferno(10)[c(4,6,8)],
+             ggtheme = theme_minimal(),
+             main = &quot;K-means Clustering&quot;) </code></pre>
+<p><img src="/post/2018-12-15-clustering-springsteen-albums-with-spotifyr_files/figure-html/unnamed-chunk-13-1.png" width="768" /></p>
+
+    </div>
+
+    
+
+
+<div class="article-tags">
+  
+  <a class="badge badge-light" href="/tags/spotifyr/">spotifyr</a>
+  
+</div>
+
+
+
+    
+
+
+
+
+
+
+<div class="media author-card" itemscope itemtype="http://schema.org/Person">
+  
+  <img class="portrait mr-3" src="/img/peer_christensen_small@0,50x.png" itemprop="image" alt="Avatar">
+  
+  <div class="media-body">
+    <h5 class="card-title" itemprop="name"><a href="/">Peer Christensen</a></h5>
+    <h6 class="card-subtitle">Cognitive scientist</h6>
+    
+    <ul class="network-icon" aria-hidden="true">
+      
+      
+      
+      
+        
+      
+      
+      
+      
+      
+      <li>
+        <a itemprop="sameAs" href="mailto:hr.pchristensen@gmail.com" >
+          <i class="fas fa-envelope"></i>
+        </a>
+      </li>
+      
+      
+      
+      
+        
+      
+      
+      
+      
+      
+        
+      
+      <li>
+        <a itemprop="sameAs" href="https://twitter.com/PeerChristensen" target="_blank" rel="noopener">
+          <i class="fab fa-twitter"></i>
+        </a>
+      </li>
+      
+      
+      
+      
+        
+      
+      
+      
+      
+      
+        
+      
+      <li>
+        <a itemprop="sameAs" href="https://www.linkedin.com/in/peer-christensen-datascientist/" target="_blank" rel="noopener">
+          <i class="fab fa-linkedin"></i>
+        </a>
+      </li>
+      
+      
+      
+      
+      
+      
+      
+      
+        
+      
+      <li>
+        <a itemprop="sameAs" href="https://scholar.google.com/citations?user=5pMTzkwAAAAJ&amp;hl=en" target="_blank" rel="noopener">
+          <i class="ai ai-google-scholar"></i>
+        </a>
+      </li>
+      
+      
+      
+      
+        
+      
+      
+      
+      
+      
+        
+      
+      <li>
+        <a itemprop="sameAs" href="https://github.com/PeerChristensen" target="_blank" rel="noopener">
+          <i class="fab fa-github"></i>
+        </a>
+      </li>
+      
+      
+      
+      
+      
+      
+      
+      
+        
+      
+      <li>
+        <a itemprop="sameAs" href="https://www.researchgate.net/profile/Peer_Christensen" target="_blank" rel="noopener">
+          <i class="ai ai-researchgate"></i>
+        </a>
+      </li>
+      
+      
+      
+      
+      
+      
+      
+      
+        
+      
+      <li>
+        <a itemprop="sameAs" href="/files/cv.pdf" >
+          <i class="ai ai-cv"></i>
+        </a>
+      </li>
+      
+    </ul>
+  </div>
+</div>
+
+
+
+
+    
+    
+
+    
+
+    
+<section id="comments">
+  <div id="disqus_thread"></div>
+<script type="application/javascript">
+    var disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "peerchristensen-netlify-com" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</section>
+
+
+
+  </div>
+</article>
+
+<div class="container">
+  <footer class="site-footer">
+  
+  <p class="powered-by">
+    <a href="/privacy/">Privacy Policy</a>
+  </p>
+  
+
+  <p class="powered-by">
+    &copy; 2018 &middot; 
+
+    Powered by the
+    <a href="https://sourcethemes.com/academic/" target="_blank" rel="noopener">Academic theme</a> for
+    <a href="https://gohugo.io" target="_blank" rel="noopener">Hugo</a>.
+
+    
+    <span class="float-right" aria-hidden="true">
+      <a href="#" id="back_to_top">
+        <span class="button_icon">
+          <i class="fas fa-chevron-up fa-2x"></i>
+        </span>
+      </a>
+    </span>
+    
+  </p>
+</footer>
+
+</div>
+
+
+<div id="modal" class="modal fade" role="dialog">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Cite</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <pre><code class="tex hljs"></code></pre>
+      </div>
+      <div class="modal-footer">
+        <a class="btn btn-outline-primary my-1 js-copy-cite" href="#" target="_blank">
+          <i class="fas fa-copy"></i> Copy
+        </a>
+        <a class="btn btn-outline-primary my-1 js-download-cite" href="#" target="_blank">
+          <i class="fas fa-download"></i> Download
+        </a>
+        <div id="modal-error"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+    
+
+    
+    
+    
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha512-+NqPlbbtM1QqiK8ZAo4Yrj2c4lNQoGv8P79DPtKzj++l5jnN39rHA/xsqn8zE9l0uSoxaCdrOgFs6yjyfbBxSg==" crossorigin="anonymous"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.imagesloaded/4.1.3/imagesloaded.pkgd.min.js" integrity="sha512-umsR78NN0D23AzgoZ11K7raBD+R6hqKojyBZs1w8WvYlsI+QuKRGBx3LFCwhatzBunCjDuJpDHwxD13sLMbpRA==" crossorigin="anonymous"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha256-VsEqElsCHSGmnmHXGQzvoWjWwoznFSZc6hs7ARLRacQ=" crossorigin="anonymous"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.isotope/3.0.4/isotope.pkgd.min.js" integrity="sha512-VDBOIlDbuC4VWxGJNmuFRQ0Li0SKkDpmGyuhAG5LTDLd/dJ/S0WMVxriR2Y+CyPL5gzjpN4f/6iqWVBJlht0tQ==" crossorigin="anonymous"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.2.5/jquery.fancybox.min.js" integrity="sha256-X5PoE3KU5l+JcX+w09p/wHl9AzK333C4hJ2I9S5mD4M=" crossorigin="anonymous"></script>
+
+      
+        
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js" integrity="sha256-/BfiIkHlHoVihZdc6TFuj7MmJ0TWcWsMXkeDFwhi0zw=" crossorigin="anonymous"></script>
+        
+      
+
+      
+      
+    
+
+    
+    
+      <script async defer src="//maps.googleapis.com/maps/api/js?key="></script>
+      
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/gmaps.js/0.4.25/gmaps.min.js" integrity="sha256-7vjlAeb8OaTrCXZkCNun9djzuB2owUsaO72kXaFDBJs=" crossorigin="anonymous"></script>
+      
+    
+
+    
+    
+    
+    <script id="dsq-count-scr" src="//peerchristensen-netlify-com.disqus.com/count.js" async></script>
+    
+
+    
+    
+    <script>hljs.initHighlightingOnLoad();</script>
+    
+
+    
+    
+    <script>
+      const search_index_filename = "/index.json";
+      const i18n = {
+        'placeholder': "Search...",
+        'results': "results found",
+        'no_results': "No results found"
+      };
+      const content_type = {
+        'post': "Posts",
+        'project': "Projects",
+        'publication' : "Publications",
+        'talk' : "Talks"
+        };
+    </script>
+    
+
+    
+    
+
+    
+    
+    <script id="search-hit-fuse-template" type="text/x-template">
+      <div class="search-hit" id="summary-{{key}}">
+      <div class="search-hit-content">
+        <div class="search-hit-name">
+          <a href="{{relpermalink}}">{{title}}</a>
+          <div class="article-metadata search-hit-type">{{type}}</div>
+          <p class="search-hit-description">{{snippet}}</p>
+        </div>
+      </div>
+      </div>
+    </script>
+    
+
+    
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/3.2.1/fuse.min.js" integrity="sha256-VzgmKYmhsGNNN4Ph1kMW+BjoYJM2jV5i4IlFoeZA9XI=" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/jquery.mark.min.js" integrity="sha256-4HLtjeVgH0eIB3aZ9mLYF6E8oU5chNdjU6p6rrXpl9U=" crossorigin="anonymous"></script>
+    
+
+    
+    
+
+    
+    
+    
+    
+    
+    
+    
+    
+    <script src="/js/academic.min.d037ee5294b166a79dec317c58aea9cc.js"></script>
+
+    
+
+  </body>
+</html>
+
