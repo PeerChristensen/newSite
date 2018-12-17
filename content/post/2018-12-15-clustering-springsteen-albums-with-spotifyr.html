@@ -89,7 +89,7 @@ df$album_name[grepl(&quot;Greetings&quot;,df$album_name)] &lt;- &quot;Greetings&
 df$album_name[grepl(&quot;Darkness&quot;,df$album_name)]  &lt;- &quot;Darkness&quot;</code></pre>
 <p>Let’s first inspect the five most used keys in Springsteen songs.</p>
 <pre class="r"><code>df                   %&gt;% 
-  select(key_mode)  %&gt;%
+  select(key_mode)   %&gt;%
   group_by(key_mode) %&gt;%
   count()            %&gt;%
   arrange(desc(n))   %&gt;%

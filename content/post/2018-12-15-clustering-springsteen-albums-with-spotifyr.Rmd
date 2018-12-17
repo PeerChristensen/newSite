@@ -75,7 +75,7 @@ Let's first inspect the five most used keys in Springsteen songs.
 
 ```{r}
 df                   %>% 
-  select(key_mode)  %>%
+  select(key_mode)   %>%
   group_by(key_mode) %>%
   count()            %>%
   arrange(desc(n))   %>%
