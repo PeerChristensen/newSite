@@ -66,17 +66,17 @@ write.csv2(exifData, &#39;exifData.csv&#39;,sep=&quot;,&quot;,
 <div id="loading-and-handling-data" class="section level2">
 <h2>Loading and handling data</h2>
 <p>Since we already have all the variables we need in the data file, there’s no need to merge it with the exif data. We simply do some minor cleaning of the data and add a variable for a remote repository in which all image files are stored.</p>
-<pre class="r"><code>df=read.csv2(&quot;streetArtUpdate1.csv&quot;,stringsAsFactors =F,header = T)
+<pre class="r"><code>df &lt;- read.csv2(&quot;streetArtUpdate1.csv&quot;,stringsAsFactors = F,header = T)
 
 # change coordinates to numeric values
-df$Longitude=as.numeric(df$Longitude)
-df$Latitude=as.numeric(df$Latitude)
+df$Longitude &lt;- as.numeric(df$Longitude)
+df$Latitude  &lt;- as.numeric(df$Latitude)
 
 # add remote path for image files
-df$remotePath=paste0(&quot;http://dev.humlab.lu.se/tmp/img/&quot;,df$Filename)
+df$remotePath &lt;- paste0(&quot;http://dev.humlab.lu.se/tmp/img/&quot;,df$Filename)
 
 # remove one data point with erroneous geodata
-df=df[df$Title!=&quot;The Greek health system&quot;,] </code></pre>
+df &lt;- df[df$Title!=&quot;The Greek health system&quot;,] </code></pre>
 <p>
 </div>
 <div id="basic-mapping-with-leaflet" class="section level2">
@@ -84,9 +84,9 @@ df=df[df$Title!=&quot;The Greek health system&quot;,] </code></pre>
 <p>Let’s first have a look at how easy it is to create a leaflet map with markers for each location in our data.</p>
 <pre class="r"><code>#Create basic world map
 athensMap &lt;- leaflet() %&gt;% 
-  addTiles() %&gt;%
+  addTiles()           %&gt;%
   # add points
-  addMarkers(lng=df$Longitude,lat=df$Latitude)
+  addMarkers(lng = df$Longitude,lat = df$Latitude)
 
 athensMap</code></pre>
 <div id="htmlwidget-1" style="width:864px;height:864px;" class="leaflet html-widget"></div>
@@ -97,9 +97,10 @@ athensMap</code></pre>
 <h2>Customizing our map with popups etc.</h2>
 <p>Let’s add the following elements to our map: <br> 1. A different tile layer <br> 2. Markers with popup capability <br> 3. Include popup images and multiple variables containing information <br> 4. Cluster our markers <br></p>
 <p>Please note that for some reason, you might need to click more than once on a marker to see images.</p>
-<pre class="r"><code>athensMap2 &lt;- leaflet() %&gt;%
+<pre class="r"><code>tile       &lt;- &#39;https://cartodb-basemaps-{s}.global.ssl.fastly.net/light_all/{z}/{x}/{y}.png&#39;
+athensMap2 &lt;- leaflet() %&gt;%
   # Add a base layer
-  addTiles(&#39;https://cartodb-basemaps-{s}.global.ssl.fastly.net/light_all/{z}/{x}/{y}.png&#39;) %&gt;%
+  addTiles(tile)        %&gt;%
   # add markers
   addAwesomeMarkers(lng=df$Longitude, lat=df$Latitude,
       # add popup with images and variables as text

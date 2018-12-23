@@ -16,7 +16,7 @@ header:
 ---
 
 ```{r setup, include = FALSE}
-knitr::opts_chunk$set(echo = TRUE, warning = F, message = F, tidy = T)
+knitr::opts_chunk$set(echo = TRUE, warning = F, message = F, tidy = F)
 ```  
 
   

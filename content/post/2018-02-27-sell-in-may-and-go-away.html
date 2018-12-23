@@ -25,12 +25,12 @@ pacman::p_load(quantmod,ggplot2,plyr,lme4,lmerTest,effects,jtools,tidyverse)</co
 <div id="customizing-a-ggplot-theme" class="section level2">
 <h2>Customizing a ggplot theme</h2>
 <pre class="r"><code>my_theme &lt;- function() {
-  theme_apa(legend.pos = &quot;none&quot;) +
-    theme(panel.background = element_blank()) +
-    theme(plot.background = element_rect(fill = &quot;azure&quot;)) +
-    theme(panel.border = element_blank()) +                       # facet border
-    theme(strip.background = element_blank()) +                  # facet title background
-    theme(plot.margin = unit(c(.5, .5, .5, .5), &quot;cm&quot;)) 
+  theme_apa(legend.pos     = &quot;none&quot;) +
+    theme(panel.background = element_blank(),
+          plot.background  = element_rect(fill = &quot;azure&quot;),
+          panel.border     = element_blank(),               # facet border
+          strip.background = element_blank(),               # facet title background
+          plot.margin      = unit(c(.5, .5, .5, .5), &quot;cm&quot;)) 
 }</code></pre>
 </div>
 <div id="loading-data" class="section level2">
@@ -63,7 +63,7 @@ pacman::p_load(quantmod,ggplot2,plyr,lme4,lmerTest,effects,jtools,tidyverse)</co
 <div id="average-stock-market-return-by-month" class="section level2">
 <h2>Average stock market return by month</h2>
 <p>First, let’s take a look at monthly returns since 1950. We’ll also add a line indicating the average return.</p>
-<pre class="r"><code>returnsByMonth=periodReturn(GSPC, period = &#39;monthly&#39;, subset = &#39;1950::&#39;)
+<pre class="r"><code>returnsByMonth &lt;- periodReturn(GSPC, period = &#39;monthly&#39;, subset = &#39;1950::&#39;)
 
 returnsByMonth %&gt;%
 ggplot(aes(y = monthly.returns, x = Index)) + 
@@ -72,9 +72,10 @@ ggplot(aes(y = monthly.returns, x = Index)) +
   my_theme()</code></pre>
 <p><img src="/post/2018-02-27-sell-in-may-and-go-away_files/figure-html/unnamed-chunk-4-1.png" width="960" /></p>
 <p>This is not very helpful to us. Instead we’ll group our data by month and compare the average return of each from the twelve months. We create a data frame and include a factor variable with month names and summarize our data using ddply().</p>
-<pre class="r"><code>df = as.data.frame(returnsByMonth)
+<pre class="r"><code>df &lt;- as.data.frame(returnsByMonth)
 #note that month.name and month.abb are constants built into base R
-df$Month = factor(rep(month.abb, length(returnsByMonth) / 12), levels = month.abb)
+df$Month &lt;- factor(rep(month.abb, length(returnsByMonth) / 12), levels = month.abb)
+
 head(df)</code></pre>
 <pre><code>##            monthly.returns Month
 ## 1950-01-31     0.023409304   Jan
@@ -83,9 +84,10 @@ head(df)</code></pre>
 ## 1950-04-28     0.038750605   Apr
 ## 1950-05-31     0.045657129   May
 ## 1950-06-30    -0.058040465   Jun</code></pre>
-<pre class="r"><code>meanReturns = ddply(df, &quot;Month&quot;, summarize,
+<pre class="r"><code>meanReturns &lt;- ddply(df, &quot;Month&quot;, summarize,
            Mean = mean(monthly.returns),
-           SE = sd(monthly.returns) / sqrt(length(monthly.returns)))
+           SE   = sd(monthly.returns) / sqrt(length(monthly.returns)))
+
 meanReturns</code></pre>
 <pre><code>##    Month          Mean          SE
 ## 1    Jan  0.0096073603 0.005830234
@@ -113,14 +115,13 @@ meanReturns</code></pre>
 <pre class="r"><code>df %&gt;% 
   ggplot(aes(x = Month, y = monthly.returns)) +
     geom_jitter(alpha = .5, width = 0.25) +
-
-  geom_boxplot(fill = &quot;royalblue4&quot;, alpha = .8) +
-  geom_hline(yintercept = 0, colour = &quot;gold&quot;, linetype = &quot;dashed&quot;, alpha = .5, size = 1) +
-  ggtitle(&quot;S&amp;P 500 monthly average returns from 1950 to 2017&quot;) +
-  my_theme()</code></pre>
+    geom_boxplot(fill = &quot;royalblue4&quot;, alpha = .8) +
+    geom_hline(yintercept = 0, colour = &quot;gold&quot;, linetype = &quot;dashed&quot;, alpha = .5, size = 1) +
+    ggtitle(&quot;S&amp;P 500 monthly average returns from 1950 to 2017&quot;) +
+    my_theme()</code></pre>
 <p><img src="/post/2018-02-27-sell-in-may-and-go-away_files/figure-html/unnamed-chunk-7-1.png" width="960" /></p>
 <p>We can also perform a simple regression analysis to test whether average returns for individual months deviate significantly from 0.</p>
-<pre class="r"><code>fit = lm(monthly.returns ~ 0 + Month, data = df)
+<pre class="r"><code>fit &lt;- lm(monthly.returns ~ 0 + Month, data = df)
 summary(fit)</code></pre>
 <pre><code>## 
 ## Call:
@@ -154,7 +155,7 @@ summary(fit)</code></pre>
 <pre class="r"><code>plot(allEffects(fit))</code></pre>
 <p><img src="/post/2018-02-27-sell-in-may-and-go-away_files/figure-html/unnamed-chunk-9-1.png" width="960" /></p>
 <p>Let’s make the plot a little prettier ourselves.</p>
-<pre class="r"><code>eff_month = data.frame(allEffects(fit)$Month, order = seq(1:12))
+<pre class="r"><code>eff_month &lt;- data.frame(allEffects(fit)$Month, order = seq(1:12))
 
 eff_month %&gt;%
   ggplot(aes(x = reorder(Month, order), y = fit)) +
@@ -167,7 +168,7 @@ eff_month %&gt;%
 We see that some of the monthly estimates do in fact deviate from 0, but only in the form of positive returns. We also observe that the strongest positive months appear to be in the winter periods (November-April). Furthermore, much in agreement with the “Sell in May” investment approach, the negative estimates all fall within summer periods.
 <p>
 <p>Lets’s now look further into this by comparing average seasonal returns for summer and winter periods.</p>
-<pre class="r"><code>df = df %&gt;%
+<pre class="r"><code>df &lt;- df %&gt;%
   mutate(season = factor(ifelse(df$Month %in% month.abb[5:10],&quot;Summer&quot;, &quot;Winter&quot;)))
 
 meanReturnsSeason = ddply(df, &quot;season&quot;, summarize,
@@ -184,7 +185,7 @@ meanReturnsSeason %&gt;%
 <img src="/post/2018-02-27-sell-in-may-and-go-away_files/figure-html/unnamed-chunk-11-1.png" width="576" /> We see a clear difference between summer and winter return estimates. However, it is not obvious that the “Sell in May” strategy is better than holding stocks throughout the year.
 <p>
 <p>As a final step in our analysis, we create two regression models: One in which we compare the season estimates to 0, and another that compares the two return estimates directly.</p>
-<pre class="r"><code>mod2=lm(monthly.returns~0+season,data=df)
+<pre class="r"><code>mod2 &lt;- lm(monthly.returns~0+season,data=df)
 summary(mod2)</code></pre>
 <pre><code>## 
 ## Call:
@@ -205,8 +206,8 @@ summary(mod2)</code></pre>
 ## Multiple R-squared:  0.04037,    Adjusted R-squared:  0.03801 
 ## F-statistic: 17.12 on 2 and 814 DF,  p-value: 5.209e-08</code></pre>
 <p>The most interesting observation to be made here is perhaps that the estimated return for summer periods is not significantly different from 0. Let’s set winter as the reference level in the final model.</p>
-<pre class="r"><code>df$season=relevel(df$season,ref = &quot;Winter&quot;)
-mod3=lm(monthly.returns~season,data=df)
+<pre class="r"><code>df$season &lt;- relevel(df$season,ref = &quot;Winter&quot;)
+mod3 &lt;- lm(monthly.returns~season,data=df)
 summary(mod3)</code></pre>
 <pre><code>## 
 ## Call:

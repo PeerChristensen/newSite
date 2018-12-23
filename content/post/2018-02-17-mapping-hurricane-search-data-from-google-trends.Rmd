@@ -42,20 +42,23 @@ Using the plot function returns a ggplot object, which we can then customize. Ho
 ```{r }
 my_theme <- function() {
     theme_bw() +
-    theme(panel.background = element_blank()) +
-    theme(plot.background = element_rect(fill = "seashell")) +
-    theme(panel.border = element_blank()) +                     # facet border
-    theme(strip.background = element_blank()) +                 # facet title background
-    theme(plot.margin = unit(c(.5, .5, .5, .5), "cm")) +
-    theme(panel.spacing = unit(3, "lines")) +
-    theme(panel.grid.major = element_blank()) +
-    theme(panel.grid.minor = element_blank()) +
-    theme(legend.background = element_blank()) +
-    theme(legend.key = element_blank()) +
-    theme(legend.title = element_blank())
+    theme(panel.background  = element_blank(),
+          plot.background   = element_rect(fill = "seashell"),
+          panel.border      = element_blank(),                # facet border
+          strip.background  = element_blank(),                # facet title background
+          plot.margin       = unit(c(.5, .5, .5, .5), "cm"),
+          panel.spacing     = unit(3, "lines"),
+          panel.grid.major  = element_blank(),
+          panel.grid.minor  = element_blank(),
+          legend.background = element_blank(),
+          legend.key        = element_blank(),
+          legend.title      = element_blank())
   }
 
-hurricanes = gtrends(c("katrina","harvey"),time="all", gprop = "web", geo = c("US"))
+hurricanes <- gtrends(c("katrina","harvey"),
+                      time  ="all", 
+                      gprop = "web", 
+                      geo   = c("US"))
 
 plot(hurricanes) + 
   my_theme() +
@@ -69,7 +72,10 @@ https://support.google.com/trends/answer/4365533?hl=en
 The above plot shows clear spikes around the time when Katrina and Harvey hit the US. We could also plot more cyclical data.
 <p>
 ```{r }
-cycles = gtrends(c("spring break","vacation"),time="2008-01-01 2018-01-01", gprop = "web", geo = c("US"))
+cycles <- gtrends(c("spring break","vacation"),
+                  time  = "2008-01-01 2018-01-01",
+                  gprop = "web", 
+                  geo   = c("US"))
 
 plot(cycles) +
   my_theme() +
@@ -80,7 +86,10 @@ plot(cycles) +
 As you can see in the output below, the gtrends function actually returns a list of data frames with various kinds of data.
 <p>
 ```{r}
-hurricanes = gtrends(c("Katrina","Harvey","Irma"),time="all", gprop = "web", geo = c("US"))
+hurricanes <- gtrends(c("Katrina","Harvey","Irma"),
+                     time  = "all",
+                     gprop = "web", 
+                     geo   = c("US"))
 
 for(df in hurricanes){
   print(head(df))
@@ -90,11 +99,15 @@ for(df in hurricanes){
 Now, let's compare the amount of interest in Hurricane Harvey for each US state.
 <p>
 ```{r}
-harvey = gtrends(c("Harvey"), gprop = "web",time="2017-08-18 2017-08-25", geo = c("US"))
-harvey = harvey$interest_by_region
-harvey$region = sapply(harvey$location,tolower) #change to lower case for merging with map data
-statesMap = map_data("state")
-harveyMerged = merge(statesMap,harvey,by="region")
+harvey <- gtrends(c("Harvey"), 
+                  gprop = "web",
+                  time  = "2017-08-18 2017-08-25", 
+                  geo   = c("US"))
+
+harvey        <- harvey$interest_by_region
+harvey$region <- sapply(harvey$location,tolower) #change to lower case for merging with map data
+statesMap     <- map_data("state")
+harveyMerged  <- merge(statesMap,harvey,by="region")
 ```
 <p>
 On the fourth line in the code above, we fetch an empty map for plotting our geographical data. 
@@ -102,11 +115,11 @@ On the fifth line, we merge our google trends data with the underlying map data.
 Now we can plot the data! But first we'll modify our ggplot theme for plotting maps.
 <p>
 ```{r, fig.height=7}
-my_theme2 = function() {
+my_theme2 <- function() {
   my_theme() +
-  theme(axis.title = element_blank()) +
-  theme(axis.text = element_blank()) +
-  theme(axis.ticks = element_blank())
+  theme(axis.title = element_blank(),
+        axis.text = element_blank(),
+        axis.ticks = element_blank())
 }
 
 ggplot() +
@@ -121,11 +134,15 @@ We then use the same procedure for plotting regional searches for Hurricane Irma
 Placing the state names is a bit tricky. I've used a simple solution that centers the names. However, some of the smaller eastern state names would overlap when using geom_text(). Luckily, geom_text_repel() from the ggrepel package takes care of this issue.
 <p>
 ```{r, fig.height=5.6}
-irma = gtrends(c("irma"), gprop = "web", time="2017-09-03 2017-09-10",geo = c("US"))
-irma = irma$interest_by_region
-statesMap = map_data("state")
-irma$region = sapply(irma$location,tolower)
-irmaMerged = merge(statesMap ,irma,by="region")
+irma <- gtrends(c("irma"), 
+                gprop = "web",
+                time  = "2017-09-03 2017-09-10",
+                geo   = c("US"))
+
+irma         <- irma$interest_by_region
+statesMap    <- map_data("state")
+irma$region  <- sapply(irma$location,tolower)
+irmaMerged   <- merge(statesMap ,irma,by="region")
 
 regionLabels <- aggregate(cbind(long, lat) ~ region, data=irmaMerged, 
                           FUN=function(x) mean(range(x)))
@@ -143,13 +160,17 @@ irmaMerged %>%
 Lastly, we,'ll plot searches for Hurricane Katrina by state, but focusing on searches between its formation and dissipation.
 <p>
 ```{r, fig.height=5.6}
-katrina = gtrends(c("katrina"), gprop = "web", time="2005-08-23 2005-08-31", geo = c("US"))
-katrina = katrina$interest_by_region
-statesMap = map_data("state")
-katrina$region = sapply(katrina$location,tolower)
-katrinaMerged = merge(statesMap ,katrina,by="region")
+katrina        <- gtrends(c("katrina"), 
+                          gprop = "web", 
+                          time="2005-08-23 2005-08-31", 
+                          geo = c("US"))
 
-regionLabels <- aggregate(cbind(long, lat) ~ region, data=katrinaMerged, 
+katrina        <- katrina$interest_by_region
+statesMap      <- map_data("state")
+katrina$region <- sapply(katrina$location,tolower)
+katrinaMerged  <- merge(statesMap ,katrina,by="region")
+
+regionLabels   <- aggregate(cbind(long, lat) ~ region, data=katrinaMerged, 
                           FUN=function(x) mean(range(x)))
 
 katrinaMerged %>% ggplot() +
@@ -165,11 +186,11 @@ katrinaMerged %>% ggplot() +
 BONUS: In which US states do people search for "guns" the most?
 
 ```{r, fig.height=5.6}
-guns = gtrends(c("guns"), gprop = "web", time="all", geo = c("US"))
-guns = guns$interest_by_region
-statesMap = map_data("state")
-guns$region = sapply(guns$location,tolower)
-gunsMerged = merge(statesMap,guns,by="region")
+guns         <- gtrends(c("guns"), gprop = "web", time="all", geo = c("US"))
+guns         <- guns$interest_by_region
+statesMap    <- map_data("state")
+guns$region  <- sapply(guns$location,tolower)
+gunsMerged   <- merge(statesMap,guns,by="region")
 
 regionLabels <- aggregate(cbind(long, lat) ~ region, data=gunsMerged, 
                           FUN=function(x) mean(range(x)))

@@ -23,11 +23,11 @@ header:
 <p>For more details on topic modelling with the tidytext package by Julia Silge and David Robinson, check out their <a href="https://www.tidytextmining.com/tidytext.html">book</a>.</p>
 <div id="required-packages" class="section level2">
 <h2>Required packages</h2>
-<pre class="r"><code>if (!require(&quot;pacman&quot;)) install.packages(&quot;pacman&quot;)
-pacman::p_load(tidyverse, tidytext, tm, topicmodels, magrittr, jtools, gridExtra, 
-    knitr, widyr, ggraph, igraph, kableExtra)
+<pre class="r"><code>if(!require(&quot;pacman&quot;)) install.packages(&quot;pacman&quot;)
+pacman::p_load(tidyverse,tidytext,tm,topicmodels,magrittr,
+               jtools,gridExtra,knitr,widyr,ggraph,igraph,kableExtra)
 
-if (!require(&quot;devtools&quot;)) install.packages(&quot;devtools&quot;)
+if(!require(&quot;devtools&quot;)) install.packages(&quot;devtools&quot;)
 devtools::install_github(&quot;56north/happyorsad&quot;)
 library(happyorsad)</code></pre>
 </div>
@@ -52,34 +52,48 @@ df %&lt;&gt;%
   select(-X1) %&gt;%                                            # remove unnecessary column
   filter(Name != &quot;John M. Sebastian&quot;)                        # remove one very odd review</code></pre>
 <p>Given that our reviews are in Danish, we can use the happyorsad package to compute a sentiment score for each review. Scores are based on a Danish list of sentiment words and scores put together by Finn Årup Nielsen. We will also make sure that all words are in lowercase, and remove a bunch of pre-defined Danish stop words and frequent verbs.</p>
-<pre class="r"><code>df %&lt;&gt;% mutate(Sentiment = map_int(df$Review, happyorsad, &quot;da&quot;)) %&gt;% mutate(Review = tolower(Review)) %&gt;% 
-    mutate(Review = removeWords(Review, c(&quot;så&quot;, &quot;3&quot;, &quot;kan&quot;, &quot;få&quot;, &quot;får&quot;, 
-        &quot;fik&quot;, stopwords(&quot;danish&quot;))))</code></pre>
+<pre class="r"><code>df %&lt;&gt;%
+  mutate(Sentiment = map_int(df$Review,happyorsad,&quot;da&quot;)) %&gt;%
+  mutate(Review = tolower(Review)) %&gt;%              
+  mutate(Review = removeWords(Review, c(&quot;så&quot;, &quot;3&quot;, &quot;kan&quot;,&quot;få&quot;,&quot;får&quot;,&quot;fik&quot;, stopwords(&quot;danish&quot;))))</code></pre>
 </div>
 <div id="distribution-of-sentiment-scores" class="section level2">
 <h2>Distribution of sentiment scores</h2>
 <p>In the density plot below, we see how sentiment scores are distributed with a median score of 2. As you can probably tell, we’re dealing with a fairly mediocre provider. However, we still want to know <em>why</em> the company has a 6.7 rating out of 10.</p>
 <p>In a very crude way, we can put positive and negative reviews in separate data frames and perform topic modelling on each in order to explore what reviewers like and dislike about 3.</p>
-<pre class="r"><code>df %&gt;% ggplot(aes(x = Sentiment)) + geom_density(size = 1) + geom_vline(xintercept = median(df$Sentiment), 
-    colour = &quot;indianred&quot;, linetype = &quot;dashed&quot;, size = 1) + ggplot2::annotate(&quot;text&quot;, 
-    x = 15, y = 0.06, label = paste(&quot;median = &quot;, median(df$Sentiment)), colour = &quot;indianred&quot;) + 
-    my_theme() + xlim(-40, 40)</code></pre>
+<pre class="r"><code>df %&gt;% 
+  ggplot(aes(x = Sentiment)) + 
+  geom_density(size = 1) +
+  geom_vline(xintercept = median(df$Sentiment), 
+             colour = &quot;indianred&quot;, linetype = &quot;dashed&quot;, size = 1) +
+  ggplot2::annotate(&quot;text&quot;, x = 15, y = 0.06, 
+                    label = paste(&quot;median = &quot;, median(df$Sentiment)), colour = &quot;indianred&quot;) +
+  my_theme() +
+  xlim(-40,40)</code></pre>
 <p><img src="/post/2018-08-09-topic-modelling-of-trustpilot-reviews-with-r-and-tidytext_files/figure-html/unnamed-chunk-5-1.png" width="672" /></p>
 </div>
 <div id="topic-modelling-for-positive-reviews" class="section level2">
 <h2>Topic modelling for positive reviews</h2>
 <p>The data frame created below contains 2228 positive reviews with scores above 1. Words will be tokenized, i.e. one word per row.</p>
-<pre class="r"><code>df_pos &lt;- df %&gt;% filter(Sentiment &gt; 1) %&gt;% select(-Sentiment) %&gt;% unnest_tokens(word, 
-    Review)</code></pre>
+<pre class="r"><code>df_pos &lt;- df            %&gt;%
+  filter(Sentiment &gt; 1) %&gt;%
+  select(-Sentiment)    %&gt;%
+  unnest_tokens(word, Review)</code></pre>
 <p>Before creating a so-called <em>document term matrix</em>, we need to count the frequency of each word per document (review).</p>
-<pre class="r"><code>words_pos &lt;- df_pos %&gt;% count(Name, word, sort = TRUE) %&gt;% ungroup()
+<pre class="r"><code>words_pos &lt;- df_pos              %&gt;%
+  count(Name, word, sort = TRUE) %&gt;%
+  ungroup()
 
-reviewDTM_pos &lt;- words_pos %&gt;% cast_dtm(Name, word, n)</code></pre>
+reviewDTM_pos &lt;- words_pos       %&gt;%
+  cast_dtm(Name, word, n)</code></pre>
 <p>Now that we have a “DTM”, we can pass it to the LDA function, which implements the <em>Latent Dirichlet Allocation</em> algorithm. It assumes that every document is a mixture of topics, and every topic is a mixture of words. The k argument is used to specify the desired amount of topics that we want in our model. Let’s create a four-topic model!</p>
 <pre class="r"><code>reviewLDA_pos &lt;- LDA(reviewDTM_pos, k = 4, control = list(seed = 347))</code></pre>
 <p>The following figure shows how many reviews that are assigned to each topic.</p>
-<pre class="r"><code>tibble(topics(reviewLDA_pos)) %&gt;% group_by(`topics(reviewLDA_pos)`) %&gt;% count() %&gt;% 
-    kable() %&gt;% kable_styling(full_width = F, position = &quot;left&quot;)</code></pre>
+<pre class="r"><code>tibble(topics(reviewLDA_pos))       %&gt;%
+  group_by(`topics(reviewLDA_pos)`) %&gt;%
+  count()                           %&gt;% 
+  kable()                           %&gt;%
+  kable_styling(full_width = F, position = &quot;left&quot;)</code></pre>
 <table class="table" style="width: auto !important; ">
 <thead>
 <tr>
@@ -144,23 +158,35 @@ topics_pos</code></pre>
 ## 10     2 navn       0.0000227
 ## # ... with 46,834 more rows</code></pre>
 <p>Now, we can find the top terms for each topic, i.e. the words with the highest probability/beta. Here, we choose the top five words, which we will show in a plot.</p>
-<pre class="r"><code>topTerms_pos &lt;- topics_pos %&gt;% group_by(topic) %&gt;% top_n(5, beta) %&gt;% ungroup() %&gt;% 
-    arrange(topic, -beta) %&gt;% mutate(order = rev(row_number()))  # necessary for ordering words properly</code></pre>
+<pre class="r"><code>topTerms_pos &lt;- topics_pos %&gt;%
+  group_by(topic)          %&gt;%
+  top_n(5, beta)           %&gt;%
+  ungroup()                %&gt;%
+  arrange(topic, -beta)    %&gt;%
+  mutate(order = rev(row_number())) # necessary for ordering words properly</code></pre>
 </div>
 <div id="topic-modelling-for-negative-reviews" class="section level2">
 <h2>Topic modelling for negative reviews</h2>
 <p>Let’s first do the same for negative reviews creating a data frame with 973 reviews with a sentiment score below -1.</p>
-<pre class="r"><code>df_neg &lt;- df %&gt;% filter(Sentiment &lt; -1) %&gt;% select(-Sentiment) %&gt;% unnest_tokens(word, 
-    Review)
+<pre class="r"><code>df_neg &lt;- df                        %&gt;%
+  filter(Sentiment &lt; -1)            %&gt;%
+  select(-Sentiment)                %&gt;%
+  unnest_tokens(word, Review)
 
-words_neg &lt;- df_neg %&gt;% count(Name, word, sort = TRUE) %&gt;% ungroup()
+words_neg &lt;- df_neg                 %&gt;%
+  count(Name, word, sort = TRUE)    %&gt;%
+  ungroup()
 
-reviewDTM_neg &lt;- words_neg %&gt;% cast_dtm(Name, word, n)
+reviewDTM_neg &lt;- words_neg          %&gt;%
+  cast_dtm(Name, word, n)
 
 reviewLDA_neg &lt;- LDA(reviewDTM_neg, k = 4, control = list(seed = 347))
 
-tibble(topics(reviewLDA_neg)) %&gt;% group_by(`topics(reviewLDA_neg)`) %&gt;% count() %&gt;% 
-    kable() %&gt;% kable_styling(full_width = F, position = &quot;left&quot;)</code></pre>
+tibble(topics(reviewLDA_neg))       %&gt;%
+  group_by(`topics(reviewLDA_neg)`) %&gt;%
+  count()                           %&gt;%
+  kable()                           %&gt;%
+  kable_styling(full_width = F, position = &quot;left&quot;)</code></pre>
 <table class="table" style="width: auto !important; ">
 <thead>
 <tr>
@@ -209,22 +235,41 @@ n
 </table>
 <pre class="r"><code>topics_neg &lt;- tidy(reviewLDA_neg, matrix = &quot;beta&quot;)
 
-topTerms_neg &lt;- topics_neg %&gt;% group_by(topic) %&gt;% top_n(5, beta) %&gt;% ungroup() %&gt;% 
-    arrange(topic, -beta) %&gt;% mutate(order = rev(row_number()))  # necessary for ordering words</code></pre>
+topTerms_neg &lt;- topics_neg          %&gt;%
+  group_by(topic)                   %&gt;%
+  top_n(5, beta)                    %&gt;%
+  ungroup()                         %&gt;%
+  arrange(topic, -beta)             %&gt;%
+  mutate(order = rev(row_number())) # necessary for ordering words</code></pre>
 </div>
 <div id="plotting-the-topic-models" class="section level2">
 <h2>Plotting the topic models</h2>
 <p>Finally, let’s plot the results…</p>
-<pre class="r"><code>plot_pos &lt;- topTerms_pos %&gt;% ggplot(aes(order, beta)) + ggtitle(&quot;Positive review topics&quot;) + 
-    geom_col(show.legend = FALSE, fill = &quot;steelblue&quot;) + scale_x_continuous(breaks = topTerms_pos$order, 
-    labels = topTerms_pos$term, expand = c(0, 0)) + facet_wrap(~topic, scales = &quot;free&quot;) + 
-    coord_flip(ylim = c(0, 0.02)) + my_theme() + theme(axis.title = element_blank())
+<pre class="r"><code>plot_pos &lt;- topTerms_pos %&gt;%
+  ggplot(aes(order, beta)) +
+  ggtitle(&quot;Positive review topics&quot;) +
+  geom_col(show.legend = FALSE, fill = &quot;steelblue&quot;) +
+  scale_x_continuous(
+    breaks = topTerms_pos$order,
+    labels = topTerms_pos$term,
+    expand = c(0,0)) +
+  facet_wrap(~ topic,scales = &quot;free&quot;) +
+  coord_flip(ylim = c(0,0.02)) +
+  my_theme() +
+  theme(axis.title = element_blank())
 
-plot_neg &lt;- topTerms_neg %&gt;% ggplot(aes(order, beta, fill = factor(topic))) + 
-    ggtitle(&quot;Negative review topics&quot;) + geom_col(show.legend = FALSE, fill = &quot;indianred&quot;) + 
-    scale_x_continuous(breaks = topTerms_neg$order, labels = topTerms_neg$term, 
-        expand = c(0, 0)) + facet_wrap(~topic, scales = &quot;free&quot;) + coord_flip(ylim = c(0, 
-    0.02)) + my_theme() + theme(axis.title = element_blank())
+plot_neg &lt;- topTerms_neg %&gt;%
+  ggplot(aes(order, beta, fill = factor(topic))) +
+  ggtitle(&quot;Negative review topics&quot;) +
+  geom_col(show.legend = FALSE, fill = &quot;indianred&quot;) +
+  scale_x_continuous(
+    breaks = topTerms_neg$order,
+    labels = topTerms_neg$term,
+    expand = c(0,0))+
+  facet_wrap(~ topic,scales = &quot;free&quot;) +
+  coord_flip(ylim = c(0,0.02)) +
+  my_theme() +
+  theme(axis.title = element_blank())
 
 grid.arrange(plot_pos, plot_neg, ncol = 1)</code></pre>
 <p><img src="/post/2018-08-09-topic-modelling-of-trustpilot-reviews-with-r-and-tidytext_files/figure-html/unnamed-chunk-13-1.png" width="960" /></p>
@@ -255,25 +300,41 @@ grid.arrange(plot_pos, plot_neg, ncol = 1)</code></pre>
 <div id="word-co-occurrence-within-reviews" class="section level2">
 <h2>Word co-occurrence within reviews</h2>
 <p>To see whether word pairs like “good service” and “bad service” are frequent in our two data sets, we’ll count how many times each pair of words occurs together in a title or description field. This is easy with pairwise_count() from the widyr package.</p>
-<pre class="r"><code>word_pairs_pos &lt;- df_pos %&gt;% pairwise_count(word, Name, sort = TRUE)
+<pre class="r"><code>word_pairs_pos &lt;- df_pos %&gt;% 
+  pairwise_count(word, Name, sort = TRUE)
 
-word_pairs_neg &lt;- df_neg %&gt;% pairwise_count(word, Name, sort = TRUE)</code></pre>
+word_pairs_neg &lt;- df_neg %&gt;%
+  pairwise_count(word, Name, sort = TRUE)</code></pre>
 <p>We can then plot the most common word pairs co-occurring in the reviews by means of the igraph and ggraph packages.</p>
 <pre class="r"><code>set.seed(611)
 
-pairs_plot_pos &lt;- word_pairs_pos %&gt;% filter(n &gt;= 140) %&gt;% graph_from_data_frame() %&gt;% 
-    ggraph(layout = &quot;fr&quot;) + geom_edge_link(aes(edge_alpha = n, edge_width = n), 
-    edge_colour = &quot;steelblue&quot;) + ggtitle(&quot;Positive word pairs&quot;) + geom_node_point(size = 5) + 
-    geom_node_text(aes(label = name), repel = TRUE, point.padding = unit(0.2, 
-        &quot;lines&quot;)) + my_theme() + theme(axis.title = element_blank(), axis.text = element_blank(), 
-    axis.ticks = element_blank())
+pairs_plot_pos &lt;- word_pairs_pos %&gt;%
+  filter(n &gt;= 140)               %&gt;%
+  graph_from_data_frame()        %&gt;%
+  ggraph(layout = &quot;fr&quot;) +
+  geom_edge_link(aes(edge_alpha = n, edge_width = n), edge_colour = &quot;steelblue&quot;) +
+  ggtitle(&quot;Positive word pairs&quot;) +
+  geom_node_point(size = 5) +
+  geom_node_text(aes(label = name), repel = TRUE,
+                point.padding = unit(0.2, &quot;lines&quot;)) +
+  my_theme() +
+  theme(axis.title = element_blank(),
+      axis.text = element_blank(),
+      axis.ticks = element_blank())
 
-pairs_plot_neg &lt;- word_pairs_neg %&gt;% filter(n &gt;= 80) %&gt;% graph_from_data_frame() %&gt;% 
-    ggraph(layout = &quot;fr&quot;) + geom_edge_link(aes(edge_alpha = n, edge_width = n), 
-    edge_colour = &quot;indianred&quot;) + ggtitle(&quot;Negative word pairs&quot;) + geom_node_point(size = 5) + 
-    geom_node_text(aes(label = name), repel = TRUE, point.padding = unit(0.2, 
-        &quot;lines&quot;)) + my_theme() + theme(axis.title = element_blank(), axis.text = element_blank(), 
-    axis.ticks = element_blank())
+pairs_plot_neg &lt;- word_pairs_neg %&gt;%
+  filter(n &gt;= 80)                %&gt;%
+  graph_from_data_frame()        %&gt;%
+  ggraph(layout = &quot;fr&quot;) +
+  geom_edge_link(aes(edge_alpha = n, edge_width = n), edge_colour = &quot;indianred&quot;) +
+  ggtitle(&quot;Negative word pairs&quot;) +
+  geom_node_point(size = 5) +
+  geom_node_text(aes(label = name), repel = TRUE,
+                 point.padding = unit(0.2, &quot;lines&quot;)) +
+  my_theme() +
+  theme(axis.title = element_blank(),
+        axis.text = element_blank(),
+        axis.ticks = element_blank())
 
 grid.arrange(pairs_plot_pos, pairs_plot_neg, ncol = 2)</code></pre>
 <p><img src="/post/2018-08-09-topic-modelling-of-trustpilot-reviews-with-r-and-tidytext_files/figure-html/unnamed-chunk-15-1.png" width="960" /></p>
@@ -282,19 +343,36 @@ grid.arrange(pairs_plot_pos, pairs_plot_neg, ncol = 2)</code></pre>
 <div id="word-pair-correlations" class="section level2">
 <h2>Word pair correlations</h2>
 <p>A more direct approach to finding out what customers consider good and bad about 3 is to use the pairwise_cor() function and look specifically for the words that correlate the most with the words for “good” and “bad” in Danish. Alternatively, we could perform an n-gram analysis to find out which words most frequently follow “good” and “bad”.</p>
-<pre class="r"><code>cor_pos &lt;- df_pos %&gt;% group_by(word) %&gt;% filter(n() &gt;= 100) %&gt;% pairwise_cor(word, 
-    Name, sort = TRUE) %&gt;% filter(item1 == &quot;god&quot;) %&gt;% top_n(7)
+<pre class="r"><code>cor_pos &lt;- df_pos                       %&gt;% 
+  group_by(word)                        %&gt;%
+  filter(n() &gt;= 100)                    %&gt;%
+  pairwise_cor(word, Name, sort = TRUE) %&gt;%
+  filter(item1 == &quot;god&quot;)                %&gt;%
+  top_n(7)
 
-cor_neg &lt;- df_neg %&gt;% group_by(word) %&gt;% filter(n() &gt;= 100) %&gt;% pairwise_cor(word, 
-    Name, sort = TRUE) %&gt;% filter(item1 == &quot;dårlig&quot;) %&gt;% top_n(7)</code></pre>
+cor_neg &lt;- df_neg                       %&gt;% 
+  group_by(word)                        %&gt;%
+  filter(n() &gt;= 100)                    %&gt;%
+  pairwise_cor(word, Name, sort = TRUE) %&gt;% 
+  filter(item1 == &quot;dårlig&quot;)             %&gt;%
+  top_n(7)</code></pre>
 <p>Let’s combine the data in a single plot.</p>
-<pre class="r"><code>cor_words &lt;- rbind(cor_pos, cor_neg) %&gt;% mutate(order = rev(row_number()), item1 = factor(item1, 
-    levels = c(&quot;god&quot;, &quot;dårlig&quot;)))
+<pre class="r"><code>cor_words &lt;- rbind(cor_pos, cor_neg) %&gt;%
+    mutate(order = rev(row_number()),
+           item1 = factor(item1, levels = c(&quot;god&quot;, &quot;dårlig&quot;)))
 
-cor_words %&gt;% ggplot(aes(x = order, y = correlation, fill = item1)) + geom_col(show.legend = FALSE) + 
-    scale_x_continuous(breaks = cor_words$order, labels = cor_words$item2, expand = c(0, 
-        0)) + facet_wrap(~item1, scales = &quot;free&quot;) + scale_fill_manual(values = c(&quot;steelblue&quot;, 
-    &quot;indianred&quot;)) + coord_flip() + labs(x = &quot;words&quot;) + my_theme()</code></pre>
+cor_words %&gt;%
+  ggplot(aes(x = order, y = correlation, fill = item1)) +
+  geom_col(show.legend = FALSE) +
+  scale_x_continuous(
+    breaks = cor_words$order,
+    labels = cor_words$item2,
+    expand = c(0,0)) +
+  facet_wrap(~item1, scales = &quot;free&quot;) +
+  scale_fill_manual(values = c(&quot;steelblue&quot;, &quot;indianred&quot;)) + 
+  coord_flip() +
+  labs(x = &quot;words&quot;) +
+  my_theme()</code></pre>
 <p><img src="/post/2018-08-09-topic-modelling-of-trustpilot-reviews-with-r-and-tidytext_files/figure-html/unnamed-chunk-17-1.png" width="960" /></p>
 <p>This analysis confirms that some reviewers like the (customer) service and the coverage provided by 3, whereas others have a negative view of their service and coverage.</p>
 </div>

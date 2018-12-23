@@ -33,11 +33,11 @@ Because we’ll create several ggplots to visualize sentiments in Shakespeare’
 <p>
 <pre class="r"><code>my_theme &lt;- function() {
   theme_apa(legend.pos = &quot;none&quot;) +
-    theme(panel.background = element_blank()) +
-    theme(plot.background = element_rect(fill = &quot;antiquewhite1&quot;)) +
-    theme(panel.border = element_blank()) +                       # facet border
-    theme(strip.background = element_blank()) +                  # facet title background
-    theme(plot.margin = unit(c(.5, .5, .5, .5), &quot;cm&quot;)) 
+    theme(panel.background = element_blank(),
+          plot.background = element_rect(fill = &quot;antiquewhite1&quot;),
+          panel.border = element_blank(),                     # facet border
+          strip.background = element_blank(),                 # facet title background
+          plot.margin = unit(c(.5, .5, .5, .5), &quot;cm&quot;)) 
 }</code></pre>
 <p>
 </div>
@@ -70,7 +70,8 @@ We then collect the IDs for the plays that we want and check that they match bef
 <p>
 <pre class="r"><code>IDs = shakespeare[c(15,23,33,34,53,54,55,56,57,58),]$gutenberg_id
 
-shakespeare %&gt;% filter(gutenberg_id %in% IDs)</code></pre>
+shakespeare %&gt;% 
+  filter(gutenberg_id %in% IDs)</code></pre>
 <pre><code>## # A tibble: 10 x 8
 ##    gutenberg_id title author gutenberg_autho… language gutenberg_books…
 ##           &lt;int&gt; &lt;chr&gt; &lt;chr&gt;             &lt;int&gt; &lt;chr&gt;    &lt;chr&gt;           
@@ -111,10 +112,10 @@ plays</code></pre>
 <h3>Creating a data frame of sentiment words</h3>
 <p>
 <p>We see that the text variable contains one line of text for each row. Given this format, we can create a new data frame with a row for each word token found in the Bing lexicon of sentiment words. By using this lexicon, sentiment words are simpky assigned a value of positive or negative. Have a look at the other options with ?get_sentiments. We will try using the nrc lexicon later on.</p>
-<pre class="r"><code>sentiments = plays %&gt;% 
-  group_by(title) %&gt;%
+<pre class="r"><code>sentiments = plays            %&gt;% 
+  group_by(title)             %&gt;%
   mutate(line = row_number()) %&gt;%      # we will use line numbers later
-  unnest_tokens(word, text) %&gt;%        #tokenize words
+  unnest_tokens(word, text)   %&gt;%      # tokenize words
   #anti_join(stop_words) %&gt;%           # in case we would like to remove stop words
   inner_join(get_sentiments(&quot;bing&quot;))   # keep only words found in the Bing lexicon
 
@@ -148,7 +149,7 @@ We could also further subset our data frame by omitting so-called “stop words�
 <p>
 With that in mind, we can now plot the number of positive and negative words in each play.
 <p>
-<pre class="r"><code>sentiments %&gt;% 
+<pre class="r"><code>sentiments         %&gt;% 
   count(sentiment) %&gt;%
   ggplot(aes(x = sentiment, y = n, fill = title)) + 
   geom_bar(stat = &quot;identity&quot;) +
@@ -159,11 +160,11 @@ With that in mind, we can now plot the number of positive and negative words in 
 <p>
 For the figure below, we’ll use the nrc lexicon, which associates words with basic emotions.
 <p>
-<pre class="r"><code>plays %&gt;% 
-  group_by(title) %&gt;%
-  mutate(line = row_number()) %&gt;%
-  unnest_tokens(word, text) %&gt;%
-  #anti_join(stop_words) %&gt;%
+<pre class="r"><code>plays                               %&gt;% 
+  group_by(title)                   %&gt;%
+  mutate(line = row_number())       %&gt;%
+  unnest_tokens(word, text)         %&gt;%
+  #anti_join(stop_words)            %&gt;%
   inner_join(get_sentiments(&quot;nrc&quot;)) %&gt;% 
   count(sentiment) %&gt;%
   ggplot(aes(x = sentiment, y = n, fill = sentiment)) + 
@@ -176,18 +177,18 @@ For the figure below, we’ll use the nrc lexicon, which associates words with b
 <p>
 Using our first data frame created with the Bing lexicon, let’s now rank the plays according to their ratio of negative words.
 <p>
-<pre class="r"><code>sentiments %&gt;% 
-  count(sentiment) %&gt;%
+<pre class="r"><code>sentiments                       %&gt;% 
+  count(sentiment)               %&gt;%
   spread(sentiment, n, fill = 0) %&gt;%
   mutate(ratio = negative / (negative + positive)) %&gt;%
-  ungroup() %&gt;%
+  ungroup()                      %&gt;%
   ggplot(aes(x = reorder(title, ratio), y = ratio, fill = ratio)) + 
   geom_bar(stat = &quot;identity&quot;) +
   scale_fill_viridis_c(option = &quot;B&quot;, direction = -1) +
   my_theme() + 
   labs(title = &quot;Plays ranked by ratio of negative sentiment words&quot;,
-       y = &quot;ratio negative words&quot;,
-       x = &quot;plays&quot;) +
+       y     = &quot;ratio negative words&quot;,
+       x     = &quot;plays&quot;) +
   coord_flip()</code></pre>
 <img src="/post/2018-06-07-fair-is-foul-and-foul-is-fair-a-tidytext-entiment-analysis-of-shakespeare-s-tragedies_files/figure-html/unnamed-chunk-10-1.png" width="960" />
 <p>
@@ -196,9 +197,10 @@ Using our first data frame created with the Bing lexicon, let’s now rank the p
 <h3>Sentiments over time</h3>
 <p>It might also be interesting to examine the ebb and flow of sentiments as each play unfolds. To do so, we can use integer division and find the number of positive and negative words for each chunk of text. Here, we’ll use chunks with 100 words in each and subtract the number of negative from positive words.</p>
 <pre class="r"><code>sentiments %&gt;%
-  count(title, index = line %/% 100, sentiment) %&gt;%  # count number of positive and negative words for each chunk of 100 lines
-  spread(sentiment, n, fill = 0) %&gt;%                 
-  mutate(sentiment = positive - negative) %&gt;%
+  # count number of positive and negative words for each chunk of 100 lines
+  count(title, index = line %/% 100, sentiment) %&gt;%  
+  spread(sentiment, n, fill = 0)                %&gt;%                 
+  mutate(sentiment = positive - negative)       %&gt;%
   ggplot(aes(index, sentiment, fill = sentiment)) +
   geom_col(show.legend = FALSE) +
   facet_wrap(~title,scales = &quot;free_x&quot;) +
@@ -209,10 +211,10 @@ Using our first data frame created with the Bing lexicon, let’s now rank the p
 It might also be useful to further examine the “trend”&quot; by adding a line indicating the rolling mean sentiment score. As an example, let’s try this with Romeo and Juliet using a lag of 5 indices.
 <p>
 <pre class="r"><code>sentiments %&gt;%
-  filter(title == &quot;Romeo and Juliet&quot;) %&gt;%
+  filter(title == &quot;Romeo and Juliet&quot;)           %&gt;%
   count(title, index = line %/% 100, sentiment) %&gt;%
-  spread(sentiment, n, fill = 0) %&gt;%
-  mutate(sentiment = positive - negative) %&gt;%
+  spread(sentiment, n, fill = 0)                %&gt;%
+  mutate(sentiment = positive - negative)       %&gt;%
   mutate(rollMean = rollmean(sentiment, 5, fill = NA)) %&gt;%             # zoo package
   ggplot(aes(index, sentiment, fill = sentiment)) +
   geom_col(show.legend = FALSE) +
@@ -225,19 +227,19 @@ It might also be useful to further examine the “trend”&quot; by adding a lin
 <p>
 Though it requires a bit more work, it might be worthwhile to indicate where the individual acts begin. First, we will create a data frame containing the lines in which individual acts begin. We find the relevant lines with regular expressions in line 4 of the below code looking for the word “act” (or, in some cases, “actus”). For each hit, we assign a number
 <p>
-<pre class="r"><code>acts = plays %&gt;% 
-  filter(title == &quot;Romeo and Juliet&quot;) %&gt;%
-  mutate(line = row_number()) %&gt;%
+<pre class="r"><code>acts = plays                                  %&gt;% 
+  filter(title == &quot;Romeo and Juliet&quot;)         %&gt;%
+  mutate(line = row_number())                 %&gt;%
   mutate(act = cumsum(str_detect(text, regex(&quot;^act |^actus &quot;, ignore_case = T)))) %&gt;% 
-  ungroup() %&gt;%
-  unnest_tokens(word, text) %&gt;%
+  ungroup()                                   %&gt;%
+  unnest_tokens(word, text)                   %&gt;%
   #anti_join(stop_words) %&gt;%
-  inner_join(get_sentiments(&quot;bing&quot;)) %&gt;%
+  inner_join(get_sentiments(&quot;bing&quot;))          %&gt;%
   count(act, index = line %/% 100, sentiment) %&gt;%
-  mutate(new_act = act != shift(act,1)) %&gt;%         # add a logical vector indicating where acts begin
-  spread(sentiment, n, fill = 0) %&gt;%
-  mutate(sentiment = positive - negative) %&gt;%
-  filter(new_act == T, act &gt; 0) %&gt;%                   # keep only indices where acts begin, remove indices before act 1
+  mutate(new_act = act != shift(act,1))       %&gt;%   # add a logical vector indicating where acts begin
+  spread(sentiment, n, fill = 0)              %&gt;%
+  mutate(sentiment = positive - negative)     %&gt;%
+  filter(new_act == T, act &gt; 0)               %&gt;%   # keep only indices where acts begin, remove indices before act 1
   select(index,act)
 
 acts</code></pre>
@@ -252,20 +254,21 @@ acts</code></pre>
 <p>
 We’ll also create a new data frame with the functions we used to prepare the data for the previous plot.
 <p>
-<pre class="r"><code>sentiments2 = plays %&gt;% 
-  filter(title == &quot;Romeo and Juliet&quot;) %&gt;%
-  mutate(line = row_number()) %&gt;%
-  ungroup() %&gt;%
-  unnest_tokens(word, text) %&gt;%
-  #anti_join(stop_words) %&gt;%
-  inner_join(get_sentiments(&quot;bing&quot;)) %&gt;%
-  count(index = line %/% 100, sentiment) %&gt;%
-  spread(sentiment, n, fill = 0) %&gt;%
+<pre class="r"><code>sentiments2 = plays                       %&gt;% 
+  filter(title == &quot;Romeo and Juliet&quot;)     %&gt;%
+  mutate(line = row_number())             %&gt;%
+  ungroup()                               %&gt;%
+  unnest_tokens(word, text)               %&gt;%
+  #anti_join(stop_words)                  %&gt;%
+  inner_join(get_sentiments(&quot;bing&quot;))      %&gt;%
+  count(index = line %/% 100, sentiment)  %&gt;%
+  spread(sentiment, n, fill = 0)          %&gt;%
   mutate(sentiment = positive - negative)</code></pre>
 <p>
 Let’s then plot the same data only with lines and text indicating the beginning of each act.
 <p>
-<pre class="r"><code>sentiments2 %&gt;% ggplot(aes(index, sentiment, fill = sentiment)) +
+<pre class="r"><code>sentiments2 %&gt;% 
+  ggplot(aes(index, sentiment, fill = sentiment)) +
   geom_vline(data = acts[-1,],
              aes(xintercept = index - 0.5),linetype = &quot;dashed&quot;) +
   geom_col(show.legend = FALSE,position = &quot;dodge&quot;) +
@@ -281,12 +284,12 @@ Let’s then plot the same data only with lines and text indicating the beginnin
 Focusing now on the words themselves, we can easily get an overview of the most common positive and negative words. In this case, we select the ten most common words for each category.
 <p>
 <pre class="r"><code>word_counts &lt;- sentiments %&gt;%
-  ungroup() %&gt;%
+  ungroup()               %&gt;%
   count(word, sentiment, sort = TRUE) %&gt;%
-  group_by(sentiment) %&gt;%
-  top_n(10) %&gt;%
-  ungroup() %&gt;%
-  arrange(sentiment, -n) %&gt;%
+  group_by(sentiment)     %&gt;%
+  top_n(10)               %&gt;%
+  ungroup()               %&gt;%
+  arrange(sentiment, -n)  %&gt;%
   mutate(order = rev(row_number()))       # we need the order variable to ensure proper ranking of words</code></pre>
 <p>
 Recall that we chose to keep the sentiment words that matched stop words. In the plot below, we clearly see the consequence of our choice. The top four spots among positive words are populated by stop words.
@@ -311,12 +314,12 @@ Let’s do the same for each play and store individual plots in a list using a f
 plots = list()
 for (i in titles){
   word_counts = sentiments %&gt;%
-    filter(title == i) %&gt;%
+    filter(title == i)     %&gt;%
     count(word, sentiment, sort = TRUE) %&gt;%
-    ungroup() %&gt;%
-    group_by(sentiment) %&gt;%
-    top_n(10) %&gt;%
-    ungroup() %&gt;%
+    ungroup()              %&gt;%
+    group_by(sentiment)    %&gt;%
+    top_n(10)              %&gt;%
+    ungroup()              %&gt;%
     arrange(sentiment, -n) %&gt;%
     mutate(order = rev(row_number()))
   
@@ -364,10 +367,10 @@ for (play in playList){
   tokens = data_frame(text = text) %&gt;%        # tokenize words
     unnest_tokens(word, text)
   
-  sentiments = tokens %&gt;%
+  sentiments = tokens                  %&gt;%
     inner_join(get_sentiments(&quot;bing&quot;)) %&gt;%
-    count(sentiment) %&gt;%
-    spread(sentiment, n, fill = 0) %&gt;% 
+    count(sentiment)                   %&gt;%
+    spread(sentiment, n, fill = 0)     %&gt;% 
     mutate(sentiment = positive - negative) 
   
   playDF = tibble(Play = play,Sentiments = names(sentiments),Values = t(sentiments)[,1])

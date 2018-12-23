@@ -39,12 +39,12 @@ pacman::p_load(quantmod,ggplot2,plyr,lme4,lmerTest,effects,jtools,tidyverse)
 
 ```{r}
 my_theme <- function() {
-  theme_apa(legend.pos = "none") +
-    theme(panel.background = element_blank()) +
-    theme(plot.background = element_rect(fill = "azure")) +
-    theme(panel.border = element_blank()) +                       # facet border
-    theme(strip.background = element_blank()) +                  # facet title background
-    theme(plot.margin = unit(c(.5, .5, .5, .5), "cm")) 
+  theme_apa(legend.pos     = "none") +
+    theme(panel.background = element_blank(),
+          plot.background  = element_rect(fill = "azure"),
+          panel.border     = element_blank(),               # facet border
+          strip.background = element_blank(),               # facet title background
+          plot.margin      = unit(c(.5, .5, .5, .5), "cm")) 
 }
 ```
 
@@ -70,7 +70,7 @@ ggplot(GSPC,aes(y = GSPC.Close, x = Index)) +
 First, let's take a look at monthly returns since 1950. We'll also add a line indicating the average return. 
 
 ```{r}
-returnsByMonth=periodReturn(GSPC, period = 'monthly', subset = '1950::')
+returnsByMonth <- periodReturn(GSPC, period = 'monthly', subset = '1950::')
 
 returnsByMonth %>%
 ggplot(aes(y = monthly.returns, x = Index)) + 
@@ -82,14 +82,16 @@ ggplot(aes(y = monthly.returns, x = Index)) +
 This is not very helpful to us. Instead we'll group our data by month and compare the average return of each from the twelve months. We create a data frame and include a factor variable with month names and summarize our data using ddply().
 
 ```{r}
-df = as.data.frame(returnsByMonth)
+df <- as.data.frame(returnsByMonth)
 #note that month.name and month.abb are constants built into base R
-df$Month = factor(rep(month.abb, length(returnsByMonth) / 12), levels = month.abb)
+df$Month <- factor(rep(month.abb, length(returnsByMonth) / 12), levels = month.abb)
+
 head(df)
 
-meanReturns = ddply(df, "Month", summarize,
+meanReturns <- ddply(df, "Month", summarize,
            Mean = mean(monthly.returns),
-           SE = sd(monthly.returns) / sqrt(length(monthly.returns)))
+           SE   = sd(monthly.returns) / sqrt(length(monthly.returns)))
+
 meanReturns
 ```
 
@@ -111,18 +113,16 @@ Let's instead visualize monthly returns with a boxplot. The dashed line is inten
 df %>% 
   ggplot(aes(x = Month, y = monthly.returns)) +
     geom_jitter(alpha = .5, width = 0.25) +
-
-  geom_boxplot(fill = "royalblue4", alpha = .8) +
-  geom_hline(yintercept = 0, colour = "gold", linetype = "dashed", alpha = .5, size = 1) +
-  ggtitle("S&P 500 monthly average returns from 1950 to 2017") +
-  my_theme()
-
+    geom_boxplot(fill = "royalblue4", alpha = .8) +
+    geom_hline(yintercept = 0, colour = "gold", linetype = "dashed", alpha = .5, size = 1) +
+    ggtitle("S&P 500 monthly average returns from 1950 to 2017") +
+    my_theme()
 ```
 
 We can also perform a simple regression analysis to test whether average returns for individual months deviate significantly from 0.
 
 ```{r}
-fit = lm(monthly.returns ~ 0 + Month, data = df)
+fit <- lm(monthly.returns ~ 0 + Month, data = df)
 summary(fit)
 ```
 
@@ -135,7 +135,7 @@ plot(allEffects(fit))
 Let's make the plot a little prettier ourselves.
 
 ```{r}
-eff_month = data.frame(allEffects(fit)$Month, order = seq(1:12))
+eff_month <- data.frame(allEffects(fit)$Month, order = seq(1:12))
 
 eff_month %>%
   ggplot(aes(x = reorder(Month, order), y = fit)) +
@@ -151,7 +151,7 @@ We see that some of the monthly estimates do in fact deviate from 0, but only in
 Lets's now look further into this by comparing average seasonal returns for summer and winter periods.
 
 ```{r, fig.width = 6}
-df = df %>%
+df <- df %>%
   mutate(season = factor(ifelse(df$Month %in% month.abb[5:10],"Summer", "Winter")))
 
 meanReturnsSeason = ddply(df, "season", summarize,
@@ -171,15 +171,15 @@ We see a clear difference between summer and winter return estimates. However, i
 As a final step in our analysis, we create two regression models: One in which we compare the season estimates to 0, and another that compares the two return estimates directly.
 
 ```{r}
-mod2=lm(monthly.returns~0+season,data=df)
+mod2 <- lm(monthly.returns~0+season,data=df)
 summary(mod2)
 ```
 
 The most interesting observation to be made here is perhaps that the estimated return for summer periods is not significantly different from 0. Let's set winter as the reference level in the final model.
 
 ```{r}
-df$season=relevel(df$season,ref = "Winter")
-mod3=lm(monthly.returns~season,data=df)
+df$season <- relevel(df$season,ref = "Winter")
+mod3 <- lm(monthly.returns~season,data=df)
 summary(mod3)
 ```
 

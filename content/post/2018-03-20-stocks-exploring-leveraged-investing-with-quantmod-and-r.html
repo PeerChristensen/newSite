@@ -38,51 +38,51 @@ options(&quot;getSymbols.yahoo.warning&quot;=FALSE)</code></pre>
 <div id="loading-data-with-quantmod" class="section level3">
 <h3>Loading data with quantmod</h3>
 <p>We get our data from Yahoo Finance and calculate what would be the cumulated daily return of ETFs leveraged n times. Data for each year is then stored in a separate data frame. This could probably be done in a much leaner way, but until then, I’ll be ok with the for loop solution.</p>
-<pre class="r"><code>years    = 2008:2017 
-dfList   = list() # empty list for storing a data frame for each year
+<pre class="r"><code>years    &lt;- 2008:2017 
+dfList   &lt;- list() # empty list for storing a data frame for each year
 
 for (year in years){
   
   getSymbols(c(&quot;^GSPC&quot;),from=paste0(year,&quot;-01-01&quot;),to=paste0(year,&quot;-12-31&quot;),src=&quot;yahoo&quot;,class=ts)
-  x1=data.frame(cumsum(dailyReturn(GSPC)))
-  df=data.frame(date=as.Date(row.names(x1)),x1,
+  x1 = data.frame(cumsum(dailyReturn(GSPC)))
+  df = data.frame(date=as.Date(row.names(x1)),x1,
                   x1*3,
                   x1*5,
                   x1*10,
                   x1*15,
                   x1*20)
   names(df) = c(&quot;date&quot;,&quot;x1&quot;,&quot;x3&quot;,&quot;x5&quot;,&quot;x10&quot;,&quot;x15&quot;,&quot;x20&quot;)
-  df &lt;- melt(df,id=&quot;date&quot;)
+  df = melt(df,id=&quot;date&quot;)
   dfList[[year]] = df
 }</code></pre>
 </div>
 <div id="plotting-the-data" class="section level3">
 <h3>Plotting the data</h3>
 <p>data.table’s rbindlist function is a very fast and easy way of concatenating a list of data frames. We add year and day number (aka julian day) variables based on dates.</p>
-<pre class="r"><code>dfConcat=rbindlist(dfList)
-dfConcat$year=year(dfConcat$date)
-dfConcat$Day=yday(dfConcat$date) #julian day</code></pre>
+<pre class="r"><code>dfConcat      &lt;- rbindlist(dfList)
+dfConcat$year &lt;- year(dfConcat$date)
+dfConcat$Day  &lt;- yday(dfConcat$date) #julian day</code></pre>
 <p>Before creating the plot, we’ll customize some plot settings that we can use for all our plots.</p>
 <pre class="r"><code>my_theme &lt;- function() {
     theme_bw() +
-    theme(panel.background = element_blank()) +
-    theme(plot.background = element_rect(fill = &quot;grey13&quot;)) +
-    theme(panel.border = element_blank()) +                     # facet border
-    theme(strip.background = element_blank()) +                 # facet title background
-    theme(plot.margin = unit(c(.5, .5, .5, .5), &quot;cm&quot;)) +
-    theme(text = element_text(colour = &quot;snow&quot;, size = 20)) +
-    theme(axis.text = element_text(colour = &quot;snow&quot;, size = 15)) +
-    theme(plot.title = element_text(colour = &quot;snow&quot;)) +
-    theme(strip.text.x = element_text(colour = &quot;snow&quot;, face = &quot;bold&quot;)) +
-    theme(panel.spacing = unit(3, &quot;lines&quot;)) +
-    theme(panel.grid.major = element_line(colour = &quot;black&quot;)) +
-    theme(panel.grid.minor = element_line(colour = &quot;black&quot;)) +
-    theme(panel.grid.major.x = element_blank()) +
-    theme(panel.grid.minor.x = element_blank()) +
-    theme(legend.background = element_blank()) +
-    theme(legend.key = element_blank()) +
-    theme(legend.title = element_blank()) +
-    theme(legend.position = c(0.9,0.08))
+    theme(panel.background   = element_blank(),
+          plot.background    = element_rect(fill = &quot;grey13&quot;),
+          panel.border       = element_blank(),                     # facet border
+          strip.background   = element_blank(),                     # facet title background
+          plot.margin        = unit(c(.5, .5, .5, .5), &quot;cm&quot;),
+          text               = element_text(colour = &quot;snow&quot;, size = 20),
+          axis.text          = element_text(colour = &quot;snow&quot;, size = 15),
+          plot.title         = element_text(colour = &quot;snow&quot;),
+          strip.text.x       = element_text(colour = &quot;snow&quot;, face = &quot;bold&quot;),
+          panel.spacing      = unit(3, &quot;lines&quot;),
+          panel.grid.major   = element_line(colour = &quot;black&quot;),
+          panel.grid.minor   = element_line(colour = &quot;black&quot;),
+          panel.grid.major.x = element_blank(),
+          panel.grid.minor.x = element_blank(),
+          legend.background  = element_blank(),
+          legend.key         = element_blank(),
+          legend.title       = element_blank(),
+          legend.position    = c(0.9,0.08))
 }
 
 ggplot(dfConcat, aes(x=Day,y=value)) + 
@@ -95,10 +95,10 @@ ggplot(dfConcat, aes(x=Day,y=value)) +
 <div id="bar-charts-of-annual-return" class="section level3">
 <h3>Bar charts of annual return</h3>
 <p>If we’re only interested in the annual return, bar charts are easier to inspect. We can use the ddply function to extract the last row of each year.</p>
-<pre class="r"><code>annReturn=ddply(dfConcat, .(variable,year), function(x) x[nrow(x), ])
+<pre class="r"><code>annReturn &lt;- ddply(dfConcat, .(variable,year), function(x) x[nrow(x), ])
 
 annReturn %&gt;% ggplot(aes(x=variable,y=value)) +
-  geom_bar(stat=&quot;identity&quot;,aes(fill=variable))+
+  geom_bar(stat=&quot;identity&quot;,aes(fill=variable)) +
   facet_wrap(~year,ncol=3) +
   my_theme() +
   scale_fill_viridis_d(option=&quot;C&quot;,begin = .2) +
@@ -108,8 +108,8 @@ annReturn %&gt;% ggplot(aes(x=variable,y=value)) +
 <div id="checking-the-validity-of-the-method" class="section level3">
 <h3>Checking the validity of the method</h3>
 <p>To check whether our method is reliable, we can scale and compare the original data with data generated by our method for calculating leveraged daily returns.</p>
-<pre class="r"><code>df=data.frame(GSPC[,6], cumsum(dailyReturn(GSPC)))
-df=data.frame(date = as.Date(row.names(df)), scale(df))
+<pre class="r"><code>df &lt;- data.frame(GSPC[,6], cumsum(dailyReturn(GSPC)))
+df &lt;- data.frame(date = as.Date(row.names(df)), scale(df))
 
 df %&gt;% 
   ggplot() +
@@ -128,7 +128,8 @@ df %&gt;%
 <h2>Section 2: Simulating stock price movement</h2>
 <p>Next, we can create simulated data using stochastic processes and tinker with the expected outcome and variance. For this simulation, I’ve used the mean annual return of the S&amp;P 500 and standard deviation I’ve reused the code found here: <a href="https://www.r-bloggers.com/stochastic-processes-and-stocks-simulation/" class="uri">https://www.r-bloggers.com/stochastic-processes-and-stocks-simulation/</a></p>
 <pre class="r"><code>set.seed(18293)
-dfListRand = list()
+
+dfListRand &lt;- list()
 
 for (i in 1:1000){             # 1000 simulations
   Z         = rnorm(255,0,1)   # Random normally distributed values, mean = 0, stdv = 1
@@ -147,35 +148,37 @@ for (i in 1:1000){             # 1000 simulations
     count = count + 1
     }
 
-  price = ts(price)
-  diff = c(price[1],diff(price))
-  dayChangePCT = diff/price*100
-  dayChangePCT[1] = 0
-  x1 = cumsum(dayChangePCT)
-  dfListRand[[i]] = data.frame(days,x1,
-                 x3=x1*3,
-                 x5=x1*5,
-                 x10=x1*10,
-                 x15=x1*15,
-                 x20=x1*20)
+  price              = ts(price)
+  diff               = c(price[1],diff(price))
+  dayChangePCT       = diff/price*100
+  dayChangePCT[1]    = 0
+  x1                 = cumsum(dayChangePCT)
+  dfListRand[[i]]    = data.frame(days,x1,
+                 x3  = x1*3,
+                 x5  = x1*5,
+                 x10 = x1*10,
+                 x15 = x1*15,
+                 x20 = x1*20)
 }</code></pre>
 <div id="plotting-a-random-selection-of-simulations" class="section level3">
 <h3>Plotting a random selection of simulations</h3>
 <p>Let’s plot some of the simulated data to see if they resemble actual stock price movements.</p>
 <pre class="r"><code>set.seed(3235)
-dfListRandPlot = list()
-pickedDFs = sample(1:1000,6)
+
+dfListRandPlot &lt;- list()
+pickedDFs      &lt;- sample(1:1000,6)
 
 for (i in pickedDFs){
   
-  melted=melt(dfListRand[[i]],id=&quot;days&quot;)
+  melted     = melt(dfListRand[[i]],id=&quot;days&quot;)
   melted$Sim = factor(paste0(&quot;Simulation &quot;,i))
   dfListRandPlot[[i]] = melted
 }
 
-dfConcatRandPick=rbindlist(dfListRandPlot)
+dfConcatRandPick = rbindlist(dfListRandPlot)
 
-ggplot(dfConcatRandPick, aes(x=days,y=value)) + geom_line(aes(colour = variable)) +
+ggplot(dfConcatRandPick, aes(x=days,y=value)) +
+  geom_line(aes(colour = variable)) +
   facet_wrap(~Sim,ncol=3) +
   my_theme() +
   theme(legend.position = &quot;top&quot;) +
@@ -185,14 +188,14 @@ ggplot(dfConcatRandPick, aes(x=days,y=value)) + geom_line(aes(colour = variable)
 <div id="mean-annual-returns" class="section level3">
 <h3>Mean annual returns</h3>
 <p>We can also make a bar chart illustrating the mean annual returns of all simulations with error bars showing standard deviations.</p>
-<pre class="r"><code>df=data.frame()
+<pre class="r"><code>df &lt;- data.frame()
 
-for(i in dfListRand){
+for (i in dfListRand){
   
-  df=rbind(df,i[256,])
+  df = rbind(df,i[256,])
 }
 
-dfLong=melt(df[,-1])
+dfLong = melt(df[,-1])
 
 dfAgg = ddply(dfLong, c(&quot;variable&quot;), summarise,
                mean=mean(value),sd=sd(value))
@@ -211,35 +214,36 @@ ggplot(dfAgg, aes(x=variable, y=mean,fill=variable)) +
 <div id="section-3-comparing-actual-etfs" class="section level2">
 <h2>Section 3: Comparing actual ETFs</h2>
 <p>Let’s now compare actual 3x leveraged ETFs with their theoretical performance (according to our method for calculating this). We’ll again create line and bar charts to visualise the data.</p>
-<pre class="r"><code>years=2010:2017 # Unfortunately UPRO was not available prior to 2010
-dfListETFs=list()
+<pre class="r"><code>years &lt;- 2010:2017 # Unfortunately UPRO was not available prior to 2010
+dfListETFs &lt;- list()
 
 for (y in years){
   
   getSymbols(c(&quot;^GSPC&quot;,&quot;UPRO&quot;,&quot;SPXL&quot;),from=paste0(y,&quot;-01-01&quot;),to=paste0(y,&quot;-12-31&quot;),
              src=&quot;yahoo&quot;,class=ts)
   
-  df=data.frame(date=index(GSPC),
+  df = data.frame(date=index(GSPC),
                 cumsum(dailyReturn(GSPC)),
                 cumsum(dailyReturn(UPRO)),
                 cumsum(dailyReturn(SPXL)),
                 cumsum(dailyReturn(GSPC))*3)
   
-  names(df) = c(&quot;date&quot;,&quot;SP500&quot;,&quot;UPRO&quot;,&quot;SPXL&quot;,&quot;X3&quot;)
-  df &lt;- melt(df,id=&quot;date&quot;)
+  names(df)       = c(&quot;date&quot;,&quot;SP500&quot;,&quot;UPRO&quot;,&quot;SPXL&quot;,&quot;X3&quot;)
+  df              = melt(df,id=&quot;date&quot;)
   dfListETFs[[y]] = df
 }</code></pre>
 <div id="line-charts-for-each-year" class="section level3">
 <h3>Line charts for each year</h3>
-<pre class="r"><code>dfConcat3=rbindlist(dfListETFs)
-dfConcat3$year=year(dfConcat3$date)
-dfConcat3$Day=yday(dfConcat3$date) #julian day
-ggplot(dfConcat3, aes(x=Day,y=value)) + geom_line(aes(colour = variable)) +
+<pre class="r"><code>dfConcat3      &lt;- rbindlist(dfListETFs)
+dfConcat3$year &lt;- year(dfConcat3$date)
+dfConcat3$Day  &lt;- yday(dfConcat3$date) #julian day
+ggplot(dfConcat3, aes(x=Day,y=value)) + 
+  geom_line(aes(colour = variable)) +
   facet_wrap(~year,ncol=3) +
   my_theme() +
   scale_colour_viridis_d(option = &quot;C&quot;, begin = .4)</code></pre>
 <p><img src="/post/2018-03-20-stocks-exploring-leveraged-investing-with-quantmod-and-r_files/figure-html/unnamed-chunk-11-1.png" width="960" /></p>
-<pre class="r"><code>dfConcatWide = spread(dfConcat3, variable, value)
+<pre class="r"><code>dfConcatWide &lt;- spread(dfConcat3, variable, value)
 cor(dfConcatWide[,4:7])</code></pre>
 <pre><code>##           SP500      UPRO      SPXL        X3
 ## SP500 1.0000000 0.9864571 0.9865866 1.0000000
@@ -249,8 +253,8 @@ cor(dfConcatWide[,4:7])</code></pre>
 </div>
 <div id="annual-return" class="section level3">
 <h3>Annual return</h3>
-<pre class="r"><code>annReturn=ddply(dfConcat3, .(variable,year), function(x) x[nrow(x), ])
-annReturnBars=ggplot(annReturn,aes(x=variable,y=value)) +
+<pre class="r"><code>annReturn &lt;- ddply(dfConcat3, .(variable,year), function(x) x[nrow(x), ])
+annReturnBars &lt;- ggplot(annReturn,aes(x=variable,y=value)) +
   geom_bar(stat=&quot;identity&quot;,aes(fill=variable))+
   facet_wrap(~year,ncol=2) +
   my_theme() +

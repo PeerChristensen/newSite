@@ -56,17 +56,17 @@ write.csv2(exifData, 'exifData.csv',sep=",",
 Since we already have all the variables we need in the data file, there's no need to merge it with the exif data. We simply do some minor cleaning of the data and add a variable for a remote repository in which all image files are stored.
 
 ```{r}
-df=read.csv2("streetArtUpdate1.csv",stringsAsFactors =F,header = T)
+df <- read.csv2("streetArtUpdate1.csv",stringsAsFactors = F,header = T)
 
 # change coordinates to numeric values
-df$Longitude=as.numeric(df$Longitude)
-df$Latitude=as.numeric(df$Latitude)
+df$Longitude <- as.numeric(df$Longitude)
+df$Latitude  <- as.numeric(df$Latitude)
 
 # add remote path for image files
-df$remotePath=paste0("http://dev.humlab.lu.se/tmp/img/",df$Filename)
+df$remotePath <- paste0("http://dev.humlab.lu.se/tmp/img/",df$Filename)
 
 # remove one data point with erroneous geodata
-df=df[df$Title!="The Greek health system",] 
+df <- df[df$Title!="The Greek health system",] 
 ```
 <p>
 ## Basic mapping with leaflet
@@ -76,9 +76,9 @@ Let's first have a look at how easy it is to create a leaflet map with markers f
 ```{r}
 #Create basic world map
 athensMap <- leaflet() %>% 
-  addTiles() %>%
+  addTiles()           %>%
   # add points
-  addMarkers(lng=df$Longitude,lat=df$Latitude)
+  addMarkers(lng = df$Longitude,lat = df$Latitude)
 
 athensMap
 ```
@@ -95,9 +95,10 @@ Let's add the following elements to our map:
 Please note that for some reason, you might need to click more than once on a marker to see images.
 
 ```{r}
+tile       <- 'https://cartodb-basemaps-{s}.global.ssl.fastly.net/light_all/{z}/{x}/{y}.png'
 athensMap2 <- leaflet() %>%
   # Add a base layer
-  addTiles('https://cartodb-basemaps-{s}.global.ssl.fastly.net/light_all/{z}/{x}/{y}.png') %>%
+  addTiles(tile)        %>%
   # add markers
   addAwesomeMarkers(lng=df$Longitude, lat=df$Latitude,
       # add popup with images and variables as text
