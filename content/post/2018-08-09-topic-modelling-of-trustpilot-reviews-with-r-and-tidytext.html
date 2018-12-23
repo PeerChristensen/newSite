@@ -35,12 +35,12 @@ library(happyorsad)</code></pre>
 <h2>Customising a ggplot theme</h2>
 <p>Improving the look of figures in ggplot2 is fairly simple. For consistency, we’ll create a clean and simple theme based on the APA theme from the jtools package and change some of the features. The background colour will be set to a light grey hue. The grid lines are omitted in the APA theme.</p>
 <pre class="r"><code>my_theme &lt;- function() {
-  theme_apa(legend.pos = &quot;none&quot;) +
-    theme(panel.background = element_rect(fill = &quot;gray96&quot;, colour = &quot;gray96&quot;)) +
-    theme(plot.background = element_rect(fill = &quot;gray96&quot;, colour = &quot;gray96&quot;)) +
-    theme(plot.margin = margin(1, 1, 1, 1, &quot;cm&quot;)) +
-    theme(panel.border = element_blank()) +             # facet border
-    theme(strip.background = element_blank())           # facet title background
+  theme_apa(legend.pos   = &quot;none&quot;) +
+  theme(panel.background = element_rect(fill = &quot;gray96&quot;, colour = &quot;gray96&quot;),
+        plot.background  = element_rect(fill = &quot;gray96&quot;, colour = &quot;gray96&quot;),
+        plot.margin      = margin(1, 1, 1, 1, &quot;cm&quot;),
+        panel.border     = element_blank(),        # facet border
+        strip.background = element_blank())        # facet title background
 }</code></pre>
 </div>
 <div id="loading-and-preparing-the-data" class="section level2">

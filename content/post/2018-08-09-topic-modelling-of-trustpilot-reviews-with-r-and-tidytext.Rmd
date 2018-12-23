@@ -45,12 +45,12 @@ Improving the look of figures in ggplot2 is fairly simple. For consistency, we'l
 
 ```{r}
 my_theme <- function() {
-  theme_apa(legend.pos = "none") +
-    theme(panel.background = element_rect(fill = "gray96", colour = "gray96")) +
-    theme(plot.background = element_rect(fill = "gray96", colour = "gray96")) +
-    theme(plot.margin = margin(1, 1, 1, 1, "cm")) +
-    theme(panel.border = element_blank()) +             # facet border
-    theme(strip.background = element_blank())           # facet title background
+  theme_apa(legend.pos   = "none") +
+  theme(panel.background = element_rect(fill = "gray96", colour = "gray96"),
+        plot.background  = element_rect(fill = "gray96", colour = "gray96"),
+        plot.margin      = margin(1, 1, 1, 1, "cm"),
+        panel.border     = element_blank(),        # facet border
+        strip.background = element_blank())        # facet title background
 }
 ```  
 
