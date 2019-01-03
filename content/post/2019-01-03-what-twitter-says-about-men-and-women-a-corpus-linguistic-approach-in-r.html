@@ -1,0 +1,392 @@
+---
+title: 'Are men and women tweeted equal? a corpus linguistic approach in R'
+author: Peer Christensen
+summary: "Word frequency and n-gram analyses of tweets mentioning men and women"
+date: '2019-01-03'
+slug: what-twitter-says-about-men-and-women-a-corpus-linguistic-approach-in-r
+categories:
+  - R
+  - Linguistics
+  - Text mining
+tags:
+  - Twitter
+  - Gender
+  - rtweet
+---
+
+
+
+<p>I’ve been wanting to try out the excellent rtweet package for some time now, and I remembered an interesting corpus linguistic study from the mid nineties that would be fun to replicate with twitter data and expand with further analyses.</p>
+<p>In this post, we’ll be using simple word frequency and n-gram analyses of word colocations and common linguistic constructions to explore what Twitter users are tweeting about men and women these days. More specifically, we’ll explore the following:</p>
+<ul>
+<li>Words co-occurring in tweets with the words ‘men’ and ‘women’</li>
+<li>Hashtags co-occurring in tweets with ‘men’ and ‘women’</li>
+<li>Bigrams ending in ‘men’ and ‘women’ - e.g. “successful men/women”</li>
+<li>Bigrams starting with the possessive pronouns ‘his’ and ‘her’ and a</li>
+<li>Tri- and quadrogram(?) constructions starting with “s/he is ..” and “s/he is a/an ..”</li>
+</ul>
+<p>We won’t cover how to download tweets with rtweet, but instead move right to the analyses.</p>
+<p>First, we’ll need to load a few other packages.</p>
+<pre class="r"><code>library(tidyverse)
+library(tidytext)
+library(wordcloud)
+library(tm)
+library(widyr)
+library(udpipe)
+library(magrittr)
+library(gridExtra)</code></pre>
+<div id="white-men-and-black-women" class="section level2">
+<h2>White men and black women</h2>
+<p>The first tweets that we’ll explore all contain the word ‘men’ or ‘women’.</p>
+<pre class="r"><code>df &lt;- read_csv(&quot;mwTweets.csv&quot;)
+
+names(df)</code></pre>
+<pre><code>##  [1] &quot;X1&quot;                      &quot;user_id&quot;                
+##  [3] &quot;status_id&quot;               &quot;created_at&quot;             
+##  [5] &quot;screen_name&quot;             &quot;text&quot;                   
+##  [7] &quot;source&quot;                  &quot;display_text_width&quot;     
+##  [9] &quot;reply_to_status_id&quot;      &quot;reply_to_user_id&quot;       
+## [11] &quot;reply_to_screen_name&quot;    &quot;is_quote&quot;               
+## [13] &quot;is_retweet&quot;              &quot;favorite_count&quot;         
+## [15] &quot;retweet_count&quot;           &quot;hashtags&quot;               
+## [17] &quot;symbols&quot;                 &quot;urls_url&quot;               
+## [19] &quot;urls_t.co&quot;               &quot;urls_expanded_url&quot;      
+## [21] &quot;media_url&quot;               &quot;media_t.co&quot;             
+## [23] &quot;media_expanded_url&quot;      &quot;media_type&quot;             
+## [25] &quot;ext_media_url&quot;           &quot;ext_media_t.co&quot;         
+## [27] &quot;ext_media_expanded_url&quot;  &quot;ext_media_type&quot;         
+## [29] &quot;mentions_user_id&quot;        &quot;mentions_screen_name&quot;   
+## [31] &quot;lang&quot;                    &quot;quoted_status_id&quot;       
+## [33] &quot;quoted_text&quot;             &quot;quoted_created_at&quot;      
+## [35] &quot;quoted_source&quot;           &quot;quoted_favorite_count&quot;  
+## [37] &quot;quoted_retweet_count&quot;    &quot;quoted_user_id&quot;         
+## [39] &quot;quoted_screen_name&quot;      &quot;quoted_name&quot;            
+## [41] &quot;quoted_followers_count&quot;  &quot;quoted_friends_count&quot;   
+## [43] &quot;quoted_statuses_count&quot;   &quot;quoted_location&quot;        
+## [45] &quot;quoted_description&quot;      &quot;quoted_verified&quot;        
+## [47] &quot;retweet_status_id&quot;       &quot;retweet_text&quot;           
+## [49] &quot;retweet_created_at&quot;      &quot;retweet_source&quot;         
+## [51] &quot;retweet_favorite_count&quot;  &quot;retweet_retweet_count&quot;  
+## [53] &quot;retweet_user_id&quot;         &quot;retweet_screen_name&quot;    
+## [55] &quot;retweet_name&quot;            &quot;retweet_followers_count&quot;
+## [57] &quot;retweet_friends_count&quot;   &quot;retweet_statuses_count&quot; 
+## [59] &quot;retweet_location&quot;        &quot;retweet_description&quot;    
+## [61] &quot;retweet_verified&quot;        &quot;place_url&quot;              
+## [63] &quot;place_name&quot;              &quot;place_full_name&quot;        
+## [65] &quot;place_type&quot;              &quot;country&quot;                
+## [67] &quot;country_code&quot;            &quot;geo_coords&quot;             
+## [69] &quot;coords_coords&quot;           &quot;bbox_coords&quot;            
+## [71] &quot;status_url&quot;              &quot;name&quot;                   
+## [73] &quot;location&quot;                &quot;description&quot;            
+## [75] &quot;url&quot;                     &quot;protected&quot;              
+## [77] &quot;followers_count&quot;         &quot;friends_count&quot;          
+## [79] &quot;listed_count&quot;            &quot;statuses_count&quot;         
+## [81] &quot;favourites_count&quot;        &quot;account_created_at&quot;     
+## [83] &quot;verified&quot;                &quot;profile_url&quot;            
+## [85] &quot;profile_expanded_url&quot;    &quot;account_lang&quot;           
+## [87] &quot;profile_banner_url&quot;      &quot;profile_background_url&quot; 
+## [89] &quot;profile_image_url&quot;       &quot;query&quot;</code></pre>
+<pre class="r"><code>dim(df)</code></pre>
+<pre><code>## [1] 214741     90</code></pre>
+<pre class="r"><code>range(df$created_at)</code></pre>
+<pre><code>## [1] &quot;2018-12-17 11:37:27 UTC&quot; &quot;2018-12-18 07:53:15 UTC&quot;</code></pre>
+<pre class="r"><code>range(df$created_at)[2]-range(df$created_at)[1]</code></pre>
+<pre><code>## Time difference of 20.26333 hours</code></pre>
+<p>As you can see, there’s plenty of metadata surrounding the 214,741 tweets that I’ve downloaded from a roughly 20 hour period between December 17-18, 2018.</p>
+<p>Next, we’ll do some preprocessing where we remove some stopwords and create a ‘gender’ variable to categorize our tweets.</p>
+<pre class="r"><code>df                             %&lt;&gt;%
+  select(text, screen_name)    %&gt;%
+  mutate(text = tolower(text)) %&gt;%
+  mutate(gender = case_when(str_detect(text, &quot;women&quot;) &amp;
+                            str_detect(text, &quot; men&quot;)  ~ &quot;both&quot;,
+                            str_detect(text, &quot;women&quot;) ~ &quot;women&quot;,
+                            str_detect(text, &quot;men&quot;)   ~ &quot;men&quot;)) %&gt;%
+  unnest_tokens(word, text)    %&gt;%
+  anti_join(stop_words[stop_words$lexicon==&quot;SMART&quot;,]) %&gt;%
+  mutate(word = removeWords(word,c(stopwords(),&quot;t.co&quot;,&quot;https&quot;,&quot;amp&quot;,&quot;&#39;s&quot;,&quot;’s&quot;))) %&gt;%
+  add_count(word)              %&gt;%
+  filter(n &gt; 1, word != &quot;&quot;, gender != &quot;both&quot;) %&gt;%
+  select(-n)
+
+table(df$gender)</code></pre>
+<pre><code>## 
+##     men   women 
+##  891328 1295095</code></pre>
+<p>We see that the majority of tweets contain ‘women’ rather than ‘men’.</p>
+<p>Using the pairwise_count function from the widyr package, we can create new data frames with the words that most often co-occur with ‘men’ and ‘women’.</p>
+<pre class="r"><code>word_pairs_men &lt;- df      %&gt;%
+  filter(gender == &quot;men&quot;) %&gt;%
+  pairwise_count(word, screen_name, sort = TRUE) %&gt;%
+  filter(item1 == &quot;men&quot;)  %&gt;% 
+  top_n(20)
+
+word_pairs_women &lt;- df      %&gt;%
+  filter(gender == &quot;women&quot;) %&gt;%
+  pairwise_count(word, screen_name, sort = TRUE)  %&gt;%
+  filter(item1 == &quot;women&quot;)  %&gt;% 
+  top_n(20)</code></pre>
+<p>Let’s put the data back together and plot the most common words.</p>
+<pre class="r"><code>word_pairs &lt;- rbind(word_pairs_men, word_pairs_women) %&gt;%
+  mutate(order = rev(row_number()), item1 = factor(item1, levels = c(&quot;men&quot;, &quot;women&quot;)))
+
+word_pairs %&gt;% 
+  ggplot(aes(x = order, y = n, fill = item1)) + 
+  geom_col(show.legend = FALSE) + 
+  scale_x_continuous(breaks = word_pairs$order, 
+                     labels = word_pairs$item2, 
+                     expand = c(0,0)) + 
+  facet_wrap(~item1, scales = &quot;free&quot;) +
+  scale_fill_manual(values = c(&quot;steelblue&quot;, &quot;indianred&quot;)) + coord_flip() + labs(x = &quot;words&quot;) +
+  theme_minimal() +
+  theme(axis.text  = element_text(size = 14),
+        axis.title   = element_text(size = 18),
+        axis.title.x = element_blank(),
+        axis.title.y = element_blank(),
+        strip.text.x = element_text(size=22, face=&quot;bold&quot;),
+        panel.grid.minor.y = element_blank(),
+        panel.grid.major.y = element_blank())</code></pre>
+<p><img src="/post/2019-01-03-what-twitter-says-about-men-and-women-a-corpus-linguistic-approach-in-r_files/figure-html/unnamed-chunk-5-1.png" width="864" /></p>
+<p>It seems that tweets tend to characterise people on the basis of skin colour. A more direct way to explore this, will be to analyse two-word colocations, or bigrams, where ‘men’ or ‘women’ appear as the second word in the pair.</p>
+<p>Let’s first do the necessary preprocessing and create wordcloud starting with colocations with ‘men’ as the second word.</p>
+<pre class="r"><code>men &lt;- read_csv(&quot;mwTweets.csv&quot;) %&gt;%
+  select(screen_name, text)     %&gt;% 
+  unnest_tokens(bigram, text, token = &quot;ngrams&quot;, n = 2) %&gt;%
+  separate(bigram, c(&quot;word1&quot;, &quot;word2&quot;), sep = &quot; &quot;)     %&gt;%
+  filter(word2 == &quot;men&quot;)
+
+menCount &lt;- men      %&gt;%
+  count(word1,word2) %&gt;%
+  select(word1,n)    %&gt;%
+  arrange(desc(n))   %&gt;%
+  anti_join(stop_words[stop_words$lexicon==&quot;SMART&quot;,],by = c(&quot;word1&quot; = &quot;word&quot;)) 
+  
+wordcloud(words = menCount$word1, freq = menCount$n, min.freq = 30, random.order=FALSE, rot.per=0.35, 
+          colors=brewer.pal(9,&quot;Blues&quot;)[4:9])</code></pre>
+<p><img src="/post/2019-01-03-what-twitter-says-about-men-and-women-a-corpus-linguistic-approach-in-r_files/figure-html/unnamed-chunk-6-1.png" width="864" /></p>
+<p>Let’s skip the code and do the same for colocations with ‘women’.</p>
+<p><img src="/post/2019-01-03-what-twitter-says-about-men-and-women-a-corpus-linguistic-approach-in-r_files/figure-html/unnamed-chunk-7-1.png" width="864" /></p>
+<p>In order to make comparisons a little easier, we’ll can plot frequencies more accurately with bar charts.</p>
+<pre class="r"><code>menCountTop &lt;- menCount            %&gt;%
+  filter(word1!=&quot;amp&quot;,word1!=&quot;ii&quot;) %&gt;%
+  mutate(row = rev(row_number()))  %&gt;%
+  top_n(20,n)
+
+menPlot &lt;- menCountTop %&gt;%
+  ggplot(aes(row, n, fill = n)) +
+  geom_col(show.legend = FALSE,width = .9) +
+  coord_flip() +
+  scale_x_continuous( 
+    breaks = menCountTop$row,
+    labels = menCountTop$word1,
+    expand = c(0,0)) + 
+  theme_minimal() + 
+  theme(axis.text    = element_text(size = 14),
+        axis.title   = element_text(size = 18),
+        axis.title.x = element_blank(),
+        axis.title.y = element_blank(),
+        panel.grid.minor.y = element_blank(),
+        panel.grid.major.y = element_blank()) +
+  ggtitle(&quot;\&quot;__  Men\&quot;&quot;) +
+  scale_fill_gradient(low=brewer.pal(9,&quot;Blues&quot;)[2],high=brewer.pal(9,&quot;Blues&quot;)[9])
+
+womenCountTop &lt;- womenCount        %&gt;%
+  mutate(row = rev(row_number()))  %&gt;%
+  top_n(20,n)
+
+womenPlot &lt;- womenCountTop %&gt;%
+  ggplot(aes(row, n, fill = n)) +
+  geom_col(show.legend = FALSE,width = .9) +
+  coord_flip() +
+  scale_x_continuous( 
+    breaks = womenCountTop$row,
+    labels = womenCountTop$word1,
+    expand = c(0,0)) + 
+  theme_minimal() + 
+  theme(axis.text    = element_text(size = 14),
+        axis.title   = element_text(size = 18),
+        axis.title.x = element_blank(),
+        axis.title.y = element_blank(),
+        #axis.title.y = element_text(margin = margin(r = 40,l=40)),
+        panel.grid.minor.y = element_blank(),
+        panel.grid.major.y = element_blank()) +
+  ggtitle(&quot;\&quot;__  Women\&quot;&quot;) +
+  scale_fill_gradient(low=brewer.pal(9,&quot;Reds&quot;)[2],high=brewer.pal(9,&quot;Reds&quot;)[9])
+
+grid.arrange(menPlot,womenPlot, ncol = 2)</code></pre>
+<p><img src="/post/2019-01-03-what-twitter-says-about-men-and-women-a-corpus-linguistic-approach-in-r_files/figure-html/unnamed-chunk-8-1.png" width="864" /></p>
+<p>There are plenty of observations to make in these charts. They confirm that skin colour frequently precedes ‘men’ and ‘women’. Interestingly, the relative frequency of ‘black’ and ‘white’ is reversed for the two genders, though I kind of suspected that ‘white men’ would be a prominent colocation. We can also observe that the sexual orientation of men is highlighted, and that ‘trans’ appears more frequently before ‘women’.</p>
+<p>Lastly, let’s compute and visualize the frequency of the most common hashtags co-occurring with ‘men’ and ‘women’ that also contain the forms ‘men’ and ‘women’.</p>
+<pre class="r"><code>df &lt;- read_csv(&quot;mwTweets.csv&quot;) %&gt;%
+  select(X1,screen_name,text)  %&gt;% 
+  mutate(text = tolower(text))
+
+remove_reg &lt;- &quot;&amp;amp;|&amp;lt;|&amp;gt;&quot;
+
+df &lt;- df %&gt;%
+  filter(!str_detect(text, &quot;^RT&quot;)) %&gt;%
+  mutate(text = str_remove_all(text, remove_reg)) %&gt;%
+  unnest_tokens(hashtag, text, token = &quot;tweets&quot;) %&gt;%
+  filter(!hashtag %in% stop_words$word,
+         !hashtag %in% str_remove_all(stop_words$word, &quot;&#39;&quot;)) %&gt;%
+  filter(str_detect(hashtag, &quot;^#&quot;)) %&gt;%
+  mutate(hashtag = str_remove(hashtag,&quot;#&quot;)) %&gt;%
+  filter(str_detect(hashtag,&quot;men|women&quot;)) %&gt;%
+  filter(hashtag != &quot;men&quot;, hashtag != &quot;women&quot;,hashtag != &quot;mens&quot;, hashtag != &quot;womens&quot;, !str_detect(hashtag,&quot;ment&quot;))
+
+tags &lt;- df %&gt;%
+  group_by(hashtag) %&gt;%
+  count() %&gt;%
+  arrange(desc(n))
+
+tags &lt;- tags %&gt;%
+  mutate(gender = case_when( str_detect(hashtag,&quot;women&quot;) ~ &quot;f&quot;,
+                            !str_detect(hashtag,&quot;women&quot;) ~ &quot;m&quot;))
+
+menTags &lt;- tags %&gt;%
+  filter(gender == &quot;m&quot;)
+
+womenTags &lt;- tags %&gt;%
+  filter(gender == &quot;f&quot;)
+
+wordcloud(words = menTags$hashtag, freq = menTags$n, min.freq = 3, random.order=FALSE, rot.per=0.35, 
+          colors=brewer.pal(9,&quot;Blues&quot;)[4:9])</code></pre>
+<p><img src="/post/2019-01-03-what-twitter-says-about-men-and-women-a-corpus-linguistic-approach-in-r_files/figure-html/unnamed-chunk-9-1.png" width="864" /></p>
+<pre class="r"><code>wordcloud(words = womenTags$hashtag, freq = womenTags$n, min.freq = 3, random.order=FALSE, rot.per=0.35, 
+          colors=brewer.pal(9,&quot;Reds&quot;)[4:9])</code></pre>
+<p><img src="/post/2019-01-03-what-twitter-says-about-men-and-women-a-corpus-linguistic-approach-in-r_files/figure-html/unnamed-chunk-9-2.png" width="864" /></p>
+<p>For whatever reason, the hashtags co-occurring with ‘men’ revolve around fashion, style and grooming. By contrast, the hashtags co-occurring with ‘women’ reflect career choices (STEM, tech, business). More generally, the construction “women in X” appears to be highly productive and frequent.</p>
+</div>
+<div id="his-name-her-father" class="section level2">
+<h2>His name, her father</h2>
+<p>Next, we’ll perform frequency analyses of words following the possessive pronouns starting with ‘his’.</p>
+<pre class="r"><code>his &lt;- read_csv(&quot;hisTweets.csv&quot;) %&gt;%
+  select(text)                   %&gt;% 
+  unnest_tokens(bigram, text, token = &quot;ngrams&quot;, n = 2) %&gt;%
+  separate(bigram, c(&quot;word1&quot;, &quot;word2&quot;), sep = &quot; &quot;)     %&gt;%
+  filter(word1 == &quot;his&quot;)
+
+his</code></pre>
+<pre><code>## # A tibble: 123,762 x 2
+##    word1 word2   
+##    &lt;chr&gt; &lt;chr&gt;   
+##  1 his   hand    
+##  2 his   anger   
+##  3 his   daughter
+##  4 his   gift    
+##  5 his   abusive 
+##  6 his   abusive 
+##  7 his   back    
+##  8 his   failure 
+##  9 his   views   
+## 10 his   2nd     
+## # ... with 123,752 more rows</code></pre>
+<p>We’re also going to perform parts-of-speech tagging and narrow the lexical items down to nouns. To do this, we’ll use the udpipe package.</p>
+<pre class="r"><code># udmodel &lt;- udpipe_download_model(language = &quot;english&quot;)
+
+udmodel &lt;- udpipe_load_model(&quot;english-ud-2.0-170801.udpipe&quot;)
+
+include &lt;- udpipe(x = his$word2,
+                  object = udmodel)
+
+include &lt;- include      %&gt;%
+  select(token,upos)    %&gt;%
+  filter(upos ==&quot;NOUN&quot;) %&gt;%
+  select(token) 
+
+his &lt;- his %&gt;%
+  filter(word2 %in% include$token)
+
+his</code></pre>
+<pre><code>## # A tibble: 86,966 x 2
+##    word1 word2        
+##    &lt;chr&gt; &lt;chr&gt;        
+##  1 his   hand         
+##  2 his   anger        
+##  3 his   daughter     
+##  4 his   gift         
+##  5 his   failure      
+##  6 his   views        
+##  7 his   substitutions
+##  8 his   basement     
+##  9 his   fan          
+## 10 his   supporters   
+## # ... with 86,956 more rows</code></pre>
+<p>Now, we can count and prepare a bar chart of the most frequent nouns following ‘his’.</p>
+<pre class="r"><code>hisCount &lt;- his         %&gt;%
+  count(word1,word2)    %&gt;%
+  arrange(desc(n))      %&gt;%
+  select(word2,n)       %&gt;%
+  mutate(row = rev(row_number()))
+
+hisPlot &lt;- hisCount     %&gt;%
+  top_n(20,n)           %&gt;%
+  ggplot(aes(row, n, fill = n)) +
+  geom_col(show.legend = FALSE,width = .9) +
+  coord_flip() +
+  scale_x_continuous( 
+    breaks = hisCount$row,
+    labels = hisCount$word2,
+    expand = c(0,0)) +
+  theme_minimal() + 
+  theme(axis.text    = element_text(size = 14),
+        axis.title   = element_text(size = 18),
+        axis.title.x = element_blank(),
+        axis.title.y = element_blank(),
+        panel.grid.minor.y = element_blank(),
+        panel.grid.major.y = element_blank()) +
+  ggtitle(&quot;\&quot;His __\&quot;&quot;) +
+  scale_fill_gradient(low=brewer.pal(9,&quot;Blues&quot;)[2],high=brewer.pal(9,&quot;Blues&quot;)[9])</code></pre>
+<p>I’ve completed the same steps for nouns following ‘her’. Let’s plot and compare the results!</p>
+<pre class="r"><code>grid.arrange(hisPlot,herPlot, ncol = 2)</code></pre>
+<p><img src="/post/2019-01-03-what-twitter-says-about-men-and-women-a-corpus-linguistic-approach-in-r_files/figure-html/unnamed-chunk-14-1.png" width="864" /></p>
+<p>Apparently, tweets about possessions and attributes are often concerned with family relations and body parts.</p>
+</div>
+<div id="what-is-she" class="section level2">
+<h2>“What is s/he?”</h2>
+<p>In this section, we’ll examine the most frequent trigram constructions with the form “s/he is X”</p>
+<p>We’ll again use parts-of-speech tagging and only consider adjectives in the place of X.</p>
+<pre class="r"><code>heTweets &lt;- read_csv(&quot;heTweets.csv&quot;) 
+
+he &lt;- heTweets                 %&gt;%
+  select(screen_name, text)    %&gt;% 
+  mutate(text = tolower(text)) %&gt;%
+  mutate(text = str_replace(text, &quot;he&#39;s&quot;, &quot;he is&quot;))         %&gt;%
+  unnest_tokens(trigram, text, token = &quot;ngrams&quot;, n = 3)     %&gt;%
+  separate(trigram, c(&quot;word1&quot;, &quot;word2&quot;,&quot;word3&quot;), sep = &quot; &quot;) %&gt;%
+  filter(word1 == &quot;he&quot;, word2 == &quot;is&quot;)
+
+udmodel &lt;- udpipe_load_model(&quot;english-ud-2.0-170801.udpipe&quot;)
+
+include &lt;- udpipe(x = he$word3,
+                  object = udmodel)
+
+include &lt;- include      %&gt;%
+  select(token,upos)    %&gt;%
+  filter(upos == &quot;ADJ&quot;) %&gt;%
+  select(token) 
+
+he &lt;- he %&gt;%
+  filter(word3 %in% include$token)
+
+heCount &lt;- he              %&gt;%
+  count(word1,word2,word3) %&gt;%
+  arrange(desc(n))         %&gt;%
+  select(word3,n)          %&gt;%
+  mutate(row = rev(row_number()))</code></pre>
+<p>Just like above, the same steps has been completed for tweets with “she is X”.</p>
+<p>We’ll again prepare bar charts highlighting the most common words. The code is pretty much redundant, so let’s skip that here.</p>
+<p><img src="/post/2019-01-03-what-twitter-says-about-men-and-women-a-corpus-linguistic-approach-in-r_files/figure-html/unnamed-chunk-17-1.png" width="864" /></p>
+<p>The first question on my mind is *where did he go? Without looking at some tweets, I can’t figure out why ‘gone’ should top the list for tweets about men. Conversely, it is perhaps not too surprising that tweets about women tend to focus on looks.</p>
+</div>
+<div id="x-is-what-she-is" class="section level2">
+<h2>X is what s/he is!</h2>
+<p>Finally, let’s objectify both genders and find the most common quadrograms(?) starting with “s/he is a(n) ..” We’ll limit results to nouns this time.</p>
+<p>Since the code is largely redundant, let’s just see what we get!</p>
+<p><img src="/post/2019-01-03-what-twitter-says-about-men-and-women-a-corpus-linguistic-approach-in-r_files/figure-html/unnamed-chunk-18-1.png" width="864" /></p>
+<p>The words describing men are somewhat more negative than those describing women in tweets. However, I bet that, in most cases, the words ‘traitor’, ‘idiot’, ‘baby’, ‘disgrace’, ‘racist’ and ‘coward’ are used in reference to Donald Trump.</p>
+</div>
+<div id="conclusion" class="section level2">
+<h2>Conclusion</h2>
+<p>It is important to keep in mind that the analyses presented here are based on tweets created during a fairly short time window (approx. 20 hours). It would therefore be interesting to compare the resulting word frequencies with those from a set of different tweets.</p>
+<p>Nevertheless, we saw clear differences in how men and women were characterised in the downloaded tweets. It would of course be very useful to dig into the contexts in which men and women are mentioned. However, my main goal here was to explore what can be done with simple word frequency and n-gram analyses of specific linguistic constructions.</p>
+</div>
