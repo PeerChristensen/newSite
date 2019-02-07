@@ -37,6 +37,8 @@ weight = 5
 
 # About me
 
-I'm a PhD student in psycholinguistics at Lund University. My research interests include speech and gesture processing across languages and other aspects of behaviour and cognition. I'm currently investigating whether spatial metaphors for musical pitch govern how we 'think' about differences in pitch.
+I'm a data scientist based in Copenhagen working on many exciting and diverse projects involving predictive analytics, segmentation and data visualisation.
 
-Besides my actual work, I'm passionate about making sense of data using advanced statistical and machine learning techniques. Here, I'll write about some of my data science projects.
+I have a background in cognitive science investigating speech and gesture processing across languages and other aspects of behaviour and cognition.
+
+I'm passionate about making sense of data and exploring new techniques. Here, I'll write some basic tutorials of various data science projects.
