@@ -37,8 +37,8 @@ weight = 5
 
 # About me
 
-I'm a data scientist based in Copenhagen working on many exciting and diverse projects involving predictive analytics, segmentation and data visualisation.
+I'm a data scientist based in Copenhagen working on exciting and diverse projects involving predictive analytics, segmentation and data visualisation.
 
-I have a background in cognitive science investigating speech and gesture processing across languages and other aspects of behaviour and cognition.
+I have a background in cognitive science investigating human behaviour and cognition. Recently, I've explored speech and gesture processing across languages with diverging spatial metaphors. 
 
-I'm passionate about making sense of data and exploring new techniques. Here, I'll write some basic tutorials of various data science projects.
+I'm passionate about making sense of data and exploring new methods for handling and quantifying data. Every now and then, I'll post short tutorials on how to approach various types of data and tasks, mainly in R.
