@@ -68,7 +68,7 @@ enableGitInfo = false
   gravatar = false  # Get your avatar from Gravatar.com? (true/false)
   avatar = "peer_christensen_small@0,50x.png"  # Specify an avatar image (in `static/img/` folder) or delete value to disable avatar.
   email = "hr.pchristensen@gmail.com"
-  address = "Centre for Languages and Literature, Lund University, Sweden"
+  address = "Copenhagen, Denmark"
 
 
   # Details for the Contact Widget
@@ -106,8 +106,8 @@ enableGitInfo = false
   #   3: OpenStreetMap (Mapbox)
   map = 1
   map_api_key = ""
-  latitude = "55.708624"
-  longitude = "13.198829"
+  latitude = "55.676098"
+  longitude = "12.568337"
   zoom = 15
 
   # SITE SETUP
@@ -296,6 +296,13 @@ enableGitInfo = false
     icon = "researchgate"
     icon_pack = "ai"
     link = "https://www.researchgate.net/profile/Peer_Christensen"
+    
+  [[params.social]]
+    icon = "code"
+    icon_pack = "fas"
+    link = "https://profile.codersrank.io/user/peerchristensen"
+
+
 
   # Link to a PDF of your resume/CV from the About widget.
   # To enable, copy your resume/CV to `static/files/cv.pdf` and uncomment the lines below.
