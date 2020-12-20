@@ -37,7 +37,7 @@ weight = 5
 
 # About me
 
-I'm a data scientist based in Copenhagen working on exciting and diverse projects involving predictive analytics, segmentation and data visualisation.
+I'm a data scientist based in Copenhagen working on exciting and diverse projects involving predictive analytics and natural language processing
 
 I have a background in cognitive science investigating human behaviour and cognition. Recently, I've explored speech and gesture processing across languages with diverging spatial metaphors. 
 

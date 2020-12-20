@@ -123,7 +123,7 @@ enableGitInfo = false
   font = "default"
 
   # Description for social sharing and search engines. If undefined, author role is used in place.
-  description = "R and data science tutorials by Peer Christensen"
+  description = "Data science with R by Peer Christensen"
 
   # Default image for social sharing and search engines. Place image in `static/img/` folder and specify image name here.
   sharing_image = ""
@@ -204,7 +204,7 @@ enableGitInfo = false
   #   For multilingual sites, `publication_types` can be copied to each language section at the end of this file and
   #   translated.
   publication_types = [
-    'Uncategorized',  # 0
+    'Uncategorized',   #0
     'Conference paper',  # 1
     'Journal article',  # 2
     'Manuscript',  # 3
@@ -214,9 +214,9 @@ enableGitInfo = false
   ]
 
   # Configuration of talk pages.
-  [params.talks]
+  #[params.talks]
     # Show talk time?
-    time = true
+  #  time = true
 
   # Configuration of publication pages.
   [params.publications]
@@ -328,28 +328,33 @@ enableGitInfo = false
   name = "Posts"
   url = "#posts"
   weight = 2
-
+  
 [[menu.main]]
-  name = "Publications"
-  url = "#publications"
+  name = "Shiny apps"
+  url = "#shiny"
   weight = 3
 
 [[menu.main]]
-  name = "Projects"
-  url = "#projects"
+  name = "Papers"
+  url = "#publications"
   weight = 4
+
+[[menu.main]]
+  name = "Research"
+  url = "#projects"
+  weight = 5
 
 [[menu.main]]
   name = "Contact"
   url = "#contact"
-  weight = 5
+  weight = 6
 
 # Link to a PDF of your resume/CV from the menu.
 # To enable, copy your resume/CV to `static/files/cv.pdf` and uncomment the lines below.
 [[menu.main]]
     name = "CV"
     url = "files/cv.pdf"
-    weight = 6
+    weight = 7
 
 # Search.
 [params.search]

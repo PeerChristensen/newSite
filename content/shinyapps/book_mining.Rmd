@@ -1,0 +1,20 @@
+---
+title: Mining Fiction Novels
+summary: "A tool for authors and editors"
+author: Peer Christensen
+date: '2020-12-14'
+categories:
+  - R
+  - text mining
+  - literature
+tags:
+  - shiny
+  
+slug: mapping-street-art-with-leaflet-and-r
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE,fig.width=9, fig.height = 9)
+```
+
+bla bla
