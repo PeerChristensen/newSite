@@ -54,7 +54,7 @@ weight = 7
 [[feature]]
   icon = "comments"
   icon_pack = "fas"
-  name = "Opinion mining"
+  name = "NLP"
   description = ""
 
 +++
