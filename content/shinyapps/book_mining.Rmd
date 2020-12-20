@@ -17,4 +17,4 @@ slug: mining-fiction-novels
 knitr::opts_chunk$set(echo = TRUE,fig.width=9, fig.height = 9)
 ```
 
-Coming soon!
+Coming soon..
