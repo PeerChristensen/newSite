@@ -50,4 +50,4 @@ filter_default = 0
 
 +++
 
-coming soon..
+Check out my [portfolio](https://peerchristensenportfolio.netlify.app)
