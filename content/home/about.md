@@ -37,9 +37,9 @@ weight = 5
 
 # About me
 
-I'm a data scientist based in Copenhagen with a background in cognitive science and lingustics. I'm currently working on exciting and diverse projects often involving machine learning and natural language processing.
+I'm a data scientist based in Copenhagen with a background in cognitive science and lingustics. I'm working on exciting and diverse projects often involving machine learning and natural language processing.
 
-I haven't written new blog posts for a while, but I hope to add more content in the future.
+I've decided not to update this site with new posts. Instead, you can find my recent articles on [Medium](https://peerchristensen.medium.com/)
 
-Meanwhile, check out my new [portfolio](https://peerchristensenportfolio.netlify.app)
+You can also check out my shiny new [portfolio](https://peerchristensenportfolio.netlify.app)
 
